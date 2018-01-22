@@ -6,17 +6,10 @@
 
     public class OrbitCamera : ICamera
     {
-        private const float speed = 3.0f; // 3 units / second
-        private const float mouseSpeed = 0.005f;
+        private const float rotationSpeed = 0.005f;
 
-        private float longitude = 0.0f;
-        private float latitude = 0.0f;
-
-        // Initial horizontal angle : toward +Z
-        private float horizontalAngle = 0.0f;
-
-        // Initial vertical angle : none
-        private float verticalAngle = 0.0f;
+        private Vector3 forward = new Vector3(0f, 0f, 2f);
+        private Vector3 up = new Vector3(0f, 1f, 0f);
 
         // Field of View, in radians
         public float FieldOfView { get; set; } = (float)Math.PI / 4.0f;
@@ -35,45 +28,46 @@
 
         public void Update(TimeSpan elapsed, IContext context)
         {
-            // Up vector
-            var up = Vector3.UnitZ; //Vector3.Cross(right, direction);
-
-            // Move forward
-            if (context.PressedKeys.Contains('w'))
+            // Pan up - rotate forward and up around their cross product
+            if (context.PressedKeys.Contains('W'))
             {
-                latitude += (float)elapsed.TotalSeconds * speed;
-                if (latitude > Math.PI / 2) latitude = (float)Math.PI / 2;
+                var t = Matrix4x4.CreateFromAxisAngle(Vector3.Cross(forward, up), -rotationSpeed);
+                forward = Vector3.Transform(forward, t);
+                up = Vector3.Transform(up, t);
             }
-            // Move backward
-            if (context.PressedKeys.Contains('s'))
+            // Pan down - rotate forward and up around their cross product
+            if (context.PressedKeys.Contains('S'))
             {
-                latitude -= (float)elapsed.TotalSeconds * speed;
-                if (latitude < -Math.PI / 2) latitude = -(float)Math.PI / 2;
+                var t = Matrix4x4.CreateFromAxisAngle(Vector3.Cross(forward, up), rotationSpeed);
+                forward = Vector3.Transform(forward, t);
+                up = Vector3.Transform(up, t);
             }
-            // Strafe right
-            if (context.PressedKeys.Contains('d'))
+            // Pan right - rotate forward around up
+            if (context.PressedKeys.Contains('D'))
             {
-                longitude += (float)elapsed.TotalSeconds * speed;
+                forward = Vector3.Transform(forward, Matrix4x4.CreateFromAxisAngle(up, rotationSpeed));
             }
-            // Strafe left
-            if (context.PressedKeys.Contains('a'))
+            // Pan left - rotate forward around up
+            if (context.PressedKeys.Contains('A'))
             {
-                longitude -= (float)elapsed.TotalSeconds * speed;
+                forward = Vector3.Transform(forward, Matrix4x4.CreateFromAxisAngle(up, -rotationSpeed));
             }
-
-            var position = new Vector3(
-                (float)(Math.Cos(latitude) * Math.Sin(longitude)),
-                (float)Math.Sin(latitude),
-                (float)(Math.Cos(latitude) * Math.Cos(longitude))) * 5;
+            // Roll right - rotate up around forward
+            if (context.PressedKeys.Contains('Q'))
+            {
+                up = Vector3.Transform(up, Matrix4x4.CreateFromAxisAngle(forward, -rotationSpeed));
+            }
+            // Roll left - rotate up around forward
+            if (context.PressedKeys.Contains('E'))
+            {
+                up = Vector3.Transform(up, Matrix4x4.CreateFromAxisAngle(forward, rotationSpeed));
+            }
 
             // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
             ProjectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(FieldOfView, context.DisplayAspectRatio, 0.01f, 100.0f);
 
             // Camera matrix
-            ViewMatrix = Matrix4x4.CreateLookAt(
-                position,     // Camera is here
-                Vector3.Zero, //position + direction, // and looks here : at the same position, plus "direction"
-                up);          // Head is up (set to 0,-1,0 to look upside-down)
+            ViewMatrix = Matrix4x4.CreateLookAt(-forward, Vector3.Zero, up);
         }
     }
 }
