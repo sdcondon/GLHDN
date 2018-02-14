@@ -20,14 +20,9 @@
         IList<Vector3> vertexColors;
         IList<uint> indices;
 
-        private uint programId;
+        private Program program;
         string vertexShader;
         string fragmentShader;
-        private Uniform mvpMatrix;
-        private Uniform viewMatrix;
-        private Uniform modelMatrix;
-        private Uniform textureSampler;
-        private Uniform lightPosition;
 
         ICamera camera;
 
@@ -66,17 +61,11 @@
             Gl.BindVertexArray(vertexArrayIds[0]);
 
             // Create and compile our GLSL program from the shaders
-            programId = new ProgramBuilder()
+            program = new ProgramBuilder()
                 .WithStandardShader(ShaderType.VertexShader, vertexShader)
                 .WithStandardShader(ShaderType.FragmentShader, fragmentShader)
+                .WithUniforms("MVP", "V", "M", "myTextureSampler", "LightPosition_worldspace", "LightColor", "LightPower", "AmbientLightColor")
                 .Create();
-
-            // Add our uniforms to our program
-            mvpMatrix = new Uniform(programId, "MVP");
-            viewMatrix = new Uniform(programId, "V");
-            modelMatrix = new Uniform(programId, "M") { Value = Matrix4x4.Identity };
-            textureSampler = new Uniform(programId, "myTextureSampler") { Value = 0 };
-            lightPosition = new Uniform(programId, "LightPosition_worldspace") { Value = new Vector3(4, 4, 4) };
 
             // Generate and populate 4 vertex buffers:
             // One for positions, one for normals, one for texture coordinates, one for indices.
@@ -91,13 +80,20 @@
         /// <inheritdoc />
         public void Render(object sender)
         {
-            // Clear the screen and activate our program
+            // Clear the buffers
             Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            Gl.UseProgram(programId);
 
-            // Compute the various transforms in accordance with the state of the camera
-            mvpMatrix.Value = Matrix4x4.Transpose(camera.ViewMatrix * camera.ProjectionMatrix);
-            viewMatrix.Value = Matrix4x4.Transpose(camera.ViewMatrix);
+            // Aactivate our program and compute the various transforms in accordance with the state of the camera
+            Gl.UseProgram(program.Id);
+            program.SetUniformValues(
+                Matrix4x4.Transpose(camera.ViewMatrix * camera.ProjectionMatrix),
+                Matrix4x4.Transpose(camera.ViewMatrix),
+                Matrix4x4.Identity,
+                0,
+                new Vector3(4, 4, 4),
+                new Vector3(1, 1, 1),
+                30f,
+                new Vector3(0.3f, 0.3f, 0.3f));
 
             // Bind our texture in Texture Unit 0
             Gl.ActiveTexture(TextureUnit.Texture0);
@@ -162,7 +158,7 @@
         public void ContextDestroying(object sender)
         {
             Gl.DeleteBuffers(vertexBuffers);
-            Gl.DeleteProgram(programId);
+            Gl.DeleteProgram(program.Id);
             Gl.DeleteTextures(textures);
             Gl.DeleteVertexArrays(vertexArrayIds);
         }

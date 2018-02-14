@@ -13,17 +13,15 @@ out vec3 color;
 // Values that stay constant for the whole mesh.
 uniform mat4 MV;
 uniform vec3 LightPosition_worldspace;
+uniform vec3 LightColor;
+uniform vec3 LightPower;
+uniform vec3 AmbientLightColor;
 
 void main(){
 
-	// Light emission properties
-	// You probably want to put them as uniforms
-	vec3 LightColor = vec3(1,1,1);
-	float LightPower = 30.0f;
-	
 	// Material properties
 	vec3 MaterialDiffuseColor = matColor;
-	vec3 MaterialAmbientColor = vec3(0.3,0.3,0.3) * MaterialDiffuseColor;
+	vec3 MaterialAmbientColor = AmbientLightColor * MaterialDiffuseColor;
 	vec3 MaterialSpecularColor = vec3(0.0,0.0,0.0);
 
 	// Distance to the light

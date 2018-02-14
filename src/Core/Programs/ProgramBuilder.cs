@@ -1,7 +1,6 @@
 ﻿namespace OpenGlHelpers.Core
 {
     using OpenGL;
-    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
@@ -11,6 +10,7 @@
     public class ProgramBuilder
     {
         private List<uint> shaderIds = new List<uint>();
+        private string[] uniforms;
 
         public ProgramBuilder WithShaderFromFile(ShaderType shaderType, string filePath)
         {
@@ -42,9 +42,15 @@
             return this;
         }
 
-        public uint Create()
+        public ProgramBuilder WithUniforms(params string[] uniformNames)
         {
-            Trace.WriteLine("Linking program");
+            this.uniforms = uniformNames;
+            return this;
+        }
+
+        public Program Create()
+        {
+            Trace.WriteLine("Linking program", "OPENGL");
 
             var programID = Gl.CreateProgram();
 
@@ -70,7 +76,7 @@
                 Gl.DeleteShader(shaderId);
             }
 
-            return programID;
+            return new Program(programID, uniforms);
         }
 
         private void AddShader(ShaderType shaderType, Stream sourceStream)
@@ -87,7 +93,7 @@
             }
 
             // Compile shader
-            Trace.WriteLine($"Compiling shader");
+            Trace.WriteLine($"Compiling shader", "OPENGL");
             Gl.ShaderSource(shaderId, new[] { shaderSource });
             Gl.CompileShader(shaderId);
 

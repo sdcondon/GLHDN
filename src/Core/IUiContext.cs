@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
 
-    public interface IContext
+    public interface IUiContext
     {
         float DisplayAspectRatio { get; }
 
@@ -11,5 +11,7 @@
         int CursorMovementX { get; }
 
         int CursorMovementY { get; }
+
+        int MouseWheelDelta { get;  }
     }
 }

@@ -9,6 +9,6 @@
 
         Matrix4x4 ProjectionMatrix { get; }
 
-        void Update(TimeSpan elapsed, IContext controls);
+        void Update(TimeSpan elapsed, IUiContext controls);
     }
 }

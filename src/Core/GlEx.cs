@@ -1,6 +1,7 @@
 ﻿namespace OpenGlHelpers.Core
 {
     using OpenGL;
+    using System;
     using System.Numerics;
 
     public static class GlEx
@@ -21,6 +22,17 @@
         {
             Gl.BindBuffer(target, buffer);
             Gl.BufferData(target, (uint)(sizeof(uint) * data.Length), data, BufferUsage.StaticDraw);
+        }
+
+        public static void BufferData(uint buffer, BufferTarget target, BufferUsage usage, float[] data)
+        {
+            Gl.BindBuffer(target, buffer);
+            Gl.BufferData(target, (uint)(sizeof(float) * data.Length), data, BufferUsage.StaticDraw);
+        }
+
+        public static void BufferSubData(uint buffer, uint offset, float data)
+        {
+            Gl.NamedBufferSubData(buffer, new IntPtr(offset * sizeof(float)), (uint)sizeof(float), data);
         }
     }
 }

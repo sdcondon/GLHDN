@@ -11,11 +11,11 @@
     /// <summary>
     /// Windows form containing only a single OpenGL render control, with handlers as passed to the forms constructor.
     /// </summary>
-    public sealed class OpenGlForm : Form, IContext
+    public sealed class OpenGlForm : Form, IUiContext
     {
-        private Stopwatch modelUpdateIntervalStopwatch = new Stopwatch();
-        private Timer modelUpdateTimer;
-        private Action<TimeSpan> modelUpdateHandler;
+        private readonly Stopwatch modelUpdateIntervalStopwatch = new Stopwatch();
+        private readonly Timer modelUpdateTimer; // TODO: this is the wrong timer type to use..
+        private readonly Action<TimeSpan> modelUpdateHandler;
 
         public OpenGlForm(IRenderer renderer, Action<TimeSpan> modelUpdateHandler)
         {
@@ -45,6 +45,9 @@
             this.RenderControl.ContextDestroying += (s, a) => renderer.ContextDestroying(s);
             this.RenderControl.GotFocus += (s, a) => Cursor.Position = RenderControl.PointToScreen(new Point(RenderControl.Width / 2, RenderControl.Height / 2));
             this.RenderControl.Cursor = Cursors.Cross;
+            this.RenderControl.PreviewKeyDown += Control_KeyDown;
+            this.RenderControl.KeyUp += Control_KeyUp;
+            this.RenderControl.MouseWheel += RenderControl_MouseWheel;
             this.Controls.Add(this.RenderControl);
 
             this.modelUpdateTimer = new Timer();
@@ -52,9 +55,6 @@
             this.modelUpdateTimer.Tick += new EventHandler(this.OnTimerTick);
 
             this.ResumeLayout(false);
-
-            this.RenderControl.PreviewKeyDown += Control_KeyDown;
-            this.RenderControl.KeyUp += Control_KeyUp;
 
             this.modelUpdateHandler = modelUpdateHandler;
             this.modelUpdateTimer.Start();
@@ -73,6 +73,9 @@
 
         /// <inheritdoc />
         public int CursorMovementY { get; private set; }
+
+        /// <inheritdoc />
+        public int MouseWheelDelta { get; private set; }
 
         /// <summary>
         /// Clean up any resources being used.
@@ -112,6 +115,8 @@
                 //updateDurationStopwatch.Restart();
                 this.modelUpdateHandler?.Invoke(elapsed);
                 //updateDuration = updateDurationSmoother.Update(updateDurationStopwatch.ElapsedMilliseconds);
+
+                MouseWheelDelta = 0;
             }
         }
 
@@ -130,6 +135,11 @@
             PressedKeys.Add((char)e.KeyValue);
         }
 
+        private void RenderControl_MouseWheel(object sender, MouseEventArgs e)
+        {
+            MouseWheelDelta = e.Delta; // SO much is wrong with this approach..
+        }
+
         private void HandleDebugMessage(
             Gl.DebugSource source,
             Gl.DebugType type,
@@ -139,7 +149,7 @@
             IntPtr message,
             IntPtr userParam)
         {
-            Debug.WriteLine($"OPENGL {id} {source} {type} {severity}");
+            Debug.WriteLine($"{id} {source} {type} {severity}", "OPENGL");
         }
     }
 }

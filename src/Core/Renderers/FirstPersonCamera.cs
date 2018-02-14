@@ -33,7 +33,7 @@
             private set;
         }
 
-        public void Update(TimeSpan elapsed, IContext context)
+        public void Update(TimeSpan elapsed, IUiContext context)
         {
             // Compute new orientation
             var xDiff = context.CursorMovementX;
