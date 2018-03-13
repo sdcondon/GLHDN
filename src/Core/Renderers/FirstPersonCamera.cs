@@ -21,12 +21,17 @@
         // Initial Field of View in radians
         private float initialFoV = (float)Math.PI / 4.0f;
 
+        /// <inheritdoc />
+        public Vector3 Position => position;
+
+        /// <inheritdoc />
         public Matrix4x4 ViewMatrix
         {
             get;
             private set;
         }
 
+        /// <inheritdoc />
         public Matrix4x4 ProjectionMatrix
         {
             get;
@@ -86,7 +91,7 @@
             // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.01 unit <-> 100 units
             ProjectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(
                 FoV,
-                context.DisplayAspectRatio,
+                context.DisplayAspectRatio(),
                 0.01f,
                 100.0f);
 

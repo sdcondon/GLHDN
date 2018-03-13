@@ -4,14 +4,18 @@
 
     public interface IUiContext
     {
-        float DisplayAspectRatio { get; }
+        int DisplayWidth { get; }
 
-        HashSet<char> PressedKeys { get; }
+        int DisplayHeight { get; }
 
         int CursorMovementX { get; }
 
         int CursorMovementY { get; }
 
-        int MouseWheelDelta { get;  }
+        int MouseWheelDelta { get; }
+
+        HashSet<char> PressedKeys { get; }
+
+        bool MouseButtonReleased { get; }
     }
 }

@@ -30,7 +30,7 @@
                 new[] { new Vector2(0f, 0f), new Vector2(0.5f, 1f), new Vector2(1f, 0f) },
                 new[] { 0u, 1u, 2u },
                 camera);
-            form = new OpenGlForm(renderer, ModelUpdate);
+            form = new OpenGlForm(renderer, ModelUpdate, true);
             Application.Run(form);
         }
 

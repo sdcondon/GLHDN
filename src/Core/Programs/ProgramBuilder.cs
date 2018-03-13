@@ -10,7 +10,7 @@
     public class ProgramBuilder
     {
         private List<uint> shaderIds = new List<uint>();
-        private string[] uniforms;
+        private string[] uniformNames;
 
         public ProgramBuilder WithShaderFromFile(ShaderType shaderType, string filePath)
         {
@@ -44,7 +44,7 @@
 
         public ProgramBuilder WithUniforms(params string[] uniformNames)
         {
-            this.uniforms = uniformNames;
+            this.uniformNames = uniformNames;
             return this;
         }
 
@@ -76,7 +76,7 @@
                 Gl.DeleteShader(shaderId);
             }
 
-            return new Program(programID, uniforms);
+            return new Program(programID, uniformNames);
         }
 
         private void AddShader(ShaderType shaderType, Stream sourceStream)

@@ -15,12 +15,17 @@
         // Field of View, in radians
         public float FieldOfView { get; set; } = (float)Math.PI / 4.0f;
 
+        /// <inheritdoc />
+        public Vector3 Position => -forward * distance;
+
+        /// <inheritdoc />
         public Matrix4x4 ViewMatrix
         {
             get;
             private set;
         }
 
+        /// <inheritdoc />
         public Matrix4x4 ProjectionMatrix
         {
             get;
@@ -65,7 +70,7 @@
             }
 
             // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
-            ProjectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(FieldOfView, context.DisplayAspectRatio, 0.01f, 100.0f);
+            ProjectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(FieldOfView, context.DisplayAspectRatio(), 0.01f, 100.0f);
 
             // Camera matrix
             ViewMatrix = Matrix4x4.CreateLookAt(-forward * distance, Vector3.Zero, up);

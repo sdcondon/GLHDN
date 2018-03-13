@@ -13,12 +13,11 @@
     {
         private uint[] textures;
 
-        private uint[] vertexArrayIds;
-        private uint[] vertexBuffers;
         IList<Vector3> vertexPositions;
         IList<Vector3> vertexNormals;
         IList<Vector2> vertexTextureCoordinates;
         IList<uint> indices;
+        private VertexArrayObject vertexArrayObject;
 
         private Program program;
         string vertexShader;
@@ -55,11 +54,6 @@
             Gl.DepthFunc(DepthFunction.Less); // Accept fragment if it closer to the camera than the former one
             Gl.Enable(EnableCap.CullFace); // Cull triangles which normal is not towards the camera
 
-            //
-            vertexArrayIds = new uint[1];
-            Gl.GenVertexArrays(vertexArrayIds);
-            Gl.BindVertexArray(vertexArrayIds[0]);
-
             // Load the texture
             textures = new uint[1];
             textures[0] = TextureLoader.LoadDDS("Assets/uvmap.DDS");
@@ -73,12 +67,12 @@
 
             // Generate and populate 4 vertex buffers:
             // One for positions, one for normals, one for texture coordinates, one for indices.
-            vertexBuffers = new uint[4];
-            Gl.GenBuffers(vertexBuffers);
-            GlEx.BufferData(vertexBuffers[0], BufferTarget.ArrayBuffer, BufferUsage.StaticDraw, vertexPositions.ToArray());
-            GlEx.BufferData(vertexBuffers[1], BufferTarget.ArrayBuffer, BufferUsage.StaticDraw, vertexTextureCoordinates.ToArray());
-            GlEx.BufferData(vertexBuffers[2], BufferTarget.ArrayBuffer, BufferUsage.StaticDraw, vertexNormals.ToArray());
-            GlEx.BufferData(vertexBuffers[3], BufferTarget.ElementArrayBuffer, BufferUsage.StaticDraw, indices.ToArray());
+            this.vertexArrayObject = new VertexArrayObjectBuilder()
+                .WithBuffer(BufferTarget.ArrayBuffer, BufferUsage.StaticDraw, vertexPositions.ToArray())
+                .WithBuffer(BufferTarget.ArrayBuffer, BufferUsage.StaticDraw, vertexTextureCoordinates.ToArray())
+                .WithBuffer(BufferTarget.ArrayBuffer, BufferUsage.StaticDraw, vertexNormals.ToArray())
+                .WithIndex(indices.ToArray())
+                .Create(PrimitiveType.Triangles);
         }
 
         /// <inheritdoc />
@@ -89,8 +83,7 @@
 
             // Activate our program and
             // compute the various transforms in accordance with the state of the camera
-            Gl.UseProgram(program.Id);
-            program.SetUniformValues(
+            program.UseWithUniformValues(
                 Matrix4x4.Transpose(camera.ViewMatrix * camera.ProjectionMatrix),
                 Matrix4x4.Transpose(camera.ViewMatrix),
                 Matrix4x4.Identity,
@@ -104,54 +97,7 @@
             Gl.ActiveTexture(TextureUnit.Texture0);
             Gl.BindTexture(TextureTarget.Texture2d, textures[0]);
 
-            // 1st attribute buffer : vertices
-            Gl.EnableVertexAttribArray(0);
-            Gl.BindBuffer(BufferTarget.ArrayBuffer, vertexBuffers[0]);
-            Gl.VertexAttribPointer(
-                0,                  // attribute. No particular reason for 0, but must match the layout in the shader.
-                3,                  // size
-                VertexAttribType.Float, // type
-                false,              // normalized?
-                0,                  // stride
-                IntPtr.Zero         // array buffer offset
-            );
-
-            // 2nd attribute buffer : UVs
-            Gl.EnableVertexAttribArray(1);
-            Gl.BindBuffer(BufferTarget.ArrayBuffer, vertexBuffers[1]);
-            Gl.VertexAttribPointer(
-                1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
-                2,                                // size : U+V => 2
-                VertexAttribType.Float,           // type
-                false,                            // normalized?
-                0,                                // stride
-                IntPtr.Zero                       // array buffer offset
-            );
-
-            // 3rd attribute buffer : normals
-            Gl.EnableVertexAttribArray(2);
-            Gl.BindBuffer(BufferTarget.ArrayBuffer, vertexBuffers[2]);
-            Gl.VertexAttribPointer(
-                2,                      // attribute
-                3,                      // size
-                VertexAttribType.Float, // type
-                false,                  // normalized?
-                0,                      // stride
-                IntPtr.Zero             // array buffer offset
-            );
-
-            // Bind index buffer & draw
-            Gl.BindBuffer(BufferTarget.ElementArrayBuffer, vertexBuffers[3]);
-            Gl.DrawElements(
-                PrimitiveType.Triangles,        // mode
-                indices.Count,                  // count
-                DrawElementsType.UnsignedInt,   // type
-                IntPtr.Zero                     // element array buffer offset
-            );
-
-            Gl.DisableVertexAttribArray(0);
-            Gl.DisableVertexAttribArray(1);
-            Gl.DisableVertexAttribArray(2);
+            this.vertexArrayObject.Draw();
         }
 
         /// <inheritdoc />
@@ -162,10 +108,9 @@
         /// <inheritdoc />
         public void ContextDestroying(object sender)
         {
-            Gl.DeleteBuffers(vertexBuffers);
-            Gl.DeleteProgram(program.Id);
+            this.vertexArrayObject.Dispose();
+            this.program.Dispose();
             Gl.DeleteTextures(textures);
-            Gl.DeleteVertexArrays(vertexArrayIds);
         }
     }
 }

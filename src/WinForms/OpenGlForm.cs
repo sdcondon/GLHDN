@@ -16,8 +16,9 @@
         private readonly Stopwatch modelUpdateIntervalStopwatch = new Stopwatch();
         private readonly Timer modelUpdateTimer; // TODO: this is the wrong timer type to use..
         private readonly Action<TimeSpan> modelUpdateHandler;
+        private readonly bool lockCursor;
 
-        public OpenGlForm(IRenderer renderer, Action<TimeSpan> modelUpdateHandler)
+        public OpenGlForm(IRenderer renderer, Action<TimeSpan> modelUpdateHandler, bool lockCursor)
         {
             this.SuspendLayout();
 
@@ -27,28 +28,32 @@
             this.Text = "OpenGl";
 
             Gl.DebugMessageCallback(HandleDebugMessage, null);
-            this.RenderControl = new GlControl();
-            this.RenderControl.Animation = true;
-            this.RenderControl.BackColor = Color.DimGray;
-            this.RenderControl.ColorBits = ((uint)(24u));
-            this.RenderControl.DepthBits = ((uint)(8u));
-            this.RenderControl.Dock = DockStyle.Fill;
-            this.RenderControl.Location = new Point(0, 0);
-            this.RenderControl.Margin = new Padding(0,0,0,0);
-            this.RenderControl.MultisampleBits = ((uint)(0u));
-            this.RenderControl.Name = "RenderControl";
-            this.RenderControl.StencilBits = ((uint)(0u));
-            this.RenderControl.TabIndex = 0;
-            this.RenderControl.ContextCreated += (s, a) => renderer.ContextCreated(s);
-            this.RenderControl.Render += (s, a) => renderer.Render(s);
-            this.RenderControl.ContextUpdate += (s, a) => renderer.ContextUpdate(s);
-            this.RenderControl.ContextDestroying += (s, a) => renderer.ContextDestroying(s);
-            this.RenderControl.GotFocus += (s, a) => Cursor.Position = RenderControl.PointToScreen(new Point(RenderControl.Width / 2, RenderControl.Height / 2));
-            this.RenderControl.Cursor = Cursors.Cross;
-            this.RenderControl.PreviewKeyDown += Control_KeyDown;
-            this.RenderControl.KeyUp += Control_KeyUp;
-            this.RenderControl.MouseWheel += RenderControl_MouseWheel;
-            this.Controls.Add(this.RenderControl);
+            this.GlControl = new GlControl();
+            this.GlControl.Animation = true;
+            this.GlControl.BackColor = Color.DimGray;
+            this.GlControl.ColorBits = ((uint)(24u));
+            this.GlControl.DepthBits = ((uint)(8u));
+            this.GlControl.Dock = DockStyle.Fill;
+            this.GlControl.Location = new Point(0, 0);
+            this.GlControl.Margin = new Padding(0,0,0,0);
+            this.GlControl.MultisampleBits = ((uint)(0u));
+            this.GlControl.Name = "RenderControl";
+            this.GlControl.StencilBits = ((uint)(0u));
+            this.GlControl.TabIndex = 0;
+            this.GlControl.ContextCreated += (s, a) => renderer.ContextCreated(s);
+            this.GlControl.Render += (s, a) => renderer.Render(s);
+            this.GlControl.ContextUpdate += (s, a) => renderer.ContextUpdate(s);
+            this.GlControl.ContextDestroying += (s, a) => renderer.ContextDestroying(s);
+            if (lockCursor)
+            {
+                this.lockCursor = true;
+                this.GlControl.GotFocus += (s, a) => Cursor.Position = GlControl.PointToScreen(new Point(GlControl.Width / 2, GlControl.Height / 2));
+            }
+            this.GlControl.PreviewKeyDown += GlControl_KeyDown;
+            this.GlControl.KeyUp += GlControl_KeyUp;
+            this.GlControl.MouseWheel += GlControl_MouseWheel;
+            this.GlControl.MouseUp += GlControl_MouseUp;
+            this.Controls.Add(this.GlControl);
 
             this.modelUpdateTimer = new Timer();
             this.modelUpdateTimer.Interval = 15;
@@ -60,10 +65,13 @@
             this.modelUpdateTimer.Start();
         }
 
-        public GlControl RenderControl { get; private set; }
+        public GlControl GlControl { get; private set; }
 
         /// <inheritdoc />
-        public float DisplayAspectRatio => (float)RenderControl.Width / (float)RenderControl.Height;
+        public int DisplayWidth => GlControl.Width;
+
+        /// <inheritdoc />
+        public int DisplayHeight => GlControl.Height;
 
         /// <inheritdoc />
         public HashSet<char> PressedKeys { get; private set; } = new HashSet<char>();
@@ -76,6 +84,9 @@
 
         /// <inheritdoc />
         public int MouseWheelDelta { get; private set; }
+
+        /// <inheritdoc />
+        public bool MouseButtonReleased { get; private set; }
 
         /// <summary>
         /// Clean up any resources being used.
@@ -93,17 +104,19 @@
 
         private void OnTimerTick(object sender, EventArgs e)
         {
-            if (RenderControl.Focused)
+            if (GlControl.Focused)
             {
                 // Get mouse movement then reset      
-                var cursorPos = RenderControl.PointToClient(Cursor.Position);
-                Cursor.Position = RenderControl.PointToScreen(new Point(RenderControl.Width / 2, RenderControl.Height / 2));
-                CursorMovementX = (RenderControl.Width / 2) - cursorPos.X;
-                CursorMovementY = (RenderControl.Height / 2) - cursorPos.Y;
+                var cursorPos = GlControl.PointToClient(Cursor.Position);
+                CursorMovementX = (GlControl.Width / 2) - cursorPos.X;
+                CursorMovementY = (GlControl.Height / 2) - cursorPos.Y;
+                if (this.lockCursor)
+                {
+                    Cursor.Position = GlControl.PointToScreen(new Point(GlControl.Width / 2, GlControl.Height / 2));
+                }
 
                 // Record update interval and restart stopwatch for it
                 var elapsed = modelUpdateIntervalStopwatch.Elapsed;
-                //updateInterval = updateIntervalSmoother.Update(updateIntervalStopwatch.ElapsedMilliseconds);
                 modelUpdateIntervalStopwatch.Restart();
 
                 // Cap the effective elapsed time so that at worst,
@@ -114,13 +127,13 @@
                 // Update the game world, timing how long it takes to execute
                 //updateDurationStopwatch.Restart();
                 this.modelUpdateHandler?.Invoke(elapsed);
-                //updateDuration = updateDurationSmoother.Update(updateDurationStopwatch.ElapsedMilliseconds);
 
                 MouseWheelDelta = 0;
+                MouseButtonReleased = false;
             }
         }
 
-        private void Control_KeyUp(object sender, KeyEventArgs e)
+        private void GlControl_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Escape)
             {
@@ -130,14 +143,19 @@
             PressedKeys.Remove((char)e.KeyValue);
         }
 
-        private void Control_KeyDown(object sender, PreviewKeyDownEventArgs e)
+        private void GlControl_KeyDown(object sender, PreviewKeyDownEventArgs e)
         {
             PressedKeys.Add((char)e.KeyValue);
         }
 
-        private void RenderControl_MouseWheel(object sender, MouseEventArgs e)
+        private void GlControl_MouseWheel(object sender, MouseEventArgs e)
         {
             MouseWheelDelta = e.Delta; // SO much is wrong with this approach..
+        }
+
+        private void GlControl_MouseUp(object sender, MouseEventArgs e)
+        {
+            MouseButtonReleased = true;
         }
 
         private void HandleDebugMessage(
