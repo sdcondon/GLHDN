@@ -11,14 +11,15 @@
     {
         private const string CommonShaderResourceNamePrefix = "OpenGlHelpers.Core.LowLevel.CommonShaders";
 
-        private List<uint> shaderIds = new List<uint>();
+        private List<ShaderType> shaderTypes = new List<ShaderType>();
+        private List<string> shaderSources = new List<string>();
         private string[] uniformNames;
 
         public static ProgramBuilder Colored { get; } =
             new ProgramBuilder()
                 .WithStandardShader(ShaderType.VertexShader, $"{CommonShaderResourceNamePrefix}.Colored.Vertex.glsl")
                 .WithStandardShader(ShaderType.FragmentShader, $"{CommonShaderResourceNamePrefix}.Colored.Fragment.glsl")
-                .WithUniforms("MVP", "V", "M", "myTextureSampler", "LightPosition_worldspace", "LightColor", "LightPower", "AmbientLightColor");
+                .WithUniforms("MVP", "V", "M", "LightPosition_worldspace", "LightColor", "LightPower", "AmbientLightColor");
 
         public static ProgramBuilder Textured { get; } =
             new ProgramBuilder()
@@ -29,30 +30,36 @@
         public ProgramBuilder WithShaderFromFile(ShaderType shaderType, string filePath)
         {
             using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            using (var reader = new StreamReader(stream))
             {
-                AddShader(shaderType, stream);
+                shaderSources.Add(reader.ReadToEnd());
             }
 
+            shaderTypes.Add(shaderType);
             return this;
         }
         
         public ProgramBuilder WithShaderFromEmbeddedResource(ShaderType shaderType, string resourceName)
         {
             using (var stream = Assembly.GetCallingAssembly().GetManifestResourceStream(resourceName))
+            using (var reader = new StreamReader(stream))
             {
-                AddShader(shaderType, stream);
+                shaderSources.Add(reader.ReadToEnd());
             }
 
+            shaderTypes.Add(shaderType);
             return this;
         }
 
         public ProgramBuilder WithStandardShader(ShaderType shaderType, string resourceName)
         {
             using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName))
+            using (var reader = new StreamReader(stream))
             {
-                AddShader(shaderType, stream);
+                shaderSources.Add(reader.ReadToEnd());
             }
 
+            shaderTypes.Add(shaderType);
             return this;
         }
 
@@ -64,63 +71,7 @@
 
         public Program Create()
         {
-            Trace.WriteLine("Linking program", "OPENGL");
-
-            var programID = Gl.CreateProgram();
-
-            foreach (var shaderId in shaderIds)
-            {
-                Gl.AttachShader(programID, shaderId);
-            }
-
-            Gl.LinkProgram(programID);
-
-            // Check the program
-            Gl.GetProgram(programID, ProgramProperty.InfoLogLength, out var infoLogLength);
-            if (infoLogLength > 0)
-            {
-                var error = new StringBuilder(infoLogLength);
-                Gl.GetProgramInfoLog(programID, infoLogLength, out _, error);
-                Trace.TraceError(error.ToString());
-            }
-
-            foreach (var shaderId in shaderIds)
-            {
-                Gl.DetachShader(programID, shaderId);
-                Gl.DeleteShader(shaderId);
-            }
-
-            return new Program(programID, uniformNames);
-        }
-
-        private void AddShader(ShaderType shaderType, Stream sourceStream)
-        {
-            // Create the shader
-            var shaderId = Gl.CreateShader(shaderType);
-
-            // Read the shader code from the file
-            string shaderSource = null;
-
-            using (var resourceReader = new StreamReader(sourceStream))
-            {
-                shaderSource = resourceReader.ReadToEnd();
-            }
-
-            // Compile shader
-            Trace.WriteLine($"Compiling shader", "OPENGL");
-            Gl.ShaderSource(shaderId, new[] { shaderSource });
-            Gl.CompileShader(shaderId);
-
-            // Check shader
-            Gl.GetShader(shaderId, ShaderParameterName.InfoLogLength, out int infoLogLength);
-            if (infoLogLength > 0)
-            {
-                var error = new StringBuilder(infoLogLength);
-                Gl.GetShaderInfoLog(shaderId, 100, out int length, error);
-                Trace.WriteLine(error);
-            }
-
-            shaderIds.Add(shaderId);
+            return new Program(shaderTypes.ToArray(), shaderSources.ToArray(), uniformNames);
         }
     }
 }

@@ -2,6 +2,8 @@
 {
     using OpenGL;
     using System;
+    using System.Collections;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Numerics;
 
@@ -17,18 +19,41 @@
         private readonly uint? indexBufferId;
 
         internal VertexArrayObject(
-            uint id, 
-            PrimitiveType primitiveType, 
-            uint[] bufferIds, 
-            Type[] bufferTypes,
-            int elementCount,
-            uint? indexBufferId = null)
+            PrimitiveType primitiveType,
+            List<BufferTarget> bufferTargets,
+            List<BufferUsage> bufferUsages,
+            List<ICollection> bufferData,
+            uint[] indexData)
         {
-            this.id = id;
+            this.id = Gl.GenVertexArray();
+            Gl.BindVertexArray(id);
+
+            var bufferIds = new uint[bufferTargets.Count];
+            Gl.GenBuffers(bufferIds);
+            for (int i = 0; i < bufferTargets.Count; i++)
+            {
+                Gl.BindBuffer(bufferTargets[i], bufferIds[i]);
+                Gl.BufferData(bufferTargets[i], GetSize(bufferData[i]), bufferData[i], bufferUsages[i]);
+            }
+
+            int elementCount;
+            uint? indexBufferId = null;
+            if (indexData != null)
+            {
+                indexBufferId = Gl.GenBuffer();
+                Gl.BindBuffer(BufferTarget.ElementArrayBuffer, indexBufferId.Value);
+                Gl.BufferData(BufferTarget.ElementArrayBuffer, GetSize(indexData), indexData, BufferUsage.StaticDraw);
+                elementCount = indexData.Length;
+            }
+            else
+            {
+                elementCount = bufferData[0].Count;
+            }
+
             this.primitiveType = primitiveType;
             this.bufferIds = bufferIds;
-            this.bufferElementSizes = bufferTypes.Select(a => GetElementSize(a)).ToArray();
-            this.bufferElementTypes = bufferTypes.Select(a => GetElementType(a)).ToArray();
+            this.bufferElementSizes = bufferData.Select(a => GetElementSize(a.GetType())).ToArray();
+            this.bufferElementTypes = bufferData.Select(a => GetElementType(a.GetType())).ToArray();
             this.elementCount = elementCount;
             this.indexBufferId = indexBufferId;
         }
@@ -100,6 +125,23 @@
             Gl.DeleteBuffers(this.bufferIds);
             Gl.DeleteVertexArrays(this.id);
             GC.SuppressFinalize(this);
+        }
+
+        private uint GetSize(object data)
+        {
+            switch (data)
+            {
+                case Vector3[] v3:
+                    return (uint)(sizeof(float) * 3 * v3.Length);
+                case Vector2[] v2:
+                    return (uint)(sizeof(float) * 2 * v2.Length);
+                case uint[] ui:
+                    return (uint)(sizeof(uint) * ui.Length);
+                case float[] f:
+                    return (uint)(sizeof(float) * f.Length);
+                default:
+                    throw new ArgumentException("Unsupported type.");
+            }
         }
 
         private int GetElementSize(Type type)

@@ -13,13 +13,17 @@
     /// </summary>
     public sealed class OpenGlForm : Form, IUiContext
     {
+        private readonly ICamera camera;
         private readonly Stopwatch modelUpdateIntervalStopwatch = new Stopwatch();
         private readonly Timer modelUpdateTimer; // TODO: this is the wrong timer type to use..
         private readonly Action<TimeSpan> modelUpdateHandler;
         private readonly bool lockCursor;
 
-        public OpenGlForm(IRenderer renderer, Action<TimeSpan> modelUpdateHandler, bool lockCursor)
+        public OpenGlForm(IRenderer[] renderers, ICamera camera, Action<TimeSpan> modelUpdateHandler, bool lockCursor)
         {
+            Scene scene = new Scene(renderers);
+            this.camera = camera;
+
             this.SuspendLayout();
 
             this.FormBorderStyle = FormBorderStyle.None;
@@ -40,10 +44,10 @@
             this.GlControl.Name = "RenderControl";
             this.GlControl.StencilBits = ((uint)(0u));
             this.GlControl.TabIndex = 0;
-            this.GlControl.ContextCreated += (s, a) => renderer.ContextCreated(s);
-            this.GlControl.Render += (s, a) => renderer.Render(s);
-            this.GlControl.ContextUpdate += (s, a) => renderer.ContextUpdate(s);
-            this.GlControl.ContextDestroying += (s, a) => renderer.ContextDestroying(s);
+            this.GlControl.ContextCreated += (s, a) => scene.ContextCreated(a.DeviceContext);
+            this.GlControl.Render += (s, a) => scene.Render(a.DeviceContext, camera.ViewMatrix, camera.ProjectionMatrix);
+            this.GlControl.ContextUpdate += (s, a) => scene.ContextUpdate(a.DeviceContext);
+            this.GlControl.ContextDestroying += (s, a) => scene.ContextDestroying(a.DeviceContext);
             if (lockCursor)
             {
                 this.lockCursor = true;
@@ -126,6 +130,7 @@
 
                 // Update the game world, timing how long it takes to execute
                 //updateDurationStopwatch.Restart();
+                this.camera.Update(elapsed, this);
                 this.modelUpdateHandler?.Invoke(elapsed);
 
                 MouseWheelDelta = 0;
