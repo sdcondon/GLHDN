@@ -5,10 +5,11 @@
     using System.Linq;
     using System.Numerics;
 
-    public class VertexArrayObject : IDisposable
+    public sealed class VertexArrayObject : IDisposable
     {
         private readonly uint id;
         private readonly PrimitiveType primitiveType;
+
         private readonly uint[] bufferIds;
         private readonly int[] bufferElementSizes;
         private readonly VertexAttribType[] bufferElementTypes;
@@ -34,18 +35,8 @@
 
         ~VertexArrayObject()
         {
-            Gl.DeleteBuffers(this.bufferIds);
+            Gl.DeleteBuffers(this.bufferIds); // TODO: fix me - can't reliably reference ref type in finalizer.
             Gl.DeleteVertexArrays(this.id);
-        }
-
-        public void BufferSubData(int bufferIndex, uint offset, float data)
-        {
-            Gl.NamedBufferSubData(bufferIds[bufferIndex], new IntPtr(offset * sizeof(float)), (uint)sizeof(float), data);
-        }
-
-        public void BufferSubData(int bufferIndex, uint offset, Vector3 data)
-        {
-            Gl.NamedBufferSubData(bufferIds[bufferIndex], new IntPtr(offset * 3 * sizeof(float)), 3 * (uint)sizeof(float), data);
         }
 
         /// <summary>
@@ -55,12 +46,12 @@
         {
             Gl.BindVertexArray(this.id);
 
-            for (uint i = 0; i < bufferIds.Length - 1; i++)
+            for (uint i = 0; i < bufferIds.Length; i++)
             {
                 Gl.EnableVertexAttribArray(i);
                 Gl.BindBuffer(BufferTarget.ArrayBuffer, bufferIds[i]);
                 Gl.VertexAttribPointer(
-                    i,                 // attribute. Must match the layout in the shader.
+                    i,                     // attribute. Must match the layout in the shader.
                     bufferElementSizes[i], // size
                     bufferElementTypes[i], // type
                     false,             // normalized?
@@ -91,6 +82,16 @@
             {
                 Gl.DisableVertexAttribArray(i);
             }
+        }
+
+        public void BufferSubData(int bufferIndex, uint offset, float data)
+        {
+            Gl.NamedBufferSubData(bufferIds[bufferIndex], new IntPtr(offset * sizeof(float)), (uint)sizeof(float), data);
+        }
+
+        public void BufferSubData(int bufferIndex, uint offset, Vector3 data)
+        {
+            Gl.NamedBufferSubData(bufferIds[bufferIndex], new IntPtr(offset * 3 * sizeof(float)), 3 * (uint)sizeof(float), data);
         }
 
         /// <inheritdoc />

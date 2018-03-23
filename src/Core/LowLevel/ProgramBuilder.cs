@@ -7,10 +7,24 @@
     using System.Reflection;
     using System.Text;
 
-    public class ProgramBuilder
+    public sealed class ProgramBuilder
     {
+        private const string CommonShaderResourceNamePrefix = "OpenGlHelpers.Core.LowLevel.CommonShaders";
+
         private List<uint> shaderIds = new List<uint>();
         private string[] uniformNames;
+
+        public static ProgramBuilder Colored { get; } =
+            new ProgramBuilder()
+                .WithStandardShader(ShaderType.VertexShader, $"{CommonShaderResourceNamePrefix}.Colored.Vertex.glsl")
+                .WithStandardShader(ShaderType.FragmentShader, $"{CommonShaderResourceNamePrefix}.Colored.Fragment.glsl")
+                .WithUniforms("MVP", "V", "M", "myTextureSampler", "LightPosition_worldspace", "LightColor", "LightPower", "AmbientLightColor");
+
+        public static ProgramBuilder Textured { get; } =
+            new ProgramBuilder()
+                .WithStandardShader(ShaderType.VertexShader, $"{CommonShaderResourceNamePrefix}.Textured.Vertex.glsl")
+                .WithStandardShader(ShaderType.FragmentShader, $"{CommonShaderResourceNamePrefix}.Textured.Fragment.glsl")
+                .WithUniforms("MVP", "V", "M", "myTextureSampler", "LightPosition_worldspace", "LightColor", "LightPower", "AmbientLightColor");
 
         public ProgramBuilder WithShaderFromFile(ShaderType shaderType, string filePath)
         {

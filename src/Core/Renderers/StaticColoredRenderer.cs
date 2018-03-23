@@ -20,8 +20,6 @@
         private VertexArrayObject vertexArrayObject;
 
         private Program program;
-        string vertexShader;
-        string fragmentShader;
 
         ICamera camera;
 
@@ -32,17 +30,13 @@
             IList<Vector3> vertexNormals,
             IList<Vector3> vertexColors,
             IList<uint> indices,
-            ICamera camera,
-            string vertexShader = StandardShaders.ColoredVertex,
-            string fragmentShader = StandardShaders.ColoredFragment)
+            ICamera camera)
         {
             this.vertexPositions = vertexPositions;
             this.vertexNormals = vertexNormals;
             this.vertexColors = vertexColors;
             this.indices = indices;
             this.camera = camera;
-            this.vertexShader = vertexShader;
-            this.fragmentShader = fragmentShader;
         }
 
         /// <inheritdoc />
@@ -54,12 +48,8 @@
             Gl.DepthFunc(DepthFunction.Less); // Accept fragment if it closer to the camera than the former one
             Gl.Enable(EnableCap.CullFace); // Cull triangles which normal is not towards the camera
 
-            // Create and compile our GLSL program from the shaders
-            program = new ProgramBuilder()
-                .WithStandardShader(ShaderType.VertexShader, vertexShader)
-                .WithStandardShader(ShaderType.FragmentShader, fragmentShader)
-                .WithUniforms("MVP", "V", "M", "myTextureSampler", "LightPosition_worldspace", "LightColor", "LightPower", "AmbientLightColor")
-                .Create();
+            // Create and compile our GLSL program
+            program = ProgramBuilder.Colored.Create();
 
             // Generate and populate 4 vertex buffers:
             // One for positions, one for normals, one for texture coordinates, one for indices.

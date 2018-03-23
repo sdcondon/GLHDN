@@ -6,7 +6,7 @@
     using System.Collections.Generic;
     using System.Numerics;
 
-    public class VertexArrayObjectBuilder
+    public sealed class VertexArrayObjectBuilder
     {
         private List<BufferTarget> bufferTargets = new List<BufferTarget>();
         private List<BufferUsage> bufferUsages = new List<BufferUsage>();

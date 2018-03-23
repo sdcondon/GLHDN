@@ -13,10 +13,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Programs\Colored.Fragment.glsl" />
-    <EmbeddedResource Include="Programs\Colored.Vertex.glsl" />
-    <EmbeddedResource Include="Programs\Textured.Fragment.glsl" />
-    <EmbeddedResource Include="Programs\Textured.Vertex.glsl" />
+    <EmbeddedResource Include="LowLevel\CommonShaders\Colored.Fragment.glsl" />
+    <EmbeddedResource Include="LowLevel\CommonShaders\Colored.Vertex.glsl" />
+    <EmbeddedResource Include="LowLevel\CommonShaders\Textured.Fragment.glsl" />
+    <EmbeddedResource Include="LowLevel\CommonShaders\Textured.Vertex.glsl" />
   </ItemGroup>
 
   <ItemGroup>

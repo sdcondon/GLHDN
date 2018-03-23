@@ -1,13 +1,10 @@
 ﻿namespace OpenGlHelpers.Core
 {
-    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Numerics;
-    using System.Text;
-    using System.Text.RegularExpressions;
 
     /// <summary>
     /// Very, VERY simple OBJ loader.

@@ -5,7 +5,7 @@
     using System.Linq;
     using System.Numerics;
 
-    public class Program : IDisposable
+    public sealed class Program : IDisposable
     {
         int[] uniformIds;
 
