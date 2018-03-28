@@ -44,6 +44,7 @@
             this.GlControl.Name = "RenderControl";
             this.GlControl.StencilBits = ((uint)(0u));
             this.GlControl.TabIndex = 0;
+            this.GlControl.Resize += (s, a) => Gl.Viewport(0, 0, ((OpenGlForm)s).ClientSize.Width, ((OpenGlForm)s).ClientSize.Height);
             this.GlControl.ContextCreated += (s, a) => scene.ContextCreated(a.DeviceContext);
             this.GlControl.Render += (s, a) => scene.Render(a.DeviceContext, camera.ViewMatrix, camera.ProjectionMatrix);
             this.GlControl.ContextUpdate += (s, a) => scene.ContextUpdate(a.DeviceContext);
@@ -64,7 +65,6 @@
             this.modelUpdateTimer.Tick += new EventHandler(this.OnTimerTick);
 
             this.ResumeLayout(false);
-
             this.modelUpdateHandler = modelUpdateHandler;
             this.modelUpdateTimer.Start();
         }

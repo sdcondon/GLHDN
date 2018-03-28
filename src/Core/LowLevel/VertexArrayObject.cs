@@ -25,10 +25,14 @@
             List<ICollection> bufferData,
             uint[] indexData)
         {
+            this.primitiveType = primitiveType;
+
+            // Create and bind the VAO
             this.id = Gl.GenVertexArray();
             Gl.BindVertexArray(id);
 
-            var bufferIds = new uint[bufferTargets.Count];
+            // Create and populate the attribute buffers
+            this.bufferIds = new uint[bufferTargets.Count];
             Gl.GenBuffers(bufferIds);
             for (int i = 0; i < bufferTargets.Count; i++)
             {
@@ -36,26 +40,21 @@
                 Gl.BufferData(bufferTargets[i], GetSize(bufferData[i]), bufferData[i], bufferUsages[i]);
             }
 
-            int elementCount;
-            uint? indexBufferId = null;
+            this.bufferElementSizes = bufferData.Select(a => GetElementSize(a.GetType())).ToArray();
+            this.bufferElementTypes = bufferData.Select(a => GetElementType(a.GetType())).ToArray();
+
+            // Establish element count, populate index buffer if there is one
             if (indexData != null)
             {
-                indexBufferId = Gl.GenBuffer();
-                Gl.BindBuffer(BufferTarget.ElementArrayBuffer, indexBufferId.Value);
+                this.indexBufferId = Gl.GenBuffer();
+                Gl.BindBuffer(BufferTarget.ElementArrayBuffer, this.indexBufferId.Value);
                 Gl.BufferData(BufferTarget.ElementArrayBuffer, GetSize(indexData), indexData, BufferUsage.StaticDraw);
-                elementCount = indexData.Length;
+                this.elementCount = indexData.Length;
             }
             else
             {
-                elementCount = bufferData[0].Count;
+                this.elementCount = bufferData[0].Count;
             }
-
-            this.primitiveType = primitiveType;
-            this.bufferIds = bufferIds;
-            this.bufferElementSizes = bufferData.Select(a => GetElementSize(a.GetType())).ToArray();
-            this.bufferElementTypes = bufferData.Select(a => GetElementType(a.GetType())).ToArray();
-            this.elementCount = elementCount;
-            this.indexBufferId = indexBufferId;
         }
 
         ~VertexArrayObject()
@@ -76,12 +75,12 @@
                 Gl.EnableVertexAttribArray(i);
                 Gl.BindBuffer(BufferTarget.ArrayBuffer, bufferIds[i]);
                 Gl.VertexAttribPointer(
-                    i,                     // attribute. Must match the layout in the shader.
+                    i, // attribute. Must match the layout in the shader.
                     bufferElementSizes[i], // size
                     bufferElementTypes[i], // type
-                    false,             // normalized?
-                    0,                 // stride
-                    IntPtr.Zero);      // array buffer offset
+                    false, // normalized?
+                    0, // stride
+                    IntPtr.Zero); // array buffer offset
             }
 
             // TODO: delegate instead of if every time?
@@ -90,16 +89,16 @@
                 // Bind index buffer and draw
                 Gl.BindBuffer(BufferTarget.ElementArrayBuffer, indexBufferId.Value);
                 Gl.DrawElements(
-                    this.primitiveType,           // mode
-                    this.elementCount,            // count
+                    this.primitiveType, // mode
+                    this.elementCount, // count
                     DrawElementsType.UnsignedInt, // type
-                    IntPtr.Zero);                 // element array buffer offset
+                    IntPtr.Zero); // element array buffer offset
             }
             else
             {
                 Gl.DrawArrays(
                     this.primitiveType, // mode
-                    0,                  // first
+                    0, // first
                     this.elementCount); // count
             }
 
