@@ -1,14 +1,13 @@
 ﻿namespace OpenGlHelpers.Core
 {
     using OpenGL;
-    using System;
     using System.Numerics;
 
-    public sealed class Scene
+    public sealed class View
     {
         private IRenderer[] renderers;
 
-        public Scene(params IRenderer[] renderers)
+        public View(params IRenderer[] renderers)
         {
             this.renderers = renderers;
         }
@@ -16,7 +15,7 @@
         /// <inheritdoc />
         public void ContextCreated(DeviceContext context)
         {
-            Gl.ClearColor(0.0f, 0.0f, 0.1f, 0.0f); // Dark blue background    
+            Gl.ClearColor(0.0f, 0.0f, 0.1f, 0.0f); // Dark blue background
             Gl.Enable(EnableCap.DepthTest); // Enable depth test
             Gl.DepthFunc(DepthFunction.Less); // Accept fragment if it closer to the camera than the former one
             Gl.Enable(EnableCap.CullFace); // Cull triangles which normal is not towards the camera

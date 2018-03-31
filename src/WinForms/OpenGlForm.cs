@@ -15,14 +15,13 @@
     {
         private readonly ICamera camera;
         private readonly Stopwatch modelUpdateIntervalStopwatch = new Stopwatch();
-        private readonly Timer modelUpdateTimer; // TODO: this is the wrong timer type to use..
+        private readonly Timer modelUpdateTimer; // TODO: this is the wrong timer type to use - it's tied to forms update
         private readonly Action<TimeSpan> modelUpdateHandler;
         private readonly bool lockCursor;
 
-        public OpenGlForm(IRenderer[] renderers, ICamera camera, Action<TimeSpan> modelUpdateHandler, bool lockCursor)
+        public OpenGlForm(IRenderer[] renderers, Action<TimeSpan> modelUpdateHandler, ICamera camera, bool lockCursor)
         {
-            Scene scene = new Scene(renderers);
-            this.camera = camera;
+            Gl.DebugMessageCallback(HandleDebugMessage, null);
 
             this.SuspendLayout();
 
@@ -31,7 +30,6 @@
             this.Name = "OpenGl";
             this.Text = "OpenGl";
 
-            Gl.DebugMessageCallback(HandleDebugMessage, null);
             this.GlControl = new GlControl();
             this.GlControl.Animation = true;
             this.GlControl.BackColor = Color.DimGray;
@@ -45,13 +43,13 @@
             this.GlControl.StencilBits = ((uint)(0u));
             this.GlControl.TabIndex = 0;
             this.GlControl.Resize += (s, a) => Gl.Viewport(0, 0, ((GlControl)s).Width, ((GlControl)s).Height);
-            this.GlControl.ContextCreated += (s, a) => scene.ContextCreated(a.DeviceContext);
-            this.GlControl.Render += (s, a) => scene.Render(a.DeviceContext, camera.ViewMatrix, camera.ProjectionMatrix);
-            this.GlControl.ContextUpdate += (s, a) => scene.ContextUpdate(a.DeviceContext);
-            this.GlControl.ContextDestroying += (s, a) => scene.ContextDestroying(a.DeviceContext);
-            if (lockCursor)
+            var view = new Core.View(renderers);
+            this.GlControl.ContextCreated += (s, a) => view.ContextCreated(a.DeviceContext);
+            this.GlControl.Render += (s, a) => view.Render(a.DeviceContext, camera.ViewMatrix, camera.ProjectionMatrix);
+            this.GlControl.ContextUpdate += (s, a) => view.ContextUpdate(a.DeviceContext);
+            this.GlControl.ContextDestroying += (s, a) => view.ContextDestroying(a.DeviceContext);
+            if (this.lockCursor = lockCursor)
             {
-                this.lockCursor = true;
                 this.GlControl.GotFocus += (s, a) => Cursor.Position = GlControl.PointToScreen(new Point(GlControl.Width / 2, GlControl.Height / 2));
             }
             this.GlControl.PreviewKeyDown += GlControl_KeyDown;
@@ -60,16 +58,20 @@
             this.GlControl.MouseUp += GlControl_MouseUp;
             this.Controls.Add(this.GlControl);
 
+            this.ResumeLayout(false);
+
+            this.camera = camera;
+
             this.modelUpdateTimer = new Timer();
             this.modelUpdateTimer.Interval = 15;
             this.modelUpdateTimer.Tick += new EventHandler(this.OnTimerTick);
-
-            this.ResumeLayout(false);
             this.modelUpdateHandler = modelUpdateHandler;
             this.modelUpdateTimer.Start();
         }
 
         public GlControl GlControl { get; private set; }
+
+        #region IUiContext
 
         /// <inheritdoc />
         public int DisplayWidth => GlControl.Width;
@@ -92,6 +94,8 @@
         /// <inheritdoc />
         public bool MouseButtonReleased { get; private set; }
 
+        #endregion
+
         /// <summary>
         /// Clean up any resources being used.
         /// </summary>
@@ -104,6 +108,18 @@
             }
 
             base.Dispose(disposing);
+        }
+
+        private void HandleDebugMessage(
+            Gl.DebugSource source,
+            Gl.DebugType type,
+            uint id,
+            Gl.DebugSeverity severity,
+            int length,
+            IntPtr message,
+            IntPtr userParam)
+        {
+            Debug.WriteLine($"{id} {source} {type} {severity}", "OPENGL");
         }
 
         private void OnTimerTick(object sender, EventArgs e)
@@ -162,18 +178,6 @@
         private void GlControl_MouseUp(object sender, MouseEventArgs e)
         {
             MouseButtonReleased = true;
-        }
-
-        private void HandleDebugMessage(
-            Gl.DebugSource source,
-            Gl.DebugType type,
-            uint id,
-            Gl.DebugSeverity severity,
-            int length,
-            IntPtr message,
-            IntPtr userParam)
-        {
-            Debug.WriteLine($"{id} {source} {type} {severity}", "OPENGL");
         }
     }
 }

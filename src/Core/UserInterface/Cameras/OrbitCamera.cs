@@ -10,7 +10,9 @@
         private Vector3 up = new Vector3(0f, 1f, 0f);
         private int zoomLevel = 0;
 
-        public float RotationSpeed => 0.005f * (Distance / ZoomDefaultDistance);
+        public float RotationSpeedBase { get; set; } = 0.01f;
+
+        public float RotationSpeed => RotationSpeedBase * (Distance - ZoomMinDistance) / ZoomDefaultDistance;
 
         public float RollSpeed => 0.01f;
 
@@ -20,9 +22,9 @@
 
         private float ZoomDefaultDistance { get; set; } = 1.5f;
 
-        private float ZoomMinDistance => 1f + NearPlaneDistance;
-
         private float ZoomBase { get; set; } = 0.999f;
+
+        private float ZoomMinDistance => 1f + NearPlaneDistance;
 
         // Field of View, in radians
         public float FieldOfView { get; set; } = (float)Math.PI / 4.0f;

@@ -21,7 +21,7 @@
             var shaderIds = new List<uint>();
             for (int i = 0; i < shaderTypes.Length; i++)
             {
-                // Create the shader
+                // Create shader
                 var shaderId = Gl.CreateShader(shaderTypes[i]);
 
                 // Compile shader

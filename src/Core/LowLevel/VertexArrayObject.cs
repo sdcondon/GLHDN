@@ -37,7 +37,7 @@
             for (int i = 0; i < bufferTargets.Count; i++)
             {
                 Gl.BindBuffer(bufferTargets[i], bufferIds[i]);
-                Gl.BufferData(bufferTargets[i], GetSize(bufferData[i]), bufferData[i], bufferUsages[i]);
+                Gl.BufferData(bufferTargets[i], GetBufferSize(bufferData[i]), bufferData[i], bufferUsages[i]);
             }
 
             this.bufferElementSizes = bufferData.Select(a => GetElementSize(a.GetType())).ToArray();
@@ -48,7 +48,7 @@
             {
                 this.indexBufferId = Gl.GenBuffer();
                 Gl.BindBuffer(BufferTarget.ElementArrayBuffer, this.indexBufferId.Value);
-                Gl.BufferData(BufferTarget.ElementArrayBuffer, GetSize(indexData), indexData, BufferUsage.StaticDraw);
+                Gl.BufferData(BufferTarget.ElementArrayBuffer, GetBufferSize(indexData), indexData, BufferUsage.StaticDraw);
                 this.elementCount = indexData.Length;
             }
             else
@@ -126,7 +126,7 @@
             GC.SuppressFinalize(this);
         }
 
-        private uint GetSize(object data)
+        private uint GetBufferSize(object data)
         {
             switch (data)
             {

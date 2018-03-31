@@ -5,6 +5,9 @@
     using System.IO;
     using System.Reflection;
 
+    /// <summary>
+    /// Builder class for <see cref="Program"/> objects that presents a fluent-ish interface.
+    /// </summary>
     public sealed class ProgramBuilder
     {
         private const string StandardShaderResourceNamePrefix = "OpenGlHelpers.Core.LowLevel.StandardShaders";
@@ -67,7 +70,7 @@
             return this;
         }
 
-        public Program Create()
+        public Program Build()
         {
             return new Program(shaderTypes.ToArray(), shaderSources.ToArray(), uniformNames);
         }

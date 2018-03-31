@@ -31,7 +31,7 @@
             return this;
         }
 
-        public VertexArrayObject Create()
+        public VertexArrayObject Build()
         {
             return new VertexArrayObject(
                 primitiveType,
