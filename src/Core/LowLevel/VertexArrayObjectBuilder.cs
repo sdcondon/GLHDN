@@ -1,4 +1,4 @@
-﻿namespace OpenGlHelpers.Core
+﻿namespace OpenGlHelpers.Core.LowLevel
 {
     using OpenGL;
     using System.Collections;

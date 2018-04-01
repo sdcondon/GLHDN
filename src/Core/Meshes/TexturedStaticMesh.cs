@@ -1,15 +1,20 @@
 ﻿namespace OpenGlHelpers.Core
 {
     using OpenGL;
+    using OpenGlHelpers.Core.LowLevel;
     using System.Collections.Generic;
     using System.Linq;
     using System.Numerics;
 
     /// <summary>
-    /// Renderer class for static geometry.
+    /// Renderer class for static 3D geometry.
     /// </summary>
-    public class StaticTexuredRenderer : IRenderer
+    public class StaticTexuredRenderer : IRenderable
     {
+        private const string ShaderResourceNamePrefix = "OpenGlHelpers.Core.Meshes";
+
+        private readonly IViewProjection viewProjection;
+
         private uint[] textures;
         private ProgramBuilder programBuilder;
         private Program program;
@@ -17,18 +22,28 @@
         private VertexArrayObject vertexArrayObject;
 
         public StaticTexuredRenderer(
+            IViewProjection viewProjection,
             IList<Vector3> vertexPositions,
             IList<Vector3> vertexNormals,
             IList<Vector2> vertexTextureCoordinates,
             IList<uint> indices)
         {
-            this.programBuilder = ProgramBuilder.Textured;
+            this.viewProjection = viewProjection;
+
+            // TODO: Allow program to be shared
+            this.programBuilder = new ProgramBuilder()
+                .WithShaderFromEmbeddedResource(ShaderType.VertexShader, $"{ShaderResourceNamePrefix}.Textured.Vertex.glsl")
+                .WithShaderFromEmbeddedResource(ShaderType.FragmentShader, $"{ShaderResourceNamePrefix}.Textured.Fragment.glsl")
+                .WithUniforms("MVP", "V", "M", "myTextureSampler", "LightPosition_worldspace", "LightColor", "LightPower", "AmbientLightColor");
+
             this.vertexArrayObjectBuilder = new VertexArrayObjectBuilder(PrimitiveType.Triangles)
                 .WithBuffer(BufferTarget.ArrayBuffer, BufferUsage.StaticDraw, vertexPositions.ToArray())
                 .WithBuffer(BufferTarget.ArrayBuffer, BufferUsage.StaticDraw, vertexTextureCoordinates.ToArray())
                 .WithBuffer(BufferTarget.ArrayBuffer, BufferUsage.StaticDraw, vertexNormals.ToArray())
                 .WithIndex(indices.ToArray());
         }
+
+        public Matrix4x4 Model { get; set; } = Matrix4x4.Identity;
 
         /// <inheritdoc />
         public void ContextCreated(DeviceContext deviceContext)
@@ -41,12 +56,12 @@
         }
 
         /// <inheritdoc />
-        public void Render(DeviceContext deviceContext, Matrix4x4 model, Matrix4x4 view, Matrix4x4 projection)
+        public void Render(DeviceContext deviceContext)
         {
             program.UseWithUniformValues(
-                Matrix4x4.Transpose(view * projection),
-                Matrix4x4.Transpose(view),
-                Matrix4x4.Transpose(model),
+                Matrix4x4.Transpose(this.Model * this.viewProjection.View * this.viewProjection.Projection),
+                Matrix4x4.Transpose(this.viewProjection.View),
+                Matrix4x4.Transpose(this.Model),
                 0,
                 new Vector3(4, 4, 4),
                 new Vector3(1, 1, 1),

@@ -13,16 +13,13 @@
     /// </summary>
     public sealed class OpenGlForm : Form, IUiContext
     {
-        private readonly ICamera camera;
         private readonly Stopwatch modelUpdateIntervalStopwatch = new Stopwatch();
         private readonly Timer modelUpdateTimer; // TODO: this is the wrong timer type to use - it's tied to forms update
         private readonly Action<TimeSpan> modelUpdateHandler;
         private readonly bool lockCursor;
 
-        public OpenGlForm(IRenderer[] renderers, Action<TimeSpan> modelUpdateHandler, ICamera camera, bool lockCursor)
+        public OpenGlForm(IRenderable[] renderables, Action<TimeSpan> modelUpdateHandler, bool lockCursor)
         {
-            Gl.DebugMessageCallback(HandleDebugMessage, null);
-
             this.SuspendLayout();
 
             this.FormBorderStyle = FormBorderStyle.None;
@@ -43,9 +40,9 @@
             this.GlControl.StencilBits = ((uint)(0u));
             this.GlControl.TabIndex = 0;
             this.GlControl.Resize += (s, a) => Gl.Viewport(0, 0, ((GlControl)s).Width, ((GlControl)s).Height);
-            var view = new Core.View(renderers);
+            var view = new Core.View(renderables);
             this.GlControl.ContextCreated += (s, a) => view.ContextCreated(a.DeviceContext);
-            this.GlControl.Render += (s, a) => view.Render(a.DeviceContext, camera.ViewMatrix, camera.ProjectionMatrix);
+            this.GlControl.Render += (s, a) => view.Render(a.DeviceContext);
             this.GlControl.ContextUpdate += (s, a) => view.ContextUpdate(a.DeviceContext);
             this.GlControl.ContextDestroying += (s, a) => view.ContextDestroying(a.DeviceContext);
             if (this.lockCursor = lockCursor)
@@ -60,11 +57,9 @@
 
             this.ResumeLayout(false);
 
-            this.camera = camera;
-
             this.modelUpdateTimer = new Timer();
             this.modelUpdateTimer.Interval = 15;
-            this.modelUpdateTimer.Tick += new EventHandler(this.OnTimerTick);
+            this.modelUpdateTimer.Tick += new EventHandler(this.ModelUpdateTimer_Tick);
             this.modelUpdateHandler = modelUpdateHandler;
             this.modelUpdateTimer.Start();
         }
@@ -110,19 +105,7 @@
             base.Dispose(disposing);
         }
 
-        private void HandleDebugMessage(
-            Gl.DebugSource source,
-            Gl.DebugType type,
-            uint id,
-            Gl.DebugSeverity severity,
-            int length,
-            IntPtr message,
-            IntPtr userParam)
-        {
-            Debug.WriteLine($"{id} {source} {type} {severity}", "OPENGL");
-        }
-
-        private void OnTimerTick(object sender, EventArgs e)
+        private void ModelUpdateTimer_Tick(object sender, EventArgs e)
         {
             if (GlControl.Focused)
             {
@@ -142,7 +125,6 @@
 
                 // Update the game world, timing how long it takes to execute
                 //updateDurationStopwatch.Restart();
-                this.camera.Update(elapsed, this);
                 this.modelUpdateHandler?.Invoke(elapsed);
 
                 // Reset user input properties

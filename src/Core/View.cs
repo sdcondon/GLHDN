@@ -1,18 +1,31 @@
 ﻿namespace OpenGlHelpers.Core
 {
     using OpenGL;
-    using System.Numerics;
+    using System;
+    using System.Diagnostics;
 
+    /// <summary>
+    /// Top-level class in this library. Encapsulates a view rendered with OpenGl.
+    /// </summary>
     public sealed class View
     {
-        private IRenderer[] renderers;
+        private IRenderable[] renderables;
 
-        public View(params IRenderer[] renderers)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="View"/> class.
+        /// </summary>
+        /// <param name="renderables"></param>
+        public View(params IRenderable[] renderables)
         {
-            this.renderers = renderers;
+            Gl.DebugMessageCallback(HandleDebugMessage, null);
+
+            this.renderables = renderables;
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Handler to be invoked once the OpenGL context has been created.
+        /// </summary>
+        /// <param name="context"></param>
         public void ContextCreated(DeviceContext context)
         {
             Gl.ClearColor(0.0f, 0.0f, 0.1f, 0.0f); // Dark blue background
@@ -20,34 +33,59 @@
             Gl.DepthFunc(DepthFunction.Less); // Accept fragment if it closer to the camera than the former one
             Gl.Enable(EnableCap.CullFace); // Cull triangles which normal is not towards the camera
 
-            for (int i = 0; i < renderers.Length; i++)
+            for (int i = 0; i < renderables.Length; i++)
             {
-                renderers[i].ContextCreated(context);
+                renderables[i].ContextCreated(context);
             }
         }
 
-        /// <inheritdoc />
-        public void Render(DeviceContext context, Matrix4x4 view, Matrix4x4 projection)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="view"></param>
+        /// <param name="projection"></param>
+        public void Render(DeviceContext context)
         {
             Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            for (int i = 0; i < renderers.Length; i++)
+
+            for (int i = 0; i < renderables.Length; i++)
             {
-                renderers[i].Render(context, Matrix4x4.Identity, view, projection);
+                renderables[i].Render(context);
             }
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="context"></param>
         public void ContextUpdate(DeviceContext context)
         {
+            // Gl.Viewport(0, 0, ((GlControl)s).Width, ((GlControl)s).Height) ?
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="context"></param>
         public void ContextDestroying(DeviceContext context)
         {
-            for (int i = 0; i < renderers.Length; i++)
+            for (int i = 0; i < renderables.Length; i++)
             {
-                renderers[i].ContextDestroying(context);
+                renderables[i].ContextDestroying(context);
             }
+        }
+
+        private void HandleDebugMessage(
+            Gl.DebugSource source,
+            Gl.DebugType type,
+            uint id,
+            Gl.DebugSeverity severity,
+            int length,
+            IntPtr message,
+            IntPtr userParam)
+        {
+            Debug.WriteLine($"{id} {source} {type} {severity}", "OPENGL");
         }
     }
 }

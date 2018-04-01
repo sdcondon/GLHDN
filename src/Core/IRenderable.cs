@@ -1,9 +1,12 @@
 ﻿namespace OpenGlHelpers.Core
 {
     using OpenGL;
-    using System.Numerics;
 
-    public interface IRenderer
+    /// <summary>
+    /// A discrete renderable part of a <see cref="View"/>. Typically will encapsulate everything
+    /// that results in one or more OpenGl draw calls: the program(s), the relevant buffers, etc.
+    /// </summary>
+    public interface IRenderable
     {
         /// <summary>
         /// Handler for render context creation.
@@ -13,7 +16,7 @@
         /// <summary>
         /// Render logic.
         /// </summary>
-        void Render(DeviceContext deviceContext, Matrix4x4 model, Matrix4x4 view, Matrix4x4 projection);
+        void Render(DeviceContext deviceContext);
 
         /// <summary>
         /// Handler for the render context being destroyed.

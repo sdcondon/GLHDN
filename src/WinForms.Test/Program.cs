@@ -20,23 +20,25 @@
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
+            camera = new FirstPersonCamera();
             form = new OpenGlForm(
                 new[]
                 {
                     new StaticTexuredRenderer(
+                        camera,
                         new[] { new Vector3(-1f, -1f, 0f), new Vector3(0f, 1f, 0f), new Vector3(1f, -1f, 0f) },
                         new[] { new Vector3(0f, 0f, -1f), new Vector3(0f, 0f, -1f), new Vector3(0f, 0f, -1f) },
                         new[] { new Vector2(0f, 0f), new Vector2(0.5f, 1f), new Vector2(1f, 0f) },
                         new[] { 0u, 1u, 2u })
                 },
                 ModelUpdate,
-                new FirstPersonCamera(),
                 true);
             Application.Run(form);
         }
 
         private static void ModelUpdate(TimeSpan elapsed)
         {
+            camera.Update(elapsed, form);
         }
     }
 }

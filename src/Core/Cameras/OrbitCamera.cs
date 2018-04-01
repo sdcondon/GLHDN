@@ -35,10 +35,10 @@
         public Vector3 Position => -forward * Distance;
 
         /// <inheritdoc />
-        public Matrix4x4 ViewMatrix { get; private set; }
+        public Matrix4x4 View { get; private set; }
 
         /// <inheritdoc />
-        public Matrix4x4 ProjectionMatrix { get; private set; }
+        public Matrix4x4 Projection { get; private set; }
 
         public void Update(TimeSpan elapsed, IUiContext context)
         {
@@ -80,14 +80,14 @@
             zoomLevel += context.MouseWheelDelta;
 
             // Projection matrix
-            ProjectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(
+            Projection = Matrix4x4.CreatePerspectiveFieldOfView(
                 FieldOfView,
                 context.DisplayAspectRatio(),
                 NearPlaneDistance,
                 FarPlaneDistance);
 
             // Camera matrix
-            ViewMatrix = Matrix4x4.CreateLookAt(Position, Vector3.Zero, up);
+            View = Matrix4x4.CreateLookAt(Position, Vector3.Zero, up);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace OpenGlHelpers.Core
+﻿namespace OpenGlHelpers.Core.LowLevel
 {
     using OpenGL;
     using System;
@@ -43,7 +43,7 @@
             this.bufferElementSizes = bufferData.Select(a => GetElementSize(a.GetType())).ToArray();
             this.bufferElementTypes = bufferData.Select(a => GetElementType(a.GetType())).ToArray();
 
-            // Establish element count, populate index buffer if there is one
+            // Establish element count & populate index buffer if there is one
             if (indexData != null)
             {
                 this.indexBufferId = Gl.GenBuffer();
@@ -83,7 +83,7 @@
                     IntPtr.Zero); // array buffer offset
             }
 
-            // TODO: delegate instead of if every time?
+            // TODO: delegate instead of 'if' every time?
             if (indexBufferId.HasValue)
             {
                 // Bind index buffer and draw

@@ -25,14 +25,14 @@
         public Vector3 Position => position;
 
         /// <inheritdoc />
-        public Matrix4x4 ViewMatrix
+        public Matrix4x4 View
         {
             get;
             private set;
         }
 
         /// <inheritdoc />
-        public Matrix4x4 ProjectionMatrix
+        public Matrix4x4 Projection
         {
             get;
             private set;
@@ -89,14 +89,14 @@
             float FoV = initialFoV;
 
             // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.01 unit <-> 100 units
-            ProjectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(
+            Projection = Matrix4x4.CreatePerspectiveFieldOfView(
                 FoV,
                 context.DisplayAspectRatio(),
                 0.01f,
                 100.0f);
 
             // Camera matrix
-            ViewMatrix = Matrix4x4.CreateLookAt(
+            View = Matrix4x4.CreateLookAt(
                 position,             // Camera is here
                 position + direction, // and looks here : at the same position, plus "direction"
                 up);                  // Head is up (set to 0,-1,0 to look upside-down)
