@@ -10,7 +10,7 @@
             // http://antongerdelan.net/opengl/raycasting.html
             float x = - (2.0f * uiContext.CursorMovementX) / uiContext.DisplayWidth; // TODO: why did i have to negate this?
             float y = (2.0f * uiContext.CursorMovementY) / uiContext.DisplayHeight; // TODO: why did i have to negate this?
-            var ray_clip = new Vector4(x, y, -1.0f, 1.0f);
+            var ray_clip = new Vector3(x, y, -1.0f);
 
             Matrix4x4.Invert(camera.Projection, out var projInverse);
             var ray_eye = Vector4.Transform(ray_clip, projInverse);

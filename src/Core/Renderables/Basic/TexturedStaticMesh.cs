@@ -7,19 +7,19 @@
     using System.Numerics;
 
     /// <summary>
-    /// Renderer class for static 3D geometry.
+    /// Renderable class for static 3D geometry.
     /// </summary>
     public class StaticTexuredRenderer : IRenderable
     {
-        private const string ShaderResourceNamePrefix = "OpenGlHelpers.Core.Meshes";
+        private const string ShaderResourceNamePrefix = "OpenGlHelpers.Core.Renderables.Basic";
 
         private readonly IViewProjection viewProjection;
 
         private uint[] textures;
-        private ProgramBuilder programBuilder;
-        private Program program;
-        private VertexArrayObjectBuilder vertexArrayObjectBuilder;
-        private VertexArrayObject vertexArrayObject;
+        private GlProgramBuilder programBuilder;
+        private GlProgram program;
+        private GlVertexArrayObjectBuilder vertexArrayObjectBuilder;
+        private GlVertexArrayObject vertexArrayObject;
 
         public StaticTexuredRenderer(
             IViewProjection viewProjection,
@@ -31,15 +31,15 @@
             this.viewProjection = viewProjection;
 
             // TODO: Allow program to be shared
-            this.programBuilder = new ProgramBuilder()
+            this.programBuilder = new GlProgramBuilder()
                 .WithShaderFromEmbeddedResource(ShaderType.VertexShader, $"{ShaderResourceNamePrefix}.Textured.Vertex.glsl")
                 .WithShaderFromEmbeddedResource(ShaderType.FragmentShader, $"{ShaderResourceNamePrefix}.Textured.Fragment.glsl")
                 .WithUniforms("MVP", "V", "M", "myTextureSampler", "LightPosition_worldspace", "LightColor", "LightPower", "AmbientLightColor");
 
-            this.vertexArrayObjectBuilder = new VertexArrayObjectBuilder(PrimitiveType.Triangles)
-                .WithBuffer(BufferTarget.ArrayBuffer, BufferUsage.StaticDraw, vertexPositions.ToArray())
-                .WithBuffer(BufferTarget.ArrayBuffer, BufferUsage.StaticDraw, vertexTextureCoordinates.ToArray())
-                .WithBuffer(BufferTarget.ArrayBuffer, BufferUsage.StaticDraw, vertexNormals.ToArray())
+            this.vertexArrayObjectBuilder = new GlVertexArrayObjectBuilder(PrimitiveType.Triangles)
+                .WithAttribute(BufferUsage.StaticDraw, vertexPositions.ToArray())
+                .WithAttribute(BufferUsage.StaticDraw, vertexTextureCoordinates.ToArray())
+                .WithAttribute(BufferUsage.StaticDraw, vertexNormals.ToArray())
                 .WithIndex(indices.ToArray());
         }
 
@@ -52,7 +52,9 @@
             this.textures[0] = TextureLoader.LoadDDS("Assets/uvmap.DDS");
 
             this.program = this.programBuilder.Build();
+            this.programBuilder = null;
             this.vertexArrayObject = this.vertexArrayObjectBuilder.Build();
+            this.vertexArrayObjectBuilder = null;
         }
 
         /// <inheritdoc />

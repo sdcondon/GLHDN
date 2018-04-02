@@ -8,18 +8,22 @@
     using System.Numerics;
     using System.Text;
 
-    public sealed class Program : IDisposable
+    /// <summary>
+    /// Represents a compiled Open GL program.
+    /// </summary>
+    public sealed class GlProgram : IDisposable
     {
-        int[] uniformIds;
+        private readonly uint id;
+        private readonly int[] uniformIds;
 
-        internal Program(ShaderType[] shaderTypes, string[] shaderSources, string[] uniforms)
+        internal GlProgram(IList<ShaderType> shaderTypes, IList<string> shaderSources, string[] uniforms)
         {
             // Create program
-            this.Id = Gl.CreateProgram();
+            this.id = Gl.CreateProgram();
 
             // Compile shaders
             var shaderIds = new List<uint>();
-            for (int i = 0; i < shaderTypes.Length; i++)
+            for (int i = 0; i < shaderTypes.Count; i++)
             {
                 // Create shader
                 var shaderId = Gl.CreateShader(shaderTypes[i]);
@@ -38,42 +42,44 @@
                     Trace.WriteLine(error);
                 }
 
-                Gl.AttachShader(this.Id, shaderId);
+                Gl.AttachShader(this.id, shaderId);
                 shaderIds.Add(shaderId);
             }
 
             // Link & check program
             Trace.WriteLine("Linking program", "OPENGL");
-            Gl.LinkProgram(this.Id);
-            Gl.GetProgram(this.Id, ProgramProperty.InfoLogLength, out var infoLogLength);
+            Gl.LinkProgram(this.id);
+            Gl.GetProgram(this.id, ProgramProperty.InfoLogLength, out var infoLogLength);
             if (infoLogLength > 0)
             {
                 var error = new StringBuilder(infoLogLength);
-                Gl.GetProgramInfoLog(this.Id, infoLogLength, out _, error);
+                Gl.GetProgramInfoLog(this.id, infoLogLength, out _, error);
                 Trace.TraceError(error.ToString());
             }
 
             // Detach and delete shaders
             foreach (var shaderId in shaderIds)
             {
-                Gl.DetachShader(this.Id, shaderId);
+                Gl.DetachShader(this.id, shaderId);
                 Gl.DeleteShader(shaderId);
             }
 
             // Get uniform IDs
-            this.uniformIds = uniforms.Select(x => Gl.GetUniformLocation(this.Id, x)).ToArray();
+            this.uniformIds = uniforms.Select(x => Gl.GetUniformLocation(this.id, x)).ToArray();
         }
 
-        ~Program()
+        ~GlProgram()
         {
-            Gl.DeleteProgram(this.Id);
+            Gl.DeleteProgram(this.id);
         }
 
-        public uint Id { get; private set; }
-
+        /// <summary>
+        /// Installs the program as part of the current rendering state and sets the current uniform values.
+        /// </summary>
+        /// <param name="values">The uniform values (in the order in which they were created).</param>
         public void UseWithUniformValues(params object[] values)
         {
-            Gl.UseProgram(this.Id);
+            Gl.UseProgram(this.id);
             for (int i = 0; i < uniformIds.Length; i++)
             {
                 switch (values[i])
@@ -117,7 +123,7 @@
         /// <inheritdoc />
         public void Dispose()
         {
-            Gl.DeleteProgram(this.Id);
+            Gl.DeleteProgram(this.id);
             GC.SuppressFinalize(this);
         }
     }

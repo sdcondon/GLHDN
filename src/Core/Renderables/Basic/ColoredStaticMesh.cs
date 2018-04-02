@@ -7,18 +7,18 @@
     using System.Numerics;
 
     /// <summary>
-    /// Renderer class for static 3D geometry.
+    /// Renderable class for static 3D geometry.
     /// </summary>
     public class ColoredStaticMesh : IRenderable
     {
-        private const string ShaderResourceNamePrefix = "OpenGlHelpers.Core.Meshes";
+        private const string ShaderResourceNamePrefix = "OpenGlHelpers.Core.Renderables.Basic";
 
         private readonly IViewProjection viewProjection;
 
-        private ProgramBuilder programBuilder;
-        private Program program;
-        private VertexArrayObjectBuilder vertexArrayObjectBuilder;
-        private VertexArrayObject vertexArrayObject;
+        private GlProgramBuilder programBuilder;
+        private GlProgram program;
+        private GlVertexArrayObjectBuilder vertexArrayObjectBuilder;
+        private GlVertexArrayObject vertexArrayObject;
 
         public ColoredStaticMesh(
             IViewProjection viewProjection,
@@ -30,15 +30,15 @@
             this.viewProjection = viewProjection;
 
             // TODO: allow program to be shared..
-            this.programBuilder = new ProgramBuilder()
+            this.programBuilder = new GlProgramBuilder()
                 .WithShaderFromEmbeddedResource(ShaderType.VertexShader, $"{ShaderResourceNamePrefix}.Colored.Vertex.glsl")
                 .WithShaderFromEmbeddedResource(ShaderType.FragmentShader, $"{ShaderResourceNamePrefix}.Colored.Fragment.glsl")
                 .WithUniforms("MVP", "V", "M", "LightPosition_worldspace", "LightColor", "LightPower", "AmbientLightColor");
 
-            this.vertexArrayObjectBuilder = new VertexArrayObjectBuilder(PrimitiveType.Triangles)
-                .WithBuffer(BufferTarget.ArrayBuffer, BufferUsage.StaticDraw, vertexPositions.ToArray())
-                .WithBuffer(BufferTarget.ArrayBuffer, BufferUsage.StaticDraw, vertexColors.ToArray())
-                .WithBuffer(BufferTarget.ArrayBuffer, BufferUsage.StaticDraw, vertexNormals.ToArray())
+            this.vertexArrayObjectBuilder = new GlVertexArrayObjectBuilder(PrimitiveType.Triangles)
+                .WithAttribute(BufferUsage.StaticDraw, vertexPositions.ToArray())
+                .WithAttribute(BufferUsage.StaticDraw, vertexColors.ToArray())
+                .WithAttribute(BufferUsage.StaticDraw, vertexNormals.ToArray())
                 .WithIndex(indices.ToArray());
         }
 
@@ -51,7 +51,9 @@
         public void ContextCreated(DeviceContext deviceContext)
         {
             this.program = this.programBuilder.Build();
+            this.programBuilder = null;
             this.vertexArrayObject = this.vertexArrayObjectBuilder.Build();
+            this.vertexArrayObjectBuilder = null;
         }
 
         /// <inheritdoc />

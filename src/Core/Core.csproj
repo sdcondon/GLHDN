@@ -13,24 +13,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Gui\Gui.cs" />
-    <Compile Remove="Gui\GuiElement.cs" />
-    <Compile Remove="Meshes\GuiElement.cs" />
-    <Compile Remove="Meshes\GuiRenderer.cs" />
+    <Compile Remove="Renderables\GuiElement.cs" />
+    <Compile Remove="Renderables\GuiRenderer.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Gui\Gui.Fragment.glsl" />
-    <EmbeddedResource Include="Gui\Gui.Vertex.glsl" />
-    <EmbeddedResource Include="Meshes\Colored.Fragment.glsl" />
-    <EmbeddedResource Include="Meshes\Colored.Vertex.glsl" />
-    <EmbeddedResource Include="Meshes\Textured.Fragment.glsl" />
-    <EmbeddedResource Include="Meshes\Textured.Vertex.glsl" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="Gui\GuiElement.cs" />
-    <None Include="Gui\Gui.cs" />
+    <EmbeddedResource Include="Renderables\Gui\Gui.Fragment.glsl" />
+    <EmbeddedResource Include="Renderables\Gui\Gui.Vertex.glsl" />
+    <EmbeddedResource Include="Renderables\Basic\Colored.Fragment.glsl" />
+    <EmbeddedResource Include="Renderables\Basic\Colored.Vertex.glsl" />
+    <EmbeddedResource Include="Renderables\Basic\Textured.Fragment.glsl" />
+    <EmbeddedResource Include="Renderables\Basic\Textured.Vertex.glsl" />
   </ItemGroup>
 
   <ItemGroup>
