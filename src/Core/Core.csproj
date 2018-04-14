@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>OpenGlHelpers.Core</AssemblyName>
-    <RootNamespace>OpenGlHelpers.Core</RootNamespace>
+    <AssemblyName>GLHDN.Core</AssemblyName>
+    <RootNamespace>GLHDN.Core</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>0.1.0</Version>
     <PackageId>OpenGlHelpers.Core</PackageId>
@@ -11,20 +11,6 @@
     <Company>OpenGlHelpers.Core</Company>
     <Product>OpenGlHelpers.Core</Product>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Remove="Renderables\GuiElement.cs" />
-    <Compile Remove="Renderables\GuiRenderer.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Renderables\Gui\Gui.Fragment.glsl" />
-    <EmbeddedResource Include="Renderables\Gui\Gui.Vertex.glsl" />
-    <EmbeddedResource Include="Renderables\Basic\Colored.Fragment.glsl" />
-    <EmbeddedResource Include="Renderables\Basic\Colored.Vertex.glsl" />
-    <EmbeddedResource Include="Renderables\Basic\Textured.Fragment.glsl" />
-    <EmbeddedResource Include="Renderables\Basic\Textured.Vertex.glsl" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="OpenGL.Net" Version="0.7.1" />

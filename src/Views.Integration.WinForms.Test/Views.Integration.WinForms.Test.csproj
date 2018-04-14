@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net461</TargetFramework>
+    <ApplicationIcon />
+    <StartupObject />
+    <AssemblyName>GLHDN.Views.Integration.WinForms.Test</AssemblyName>
+    <RootNamespace>GLHDN.Views.Integration.WinForms.Test</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="uvmap.DDS" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="uvmap.DDS">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Numerics.Vectors" Version="4.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Views.Integration.WinForms\Views.Integration.WinForms.csproj" />
+    <ProjectReference Include="..\Views\Views.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,4 +1,4 @@
-﻿namespace OpenGlHelpers.Core
+﻿namespace GLHDN.Core
 {
     using System.Collections.Generic;
     using System.Diagnostics;

@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>GLHDN.Views</AssemblyName>
+    <RootNamespace>GLHDN.Views</RootNamespace>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>0.1.0</Version>
+    <PackageId>OpenGlHelpers.Views</PackageId>
+    <Authors>OpenGlHelpers.Views</Authors>
+    <Company>OpenGlHelpers.Views</Company>
+    <Product>OpenGlHelpers.Views</Product>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Gui\Gui.Fragment.glsl" />
+    <EmbeddedResource Include="Gui\Gui.Vertex.glsl" />
+    <EmbeddedResource Include="BasicRenderables\Colored.Fragment.glsl" />
+    <EmbeddedResource Include="BasicRenderables\Colored.Vertex.glsl" />
+    <EmbeddedResource Include="BasicRenderables\Textured.Fragment.glsl" />
+    <EmbeddedResource Include="BasicRenderables\Textured.Vertex.glsl" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="OpenGL.Net" Version="0.7.1" />
+    <PackageReference Include="System.Numerics.Vectors" Version="4.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+</Project>
