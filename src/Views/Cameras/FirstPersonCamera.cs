@@ -38,14 +38,14 @@
             private set;
         }
 
-        public void Update(TimeSpan elapsed, IUiContext context)
+        public void Update(TimeSpan elapsed, View context)
         {
             // Compute new orientation
-            var xDiff = context.CursorMovementX;
+            var xDiff = context.CursorMovement.X;
             if (Math.Abs(xDiff) < 2) xDiff = 0;
             horizontalAngle += mouseSpeed * xDiff;
 
-            var yDiff = context.CursorMovementY;
+            var yDiff = context.CursorMovement.Y;
             if (Math.Abs(yDiff) < 2) yDiff = 0;
             verticalAngle += mouseSpeed * yDiff;
             verticalAngle = Math.Max(-(float)Math.PI / 2, Math.Min(verticalAngle, (float)Math.PI / 2));
@@ -91,7 +91,7 @@
             // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.01 unit <-> 100 units
             Projection = Matrix4x4.CreatePerspectiveFieldOfView(
                 FoV,
-                context.DisplayAspectRatio(),
+                context.AspectRatio,
                 0.01f,
                 100.0f);
 

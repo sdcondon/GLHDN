@@ -13,6 +13,7 @@
     {
         private const string ShaderResourceNamePrefix = "GLHDN.Views.Gui";
 
+        private readonly View view;
         private readonly Queue<Action> updates = new Queue<Action>();
 
         private GlProgramBuilder programBuilder;
@@ -20,9 +21,10 @@
         private ObjectBufferBuilder<GuiElement> guiElementBufferBuilder;
         private ObjectBuffer<GuiElement> guiElementBuffer;
 
-        public Gui(IEnumerable<GuiElement> elements)
+        public Gui(View view, IEnumerable<GuiElement> elements)
         {
-            //this.uiContext = uiContext;
+            this.view = view;
+            view.Renderables.Add(this);
 
             // TODO: allow program to be shared..
             this.programBuilder = new GlProgramBuilder()
@@ -48,7 +50,7 @@
         public Vector2 Center => Vector2.Zero;
 
         /// <inheritdoc />
-        public Vector2 ScreenSize { get; private set; }
+        public Vector2 ScreenSize => new Vector2(view.Width, view.Height);
 
         /// <inheritdoc />
         public void ContextCreated(DeviceContext deviceContext)
@@ -99,10 +101,9 @@
             updates.Enqueue(() => guiElementBuffer.Clear());
         }
 
-        public void Update(IUiContext context)
+        public void Update()
         {
-            this.ScreenSize = new Vector2(context.DisplayWidth, context.DisplayHeight);
-            // If it's changed, we need to recalculate the position of anything that's reletively positioned
+            // If size has changed, we need to recalculate the position of anything that's relatively positioned
         }
     }
 }

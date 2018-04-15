@@ -7,6 +7,6 @@
     {
         Vector3 Position { get; }
 
-        void Update(TimeSpan elapsed, IUiContext controls);
+        void Update(TimeSpan elapsed, View controls);
     }
 }

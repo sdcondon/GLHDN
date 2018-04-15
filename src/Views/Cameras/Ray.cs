@@ -5,11 +5,11 @@
 
     public struct Ray
     {
-        public Ray(ICamera camera, IUiContext uiContext)
+        public Ray(ICamera camera, View uiContext)
         {
             // http://antongerdelan.net/opengl/raycasting.html
-            float x = - (2.0f * uiContext.CursorMovementX) / uiContext.DisplayWidth; // TODO: why did i have to negate this?
-            float y = (2.0f * uiContext.CursorMovementY) / uiContext.DisplayHeight; // TODO: why did i have to negate this?
+            float x = - (2.0f * uiContext.CursorMovement.X) / uiContext.Width; // TODO: why did i have to negate this?
+            float y = (2.0f * uiContext.CursorMovement.Y) / uiContext.Height; // TODO: why did i have to negate this?
             var ray_clip = new Vector3(x, y, -1.0f);
 
             Matrix4x4.Invert(camera.Projection, out var projInverse);

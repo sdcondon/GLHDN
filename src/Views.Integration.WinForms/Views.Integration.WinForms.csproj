@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="OpenGlForm.cs">
+    <Compile Update="GlForm.cs">
       <SubType>Form</SubType>
     </Compile>
   </ItemGroup>

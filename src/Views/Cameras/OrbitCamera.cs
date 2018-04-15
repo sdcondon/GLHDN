@@ -40,49 +40,49 @@
         /// <inheritdoc />
         public Matrix4x4 Projection { get; private set; }
 
-        public void Update(TimeSpan elapsed, IUiContext context)
+        public void Update(TimeSpan elapsed, View view)
         {
             // Pan up - rotate forward and up around their cross product
-            if (context.PressedKeys.Contains('W'))
+            if (view.PressedKeys.Contains('W'))
             {
                 var t = Matrix4x4.CreateFromAxisAngle(Vector3.Cross(forward, up), -RotationSpeed);
                 forward = Vector3.Transform(forward, t);
                 up = Vector3.Transform(up, t);
             }
             // Pan down - rotate forward and up around their cross product
-            if (context.PressedKeys.Contains('S'))
+            if (view.PressedKeys.Contains('S'))
             {
                 var t = Matrix4x4.CreateFromAxisAngle(Vector3.Cross(forward, up), RotationSpeed);
                 forward = Vector3.Normalize(Vector3.Transform(forward, t));
                 up = Vector3.Normalize(Vector3.Transform(up, t));
             }
             // Pan right - rotate forward around up
-            if (context.PressedKeys.Contains('D'))
+            if (view.PressedKeys.Contains('D'))
             {
                 forward = Vector3.Normalize(Vector3.Transform(forward, Matrix4x4.CreateFromAxisAngle(up, RotationSpeed)));
             }
             // Pan left - rotate forward around up
-            if (context.PressedKeys.Contains('A'))
+            if (view.PressedKeys.Contains('A'))
             {
                 forward = Vector3.Normalize(Vector3.Transform(forward, Matrix4x4.CreateFromAxisAngle(up, -RotationSpeed)));
             }
             // Roll right - rotate up around forward
-            if (context.PressedKeys.Contains('Q'))
+            if (view.PressedKeys.Contains('Q'))
             {
                 up = Vector3.Normalize(Vector3.Transform(up, Matrix4x4.CreateFromAxisAngle(forward, -RollSpeed)));
             }
             // Roll left - rotate up around forward
-            if (context.PressedKeys.Contains('E'))
+            if (view.PressedKeys.Contains('E'))
             {
                 up = Vector3.Normalize(Vector3.Transform(up, Matrix4x4.CreateFromAxisAngle(forward, RollSpeed)));
             }
             // Zoom
-            zoomLevel += context.MouseWheelDelta;
+            zoomLevel += view.MouseWheelDelta;
 
             // Projection matrix
             Projection = Matrix4x4.CreatePerspectiveFieldOfView(
                 FieldOfView,
-                context.DisplayAspectRatio(),
+                view.AspectRatio,
                 NearPlaneDistance,
                 FarPlaneDistance);
 
