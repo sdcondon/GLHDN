@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Gui.Fragment.glsl" />
+    <None Remove="Gui.Vertex.glsl" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Gui.Fragment.glsl" />
+    <EmbeddedResource Include="Gui.Vertex.glsl" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SharpFontStandard" Version="4.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Views\Views.csproj" />
+  </ItemGroup>
+
+</Project>

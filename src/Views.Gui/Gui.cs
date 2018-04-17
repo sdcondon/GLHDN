@@ -1,4 +1,4 @@
-﻿namespace GLHDN.Views
+﻿namespace GLHDN.Views.Renderables.Gui
 {
     using System;
     using System.Collections.Generic;
@@ -11,7 +11,7 @@
     /// </summary>
     public class Gui : IRenderable, IGuiElement
     {
-        private const string ShaderResourceNamePrefix = "GLHDN.Views.Gui";
+        private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.Gui";
 
         private readonly View view;
         private readonly Queue<Action> updates = new Queue<Action>();

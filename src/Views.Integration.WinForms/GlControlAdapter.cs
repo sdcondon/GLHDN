@@ -1,4 +1,4 @@
-﻿namespace GLHDN.Views.Integration.WinForms
+﻿namespace GLHDN.Views.Contexts.WinForms
 {
     using GLHDN.Views;
     using OpenGL;
@@ -26,8 +26,7 @@
             this.glControl.Resize += (s, a) => Resize?.Invoke(this, new Vector2(this.glControl.ClientSize.Width, this.glControl.ClientSize.Height));
             this.glControl.GotFocus += (s, a) => GotFocus?.Invoke(this, EventArgs.Empty);
 
-            this.modelUpdateTimer = new Timer();
-            this.modelUpdateTimer.Interval = 15;
+            this.modelUpdateTimer = new Timer() { Interval = 15 };
             this.modelUpdateTimer.Tick += (s, a) => Update(this, EventArgs.Empty);
             this.modelUpdateTimer.Start();
         }

@@ -4,12 +4,17 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>GLHDN.Core</AssemblyName>
     <RootNamespace>GLHDN.Core</RootNamespace>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>0.1.0</Version>
-    <PackageId>OpenGlHelpers.Core</PackageId>
-    <Authors>OpenGlHelpers.Core</Authors>
-    <Company>OpenGlHelpers.Core</Company>
-    <Product>OpenGlHelpers.Core</Product>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>GLHDN.Core</PackageId>
+    <Authors>Simon Condon</Authors>
+    <Company></Company>
+    <Product>Open GL Helpers for .NET</Product>
+    <RepositoryType>git</RepositoryType>
+    <Description>Open GL Helpers for .NET: Core types. Low-level OO wrappers around Open GL concepts.</Description>
   </PropertyGroup>
 
   <ItemGroup>

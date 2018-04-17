@@ -1,4 +1,4 @@
-﻿namespace GLHDN.Views.Integration.WinForms
+﻿namespace GLHDN.Views.Contexts.WinForms
 {
     using OpenGL;
     using System.Drawing;

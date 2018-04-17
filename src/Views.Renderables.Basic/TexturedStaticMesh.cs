@@ -1,4 +1,4 @@
-﻿namespace GLHDN.Views
+﻿namespace GLHDN.Views.Renderables.Basic
 {
     using OpenGL;
     using GLHDN.Core;
@@ -11,7 +11,7 @@
     /// </summary>
     public class StaticTexuredRenderer : IRenderable
     {
-        private const string ShaderResourceNamePrefix = "GLHDN.Views.BasicRenderables";
+        private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.Basic";
 
         private readonly IViewProjection viewProjection;
         private readonly string textureFilePath;

@@ -8,7 +8,7 @@
     <AssemblyName>GLHDN.Views.Integration.WinForms.Test</AssemblyName>
     <RootNamespace>GLHDN.Views.Integration.WinForms.Test</RootNamespace>
   </PropertyGroup>
-
+  
   <ItemGroup>
     <None Remove="uvmap.DDS" />
   </ItemGroup>
@@ -24,7 +24,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Views.Integration.WinForms\Views.Integration.WinForms.csproj" />
+    <ProjectReference Include="..\Views.Gui\Views.Renderables.Gui.csproj" />
+    <ProjectReference Include="..\Views.Integration.WinForms\Views.Contexts.WinForms.csproj" />
+    <ProjectReference Include="..\Views.Renderables.Basic\Views.Renderables.Basic.csproj" />
     <ProjectReference Include="..\Views\Views.csproj" />
   </ItemGroup>
 

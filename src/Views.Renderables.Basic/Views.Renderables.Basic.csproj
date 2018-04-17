@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Colored.Fragment.glsl" />
+    <None Remove="Colored.Vertex.glsl" />
+    <None Remove="Textured.Fragment.glsl" />
+    <None Remove="Textured.Vertex.glsl" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Colored.Fragment.glsl" />
+    <EmbeddedResource Include="Colored.Vertex.glsl" />
+    <EmbeddedResource Include="Textured.Fragment.glsl" />
+    <EmbeddedResource Include="Textured.Vertex.glsl" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Views\Views.csproj" />
+  </ItemGroup>
+
+</Project>

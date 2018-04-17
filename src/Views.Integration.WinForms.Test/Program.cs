@@ -1,7 +1,7 @@
-﻿namespace GLHDN.Views.Integration.WinForms.Test
+﻿namespace GLHDN.Views.Contexts.WinForms.Test
 {
-    using GLHDN.Views;
-    using GLHDN.Views.Integration.WinForms;
+    using GLHDN.Views.Renderables.Basic;
+    using GLHDN.Views.Renderables.Gui;
     using System;
     using System.Numerics;
     using System.Windows.Forms;

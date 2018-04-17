@@ -1,4 +1,4 @@
-﻿namespace GLHDN.Views
+﻿namespace GLHDN.Views.Renderables.Gui
 {
     using System;
     using System.Numerics;
