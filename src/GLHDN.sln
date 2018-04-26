@@ -7,13 +7,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Core\Core.csproj", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Views", "Views\Views.csproj", "{CD34FEE4-C4D8-4915-B150-722BB0C1BD2D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Views.Contexts.WinForms", "Views.Integration.WinForms\Views.Contexts.WinForms.csproj", "{216FFA39-DBEB-4DE2-BC56-EB21185D14AC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Views.Contexts.WinForms", "Views.Contexts.WinForms\Views.Contexts.WinForms.csproj", "{216FFA39-DBEB-4DE2-BC56-EB21185D14AC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Views.Contexts.WinForms.Test", "Views.Integration.WinForms.Test\Views.Contexts.WinForms.Test.csproj", "{969ECA8B-E0DF-487C-A65E-AF08C5AB1064}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Views.Contexts.WinForms.Test", "Views.Contexts.WinForms.Test\Views.Contexts.WinForms.Test.csproj", "{969ECA8B-E0DF-487C-A65E-AF08C5AB1064}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Views.Renderables.Gui", "Views.Gui\Views.Renderables.Gui.csproj", "{A3B6711D-F4E1-4749-B598-E27DE2806D29}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Views.Renderables.Basic", "Views.Renderables.Basic\Views.Renderables.Basic.csproj", "{EB71ED01-30A1-4F29-BAE2-7AA1B3D6B59D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Views.Renderables.Basic", "Views.Renderables.Basic\Views.Renderables.Basic.csproj", "{EB71ED01-30A1-4F29-BAE2-7AA1B3D6B59D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Views.Renderables.Gui", "Views.Renderables.Gui\Views.Renderables.Gui.csproj", "{A3B6711D-F4E1-4749-B598-E27DE2806D29}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,14 +37,14 @@ Global
 		{969ECA8B-E0DF-487C-A65E-AF08C5AB1064}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{969ECA8B-E0DF-487C-A65E-AF08C5AB1064}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{969ECA8B-E0DF-487C-A65E-AF08C5AB1064}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A3B6711D-F4E1-4749-B598-E27DE2806D29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A3B6711D-F4E1-4749-B598-E27DE2806D29}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A3B6711D-F4E1-4749-B598-E27DE2806D29}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A3B6711D-F4E1-4749-B598-E27DE2806D29}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EB71ED01-30A1-4F29-BAE2-7AA1B3D6B59D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EB71ED01-30A1-4F29-BAE2-7AA1B3D6B59D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EB71ED01-30A1-4F29-BAE2-7AA1B3D6B59D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EB71ED01-30A1-4F29-BAE2-7AA1B3D6B59D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3B6711D-F4E1-4749-B598-E27DE2806D29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3B6711D-F4E1-4749-B598-E27DE2806D29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3B6711D-F4E1-4749-B598-E27DE2806D29}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3B6711D-F4E1-4749-B598-E27DE2806D29}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

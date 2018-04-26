@@ -5,8 +5,8 @@
     <TargetFramework>net461</TargetFramework>
     <ApplicationIcon />
     <StartupObject />
-    <AssemblyName>GLHDN.Views.Integration.WinForms.Test</AssemblyName>
-    <RootNamespace>GLHDN.Views.Integration.WinForms.Test</RootNamespace>
+    <AssemblyName>GLHDN.Views.Contexts.WinForms.Test</AssemblyName>
+    <RootNamespace>GLHDN.Views.Contexts.WinForms.Test</RootNamespace>
   </PropertyGroup>
   
   <ItemGroup>
@@ -24,9 +24,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Views.Gui\Views.Renderables.Gui.csproj" />
-    <ProjectReference Include="..\Views.Integration.WinForms\Views.Contexts.WinForms.csproj" />
+    <ProjectReference Include="..\Views.Contexts.WinForms\Views.Contexts.WinForms.csproj" />
     <ProjectReference Include="..\Views.Renderables.Basic\Views.Renderables.Basic.csproj" />
+    <ProjectReference Include="..\Views.Renderables.Gui\Views.Renderables.Gui.csproj" />
     <ProjectReference Include="..\Views\Views.csproj" />
   </ItemGroup>
 

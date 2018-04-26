@@ -55,8 +55,8 @@
                         Size = new Vector2(200f, 1f),
                         IsSizeXRelative = false,
                         IsSizeYRelative = true,
-                        Color = new Vector4(0.2f, 0.2f, 0.2f, 0.2f),
-                        BorderWidth = 3f
+                        Color = new Vector4(0.5f, 0.2f, 0.2f, 0.4f),
+                        BorderWidth = 1f
                     }
                 });
 

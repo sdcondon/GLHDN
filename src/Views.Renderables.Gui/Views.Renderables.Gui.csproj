@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>GLHDN.Views.Renderables.Gui</AssemblyName>
+    <RootNamespace>GLHDN.Views.Renderables.Gui</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,7 +17,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="SharpFont.Dependencies" Version="2.6.0" />
     <PackageReference Include="SharpFontStandard" Version="4.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Fonts\Inconsolata\" />
   </ItemGroup>
 
   <ItemGroup>
