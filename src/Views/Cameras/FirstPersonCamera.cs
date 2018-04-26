@@ -1,6 +1,5 @@
 ﻿namespace GLHDN.Views
 {
-    using GLHDN.Core;
     using System;
     using System.Numerics;
 
