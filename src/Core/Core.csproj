@@ -14,7 +14,7 @@
     <Company></Company>
     <Product>Open GL Helpers for .NET</Product>
     <RepositoryType>git</RepositoryType>
-    <Description>Open GL Helpers for .NET: Core types. Low-level OO wrappers around Open GL concepts.</Description>
+    <Description>Open GL Helpers for .NET / core: Low-level OO wrappers around Open GL concepts.</Description>
   </PropertyGroup>
 
   <ItemGroup>

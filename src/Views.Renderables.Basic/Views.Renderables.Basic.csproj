@@ -4,6 +4,12 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>GLHDN.Views.Renderables.Basic</AssemblyName>
     <RootNamespace>GLHDN.Views.Renderables.Basic</RootNamespace>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>0.1.0</Version>
+    <Authors>Simon Condon</Authors>
+    <Product>Open GL Helpers for .NET</Product>
+    <Company />
+    <Description>Open GL Helpers for .NET / view engine: Test renderable implementations.</Description>
   </PropertyGroup>
 
   <ItemGroup>

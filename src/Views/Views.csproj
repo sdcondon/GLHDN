@@ -13,6 +13,7 @@
     <Authors>Simon Condon</Authors>
     <Company></Company>
     <Product>Open GL Helpers for .NET</Product>
+    <Description>Open GL Helpers for .NET / view engine: core types and abstractions.</Description>
   </PropertyGroup>
 
   <ItemGroup>

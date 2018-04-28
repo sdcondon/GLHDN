@@ -46,15 +46,9 @@
                 {
                     new GuiElement(null)
                     {
-                        ParentOrigin = new Vector2(-1, 0),
-                        IsParentOriginXRelative = true,
-                        IsParentOriginYRelative = true,
-                        LocalOrigin = new Vector2(-1, 0),
-                        IsLocalOriginXRelative = true,
-                        IsLocalOriginYRelative = true,
-                        Size = new Vector2(200f, 1f),
-                        IsSizeXRelative = false,
-                        IsSizeYRelative = true,
+                        ParentOrigin = new Dimensions(-1f, 0f),
+                        LocalOrigin = new Dimensions(-1f, 0f),
+                        Size = new Dimensions(200, 1f),
                         Color = new Vector4(0.5f, 0.2f, 0.2f, 0.4f),
                         BorderWidth = 1f
                     }
