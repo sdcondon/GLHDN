@@ -13,8 +13,7 @@
     /// </summary>
     public sealed class ObjectBuffer<T> : ICollection<T>, IDisposable
     {
-        private readonly HashSet<T> objects = new HashSet<T>();
-
+        private readonly Dictionary<T, int> objects = new Dictionary<T, int>();
         private readonly GlVertexArrayObject vao;
         private readonly int verticesPerObject;
         private readonly IList<Func<T, int, object>> attributeGetters;
@@ -33,8 +32,8 @@
             this.vao = new GlVertexArrayObject(
                 primitiveType,
                 attributeTypes.Select(a => BufferUsage.DynamicDraw).ToArray(),
-                attributeTypes.Select(a => Array.CreateInstance(a, objectCapacity * verticesPerObject)).ToArray(), // TODO: different VAO ctor to avoid needless large allocation 
-                new uint[objectCapacity * indices.Count]); // TODO: different VAO ctor to avoid needless large allocation
+                attributeTypes.Select(a => Array.CreateInstance(a, objectCapacity * verticesPerObject)).ToArray(), // TODO: different VAO ctor to avoid needless large heap allocation 
+                new uint[objectCapacity * indices.Count]); // TODO: different VAO ctor to avoid needless large heap allocation
             this.verticesPerObject = verticesPerObject;
             this.attributeGetters = attributeGetters;
             this.indices = indices;
@@ -51,35 +50,27 @@
         /// <inheritdoc />
         public void Add(T item)
         {
+            var itemIndex = objects.Count;
+
             // Check buffer size
-            if (objects.Count >= objectCapacity)
+            if (itemIndex >= objectCapacity)
             {
-                throw new InvalidOperationException("Buffer is full");
                 // TODO: expand (i.e. recreate) buffer? ResizeBuffer method in GlVertexArrayObject:
                 // Create new, glCopyBufferSubData, delete old, update buffer ID array. 
+                throw new InvalidOperationException("Buffer is full");
             }
 
-            // Get attribute values and update the buffers
-            for (int i = 0; i < attributeGetters.Count; i++)
-            {
-                for (int j = 0; j < verticesPerObject; j++)
-                {
-                    vao.BufferSubData(
-                        i,
-                        objects.Count * verticesPerObject + j,
-                        attributeGetters[i](item, j));
-                }
-            }
+            SetAttributeData(item, itemIndex);
 
-            // update the index
+            // Update the index
             for (int i = 0; i < this.indices.Count; i++)
             {
                 vao.SetIndexData(
-                    objects.Count * indices.Count + i,
-                    (uint)(objects.Count * verticesPerObject + indices[i]));
+                    itemIndex * indices.Count + i,
+                    (uint)(itemIndex * verticesPerObject + indices[i]));
             }
 
-            objects.Add(item);
+            objects.Add(item, itemIndex);
         }
 
         /// <inheritdoc />
@@ -90,21 +81,22 @@
         }
 
         /// <inheritdoc />
-        public bool Contains(T item) => objects.Contains(item);
+        public bool Contains(T item) => objects.Keys.Contains(item);
 
         /// <inheritdoc />
-        public void CopyTo(T[] array, int arrayIndex) => objects.CopyTo(array, arrayIndex);
+        public void CopyTo(T[] array, int arrayIndex) => objects.Keys.CopyTo(array, arrayIndex);
 
         /// <inheritdoc />
-        public IEnumerator<T> GetEnumerator() => objects.GetEnumerator();
+        public IEnumerator<T> GetEnumerator() => objects.Keys.GetEnumerator();
 
         /// <inheritdoc />
         public bool Remove(T item)
         {
             throw new NotImplementedException();
 
-            // TODO: Find buffer segment for object (will need to keep a record), overwrite it with last buffer
-            // segment. Don't forget to update indices appropriately.
+            // TODO: Find buffer segment for object (will need to keep a record).
+            // Overwrite it with last buffer segment.
+            // Don't think need to do anything with indices because of their constant nature..
             objects.Remove(item);
         }
 
@@ -127,7 +119,28 @@
 
         public void ItemChanged(T item)
         {
-            throw new NotImplementedException();
+            // TODO: more graceful error handling if ege item not found
+            var itemIndex = this.objects[item];
+            SetAttributeData(item, itemIndex);
+        }
+
+        /// <summary>
+        /// Updates attribute buffers in the underlying VAO for a given item.
+        /// </summary>
+        /// <param name="item">The item.</param>
+        /// <param name="itemIndex">The index of the item within the underlying VAO.</param>
+        private void SetAttributeData(T item, int itemIndex)
+        {
+            for (int i = 0; i < this.attributeGetters.Count; i++)
+            {
+                for (int j = 0; j < this.verticesPerObject; j++)
+                {
+                    this.vao.BufferSubData(
+                        i,
+                        itemIndex * this.verticesPerObject + j,
+                        this.attributeGetters[i](item, j));
+                }
+            }
         }
     }
 }
