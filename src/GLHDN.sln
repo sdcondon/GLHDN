@@ -15,6 +15,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Views.Renderables.Basic", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Views.Renderables.Gui", "Views.Renderables.Gui\Views.Renderables.Gui.csproj", "{A3B6711D-F4E1-4749-B598-E27DE2806D29}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestHarnesses", "TestHarnesses", "{4AFA3865-7E06-4CB0-84BD-4B5E8B9BE9ED}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,6 +50,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{969ECA8B-E0DF-487C-A65E-AF08C5AB1064} = {4AFA3865-7E06-4CB0-84BD-4B5E8B9BE9ED}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9F42C783-2260-446E-955A-0845D42D3BF0}

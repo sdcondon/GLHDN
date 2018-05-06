@@ -40,19 +40,17 @@
             lines = new ColoredLines(camera);
             view.Renderables.Add(lines);
 
-            gui = new Gui(
-                view,
-                new[]
+            gui = new Gui(view)
+            {
+                new GuiElement(null)
                 {
-                    new GuiElement(null)
-                    {
-                        ParentOrigin = new Dimensions(-1f, 0f),
-                        LocalOrigin = new Dimensions(-1f, 0f),
-                        Size = new Dimensions(200, 1f),
-                        Color = new Vector4(0.5f, 0.2f, 0.2f, 0.4f),
-                        BorderWidth = 1f
-                    }
-                });
+                    ParentOrigin = new Dimensions(-1f, 0f),
+                    LocalOrigin = new Dimensions(-1f, 0f),
+                    Size = new Dimensions(200, 1f),
+                    Color = new Vector4(0.5f, 0.2f, 0.2f, 0.4f),
+                    BorderWidth = 1f
+                }
+            }
 
             Application.Run(form);
         }

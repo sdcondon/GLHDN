@@ -4,14 +4,15 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    //TODO: using System.ComponentModel;
     using System.Linq;
 
     /// <summary>
     /// Wraps a <see cref="GlVertexArrayObject"/> that stores vertex data for a collection of objects.
     /// Presents simply as an <see cref="ICollection{T}"/> of the objects.
-    /// Updates the backing VAO appropriately as the collection is modified.
+    /// Updates the backing VAO appropriately as the collection (TODO: and the items within it) is modified.
     /// </summary>
-    public sealed class ObjectBuffer<T> : ICollection<T>, IDisposable
+    public sealed class ObjectBuffer<T> : ICollection<T>, IDisposable // TODO: where T : INotifyPropertyChanged
     {
         private readonly Dictionary<T, int> objects = new Dictionary<T, int>();
         private readonly GlVertexArrayObject vao;
@@ -71,6 +72,19 @@
             }
 
             objects.Add(item, itemIndex);
+
+            //TODO: item.PropertyChanged += Item_PropertyChanged;
+        }
+
+        /// <inheritdoc />
+        public bool Remove(T item)
+        {
+            throw new NotImplementedException();
+
+            // TODO: Find buffer segment for object (will need to keep a record).
+            // Overwrite it with last buffer segment.
+            // Don't think need to do anything with indices because of their constant nature..
+            objects.Remove(item);
         }
 
         /// <inheritdoc />
@@ -90,17 +104,6 @@
         public IEnumerator<T> GetEnumerator() => objects.Keys.GetEnumerator();
 
         /// <inheritdoc />
-        public bool Remove(T item)
-        {
-            throw new NotImplementedException();
-
-            // TODO: Find buffer segment for object (will need to keep a record).
-            // Overwrite it with last buffer segment.
-            // Don't think need to do anything with indices because of their constant nature..
-            objects.Remove(item);
-        }
-
-        /// <inheritdoc />
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)objects).GetEnumerator();
 
         /// <inheritdoc />
@@ -115,13 +118,6 @@
         public void Draw()
         {
             this.vao.Draw(objects.Count * indices.Count);
-        }
-
-        public void ItemChanged(T item)
-        {
-            // TODO: more graceful error handling if ege item not found
-            var itemIndex = this.objects[item];
-            SetAttributeData(item, itemIndex);
         }
 
         /// <summary>
@@ -142,5 +138,15 @@
                 }
             }
         }
+
+        /* TODO
+        private void Item_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            throw new NotImplementedException();
+            // TODO: more graceful error handling if ege item not found
+            var itemIndex = this.objects[item];
+            SetAttributeData(item, itemIndex);
+        }
+        */
     }
 }

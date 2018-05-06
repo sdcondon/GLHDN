@@ -23,7 +23,7 @@ void main() {
 		
 	matColor = vertexColor;
 	velementPos = elementPos;
-	velementSize =elementSize;
+	velementSize = elementSize;
 	vborderWidth = borderWidth;
 }
 

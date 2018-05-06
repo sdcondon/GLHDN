@@ -1,4 +1,6 @@
 ﻿//https://raw.githubusercontent.com/nothings/stb/master/stb_rect_pack.h
+
+
 // stb_rect_pack.h - v0.11 - public domain - rectangle packing
 // Sean Barrett 2014
 //
@@ -52,15 +54,73 @@ namespace NanoGL.Stb.TrueType
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Text;
 
     class stb_rect_pack
     {
-//#if STBRP_LARGE_RECTS
-//typedef int stbrp_coord;
-//#else
-//typedef unsigned short stbrp_coord;
-//#endif
+        //#if STBRP_LARGE_RECTS
+        //typedef int stbrp_coord;
+        //#else
+        //typedef unsigned short stbrp_coord;
+        //#endif
+
+        private static readonly Action<bool> STBRP_ASSERT = b => Debug.Assert(b);
+
+        // Initialize a rectangle packer to:
+        //    pack a rectangle that is 'width' by 'height' in dimensions
+        //    using temporary storage provided by the array 'nodes', which is 'num_nodes' long
+        //
+        // You must call this function every time you start packing into a new target.
+        //
+        // There is no "shutdown" function. The 'nodes' memory must stay valid for
+        // the following stbrp_pack_rects() call (or calls), but can be freed after
+        // the call (or calls) finish.
+        //
+        // Note: to guarantee best results, either:
+        //       1. make sure 'num_nodes' >= 'width'
+        //   or  2. call stbrp_allow_out_of_mem() defined below with 'allow_out_of_mem = 1'
+        //
+        // If you don't do either of the above things, widths will be quantized to multiples
+        // of small integers to guarantee the algorithm doesn't run out of temporary storage.
+        //
+        // If you do #2, then the non-quantized algorithm will be used, but the algorithm
+        // may run out of temporary storage and be unable to pack some rectangles.
+        public static void stbrp_init_target(ref stbrp_context context, int width, int height, stbrp_node[] nodes)
+        {
+#if !STBRP_LARGE_RECTS
+            STBRP_ASSERT(width <= 0xffff && height <= 0xffff);
+#endif
+            int i;
+            for (i = 0; i < nodes.Length - 1; ++i)
+            {
+                nodes[i].next = nodes[i + 1];
+            }
+            nodes[i].next = null;
+
+            context.init_mode = STBRP__INIT.skyline;
+            context.heuristic = STBRP_HEURISTIC.Skyline_default;
+            context.free_head = nodes[0];
+            context.active_head = context.extra[0];
+            context.width = width;
+            context.height = height;
+            context.num_nodes = nodes.Length;
+            stbrp_setup_allow_out_of_mem(ref context, false);
+
+            // node 0 is the full width
+            context.extra[0].x = 0;
+            context.extra[0].y = 0;
+            context.extra[0].next = context.extra[1];
+
+            // node 1 is the sentinel (lets us not store width explicitly)
+            context.extra[1].x = width;
+#if STBRP_LARGE_RECTS
+            context.extra[1].y = (1 << 30);
+#else
+            context.extra[1].y = 65535;
+#endif
+            context.extra[1].next = null;
+        }
 
         // Assign packed locations to rectangles. The rectangles are of type
         // 'stbrp_rect' defined below, stored in the array 'rects', and there
@@ -85,23 +145,21 @@ namespace NanoGL.Stb.TrueType
         //
         // The function returns 1 if all of the rectangles were successfully
         // packed and 0 otherwise.
-        public static int stbrp_pack_rects(stbrp_context* context, stbrp_rect* rects, int num_rects)
+        public static int stbrp_pack_rects(ref stbrp_context context, stbrp_rect[] rects)
         {
-            int i, all_rects_packed = 1;
-
             // we use the 'was_packed' field internally to allow sorting/unsorting
-            for (i = 0; i < num_rects; ++i)
+            for (int i = 0; i < rects.Length; ++i)
             {
                 rects[i].was_packed = i;
-# ifndef STBRP_LARGE_RECTS
+#if !STBRP_LARGE_RECTS
                 STBRP_ASSERT(rects[i].w <= 0xffff && rects[i].h <= 0xffff);
 #endif
             }
 
             // sort according to heuristic
-            STBRP_SORT(rects, num_rects, sizeof(rects[0]), rect_height_compare);
+            Array.Sort(rects, rect_height_compare);
 
-            for (i = 0; i < num_rects; ++i)
+            for (int i = 0; i < rects.Length; ++i)
             {
                 if (rects[i].w == 0 || rects[i].h == 0)
                 {
@@ -109,38 +167,38 @@ namespace NanoGL.Stb.TrueType
                 }
                 else
                 {
-                    stbrp__findresult fr = stbrp__skyline_pack_rectangle(context, rects[i].w, rects[i].h);
-                    if (fr.prev_link)
+                    stbrp__findresult fr = stbrp__skyline_pack_rectangle(ref context, rects[i].w, rects[i].h);
+                    if (fr.prev_link != null)
                     {
-                        rects[i].x = (stbrp_coord)fr.x;
-                        rects[i].y = (stbrp_coord)fr.y;
+                        rects[i].x = fr.x;
+                        rects[i].y = fr.y;
                     }
                     else
                     {
-                        rects[i].x = rects[i].y = STBRP__MAXVAL;
+                        rects[i].x = rects[i].y = int.MaxValue;
                     }
                 }
             }
 
             // unsort
-            STBRP_SORT(rects, num_rects, sizeof(rects[0]), rect_original_order);
+            Array.Sort(rects, rect_original_order);
 
             // set was_packed flags and all_rects_packed status
-            for (i = 0; i < num_rects; ++i)
+            int all_rects_packed = 1;
+            for (int i = 0; i < rects.Length; ++i)
             {
-                rects[i].was_packed = !(rects[i].x == STBRP__MAXVAL && rects[i].y == STBRP__MAXVAL);
-                if (!rects[i].was_packed)
+                rects[i].was_packed = !(rects[i].x == int.MaxValue && rects[i].y == int.MaxValue) ? 1 : 0;
+                if (rects[i].was_packed != 0)
                 {
                     all_rects_packed = 0;
                 }
             }
 
-            // return the all_rects_packed status
             return all_rects_packed;
         }
 
         // 16 bytes, nominally
-        struct stbrp_rect
+        public struct stbrp_rect
         {
             // reserved for your use:
             public int id;
@@ -153,94 +211,44 @@ namespace NanoGL.Stb.TrueType
             public int was_packed;  // non-zero if valid packing
         }; 
 
-        // Initialize a rectangle packer to:
-        //    pack a rectangle that is 'width' by 'height' in dimensions
-        //    using temporary storage provided by the array 'nodes', which is 'num_nodes' long
-        //
-        // You must call this function every time you start packing into a new target.
-        //
-        // There is no "shutdown" function. The 'nodes' memory must stay valid for
-        // the following stbrp_pack_rects() call (or calls), but can be freed after
-        // the call (or calls) finish.
-        //
-        // Note: to guarantee best results, either:
-        //       1. make sure 'num_nodes' >= 'width'
-        //   or  2. call stbrp_allow_out_of_mem() defined below with 'allow_out_of_mem = 1'
-        //
-        // If you don't do either of the above things, widths will be quantized to multiples
-        // of small integers to guarantee the algorithm doesn't run out of temporary storage.
-        //
-        // If you do #2, then the non-quantized algorithm will be used, but the algorithm
-        // may run out of temporary storage and be unable to pack some rectangles.
-        public static void stbrp_init_target(stbrp_context* context, int width, int height, stbrp_node* nodes, int num_nodes)
-        {
-            int i;
-#ifndef STBRP_LARGE_RECTS
-            STBRP_ASSERT(width <= 0xffff && height <= 0xffff);
-#endif
-
-            for (i = 0; i < num_nodes - 1; ++i)
-                nodes[i].next = &nodes[i + 1];
-            nodes[i].next = NULL;
-            context->init_mode = STBRP__INIT.skyline;
-            context->heuristic = STBRP_HEURISTIC.Skyline_default;
-            context->free_head = &nodes[0];
-            context->active_head = &context->extra[0];
-            context->width = width;
-            context->height = height;
-            context->num_nodes = num_nodes;
-            stbrp_setup_allow_out_of_mem(context, 0);
-
-            // node 0 is the full width, node 1 is the sentinel (lets us not store width explicitly)
-            context->extra[0].x = 0;
-            context->extra[0].y = 0;
-            context->extra[0].next = &context->extra[1];
-            context->extra[1].x = (stbrp_coord)width;
-# ifdef STBRP_LARGE_RECTS
-            context->extra[1].y = (1 << 30);
-#else
-            context->extra[1].y = 65535;
-#endif
-            context->extra[1].next = NULL;
-        }
-
         // Optionally call this function after init but before doing any packing to
         // change the handling of the out-of-temp-memory scenario, described above.
         // If you call init again, this will be reset to the default (false).
-        public static void stbrp_setup_allow_out_of_mem(stbrp_context* context, int allow_out_of_mem)
+        public static void stbrp_setup_allow_out_of_mem(ref stbrp_context context, bool allow_out_of_mem)
         {
             if (allow_out_of_mem)
+            {
                 // if it's ok to run out of memory, then don't bother aligning them;
                 // this gives better packing, but may fail due to OOM (even though
                 // the rectangles easily fit). @TODO a smarter approach would be to only
                 // quantize once we've hit OOM, then we could get rid of this parameter.
-                context->align = 1;
+                context.align = 1;
+            }
             else
             {
                 // if it's not ok to run out of memory, then quantize the widths
                 // so that num_nodes is always enough nodes.
-                //
                 // I.e. num_nodes * align >= width
                 //                  align >= width / num_nodes
                 //                  align = ceil(width/num_nodes)
-
-                context->align = (context->width + context->num_nodes - 1) / context->num_nodes;
+                context.align = (context.width + context.num_nodes - 1) / context.num_nodes;
             }
         }
 
         // Optionally select which packing heuristic the library should use. Different
         // heuristics will produce better/worse results for different data sets.
         // If you call init again, this will be reset to the default.
-        public static void stbrp_setup_heuristic(stbrp_context* context, int heuristic)
+        public static void stbrp_setup_heuristic(ref stbrp_context context, STBRP_HEURISTIC heuristic)
         {
-            switch (context->init_mode)
+            switch (context.init_mode)
             {
                 case STBRP__INIT.skyline:
-                    STBRP_ASSERT(heuristic == STBRP_HEURISTIC_Skyline_BL_sortHeight || heuristic == STBRP_HEURISTIC_Skyline_BF_sortHeight);
-                    context->heuristic = heuristic;
+                    STBRP_ASSERT(heuristic == STBRP_HEURISTIC.Skyline_BL_sortHeight || heuristic == STBRP_HEURISTIC.Skyline_BF_sortHeight);
+                    context.heuristic = heuristic;
                     break;
                 default:
-                    STBRP_ASSERT(0);
+                    STBRP_ASSERT(false);
+                    break;
             }
         }
 
@@ -252,14 +260,13 @@ namespace NanoGL.Stb.TrueType
         }
 
         //////////////////////////////////////////////////////////////////////////////
-        //
         // the details of the following structures don't matter to you, but they must
         // be visible so you can handle the memory allocations for them
 
-        public struct stbrp_node
+        public class stbrp_node
         {
             public int x, y;
-            stbrp_node* next;
+            public stbrp_node next;
         };
 
         public struct stbrp_context
@@ -267,12 +274,12 @@ namespace NanoGL.Stb.TrueType
             public int width;
             public int height;
             public int align;
-            public int init_mode;
-            public int heuristic;
+            public STBRP__INIT init_mode;
+            public STBRP_HEURISTIC heuristic;
             public int num_nodes;
-            public stbrp_node* active_head;
-            public stbrp_node* free_head;
-            public stbrp_node extra[2]; // we allocate two extra nodes so optimal user-node-count is 'width' not 'width+2'
+            public stbrp_node active_head;
+            public stbrp_node free_head;
+            public stbrp_node[] extra = new stbrp_node[2]; // we allocate two extra nodes so optimal user-node-count is 'width' not 'width+2'
         };
 
         private enum STBRP__INIT
@@ -281,86 +288,89 @@ namespace NanoGL.Stb.TrueType
         }
 
         // find minimum y position if it starts at x1
-        static int stbrp__skyline_find_min_y(stbrp_context* c, stbrp_node* first, int x0, int width, int* pwaste)
+        static int stbrp__skyline_find_min_y(ref stbrp_context c, stbrp_node first, int x0, int width, ref int pwaste)
         {
-            stbrp_node* node = first;
+            stbrp_node node = first;
             int x1 = x0 + width;
             int min_y, visited_width, waste_area;
 
-            STBRP__NOTUSED(c);
-
-            STBRP_ASSERT(first->x <= x0);
-
-#if 0
-   // skip in case we're past the node
-   while (node->next->x <= x0)
-      ++node;
+            // STBRP__NOTUSED(c);
+            STBRP_ASSERT(first.x <= x0);
+#if false
+            // skip in case we're past the node
+            while (node->next->x <= x0)
+            ++node;
 #else
-            STBRP_ASSERT(node->next->x > x0); // we ended up handling this in the caller for efficiency
+            STBRP_ASSERT(node.next.x > x0); // we ended up handling this in the caller for efficiency
 #endif
 
-            STBRP_ASSERT(node->x <= x0);
+            STBRP_ASSERT(node.x <= x0);
 
             min_y = 0;
             waste_area = 0;
             visited_width = 0;
-            while (node->x < x1)
+            while (node.x < x1)
             {
-                if (node->y > min_y)
+                if (node.y > min_y)
                 {
                     // raise min_y higher.
                     // we've accounted for all waste up to min_y,
                     // but we'll now add more waste for everything we've visted
-                    waste_area += visited_width * (node->y - min_y);
-                    min_y = node->y;
+                    waste_area += visited_width * (node.y - min_y);
+                    min_y = node.y;
                     // the first time through, visited_width might be reduced
-                    if (node->x < x0)
-                        visited_width += node->next->x - x0;
+                    if (node.x < x0)
+                    {
+                        visited_width += node.next.x - x0;
+                    }
                     else
-                        visited_width += node->next->x - node->x;
+                    {
+                        visited_width += node.next.x - node.x;
+                    }
                 }
                 else
                 {
                     // add waste area
-                    int under_width = node->next->x - node->x;
+                    int under_width = node.next.x - node.x;
                     if (under_width + visited_width > width)
                         under_width = width - visited_width;
-                    waste_area += under_width * (min_y - node->y);
+                    waste_area += under_width * (min_y - node.y);
                     visited_width += under_width;
                 }
-                node = node->next;
+                node = node.next;
             }
 
-            *pwaste = waste_area;
+            pwaste = waste_area;
             return min_y;
         }
 
         struct stbrp__findresult
         {
-            int x, y;
-            stbrp_node** prev_link;
+            public int x, y;
+            public stbrp_node** prev_link;
         }
 
-        static stbrp__findresult stbrp__skyline_find_best_pos(stbrp_context* c, int width, int height)
+        static stbrp__findresult stbrp__skyline_find_best_pos(ref stbrp_context c, int width, int height)
         {
             int best_waste = (1 << 30), best_x, best_y = (1 << 30);
             stbrp__findresult fr;
-            stbrp_node** prev, *node, *tail, **best = NULL;
+            stbrp_node *tail, **best = NULL;
 
-            // align to multiple of c->align
-            width = (width + c->align - 1);
-            width -= width % c->align;
-            STBRP_ASSERT(width % c->align == 0);
+            // align to multiple of c.align
+            width = (width + c.align - 1);
+            width -= width % c.align;
+            STBRP_ASSERT(width % c.align == 0);
 
-            node = c->active_head;
-            prev = &c->active_head;
-            while (node->x + width <= c->width)
+            var node = c.active_head;
+            stbrp_node** prev = &c->active_head;
+            while (node.x + width <= c.width)
             {
                 int y, waste;
-                y = stbrp__skyline_find_min_y(c, node, node->x, width, &waste);
-                if (c->heuristic == STBRP_HEURISTIC_Skyline_BL_sortHeight)
-                { // actually just want to test BL
-                  // bottom left
+                y = stbrp__skyline_find_min_y(c, node, node.x, width, ref waste);
+                if (c.heuristic == STBRP_HEURISTIC.Skyline_BL_sortHeight)
+                {
+                    // actually just want to test BL
+                    // bottom left
                     if (y < best_y)
                     {
                         best_y = y;
@@ -370,7 +380,7 @@ namespace NanoGL.Stb.TrueType
                 else
                 {
                     // best-fit
-                    if (y + height <= c->height)
+                    if (y + height <= c.height)
                     {
                         // can only use it if it first vertically
                         if (y < best_y || (y == best_y && waste < best_waste))
@@ -381,11 +391,12 @@ namespace NanoGL.Stb.TrueType
                         }
                     }
                 }
-                prev = &node->next;
-                node = node->next;
+
+                prev = &node.next;
+                node = node.next;
             }
 
-            best_x = (best == NULL) ? 0 : (*best)->x;
+            best_x = (best == null) ? 0 : (*best)->x;
 
             // if doing best-fit (BF), we also have to try aligning right edge to each node position
             //
@@ -404,7 +415,7 @@ namespace NanoGL.Stb.TrueType
             //
             // This makes BF take about 2x the time
 
-            if (c->heuristic == STBRP_HEURISTIC_Skyline_BF_sortHeight)
+            if (c.heuristic == STBRP_HEURISTIC.Skyline_BF_sortHeight)
             {
                 tail = c->active_head;
                 node = c->active_head;
@@ -449,28 +460,28 @@ namespace NanoGL.Stb.TrueType
             return fr;
         }
 
-        static stbrp__findresult stbrp__skyline_pack_rectangle(stbrp_context* context, int width, int height)
+        static stbrp__findresult stbrp__skyline_pack_rectangle(ref stbrp_context context, int width, int height)
         {
             // find best position according to heuristic
             stbrp__findresult res = stbrp__skyline_find_best_pos(context, width, height);
-            stbrp_node* node, *cur;
+            stbrp_node node, cur;
 
             // bail if:
             //    1. it failed
             //    2. the best node doesn't fit (we don't always check this)
             //    3. we're out of memory
-            if (res.prev_link == NULL || res.y + height > context->height || context->free_head == NULL)
+            if (res.prev_link == null || res.y + height > context.height || context.free_head == null)
             {
-                res.prev_link = NULL;
+                res.prev_link = null;
                 return res;
             }
 
             // on success, create new node
-            node = context->free_head;
-            node->x = (stbrp_coord)res.x;
-            node->y = (stbrp_coord)(res.y + height);
+            node = context.free_head;
+            node.x = res.x;
+            node.y = res.y + height;
 
-            context->free_head = node->next;
+            context.free_head = node.next;
 
             // insert the new node into the right starting point, and
             // let 'cur' point to the remaining nodes needing to be
@@ -545,12 +556,12 @@ namespace NanoGL.Stb.TrueType
                 return -1;
             if (p.h < q.h)
                 return  1;
-            return (p.w > q.w) ? -1 : (p.w < q.w);
+            return (p.w > q.w) ? -1 : (p.w < q.w ? 1 : 0);
         }
 
         private static int rect_original_order(stbrp_rect p, stbrp_rect q)
         {
-           return (p.was_packed < q.was_packed) ? -1 : (p.was_packed > q.was_packed);
+           return (p.was_packed < q.was_packed) ? -1 : (p.was_packed > q.was_packed ? 1 : 0);
         }
 
 //# ifdef STBRP_LARGE_RECTS

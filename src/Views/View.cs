@@ -78,6 +78,8 @@
 
             for (int i = 0; i < Renderables.Count; i++)
             {
+                // Assume each renderable is independent - goes on top of everything drawn already - so clear the depth buffer
+                Gl.Clear(ClearBufferMask.DepthBufferBit);
                 Renderables[i].Render(context);
             }
         }

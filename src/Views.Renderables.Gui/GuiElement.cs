@@ -71,6 +71,6 @@
         /// </summary>
         internal Action<GuiElement> Updated { get; set; }
 
-        // TODO: handlers - onclick, onmouseover, onmouseout etc
+        // TODO: handlers? - onclick, onmouseover, onmouseout etc
     }
 }

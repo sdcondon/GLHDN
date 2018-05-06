@@ -12,6 +12,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Internals\stb_rect_pack.cs" />
+    <Compile Remove="Internals\stb_truetype.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Gui.Fragment.glsl" />
     <None Remove="Gui.Vertex.glsl" />
   </ItemGroup>
@@ -28,6 +33,11 @@
 
   <ItemGroup>
     <Folder Include="Fonts\Inconsolata\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Internals\stb_rect_pack.cs" />
+    <None Include="Internals\stb_truetype.cs" />
   </ItemGroup>
 
   <ItemGroup>
