@@ -12,6 +12,9 @@
     /// Presents simply as an <see cref="ICollection{T}"/> of the objects.
     /// Updates the backing VAO appropriately as the collection (TODO: and the items within it) is modified.
     /// </summary>
+    /// <remarks>
+    /// TODO: Maybe play with re-implementing using persistently mapped buffers at some point..
+    /// </remarks>
     public sealed class ObjectBuffer<T> : ICollection<T>, IDisposable // TODO: where T : INotifyPropertyChanged
     {
         private readonly Dictionary<T, int> objects = new Dictionary<T, int>();
@@ -131,8 +134,7 @@
             {
                 for (int j = 0; j < this.verticesPerObject; j++)
                 {
-                    this.vao.BufferSubData(
-                        i,
+                    this.vao.Buffers[i].SetSubData(
                         itemIndex * this.verticesPerObject + j,
                         this.attributeGetters[i](item, j));
                 }

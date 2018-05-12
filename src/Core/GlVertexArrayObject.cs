@@ -14,8 +14,7 @@
         private readonly uint id;
         private readonly PrimitiveType primitiveType;
 
-        private readonly uint[] attributeBufferIds;
-        private readonly VertexAttribInfo[] attributeInfo;
+        private readonly Buffer[] attributeBuffers;
         private readonly uint? indexBufferId;
         private readonly int vertexCount;
 
@@ -33,15 +32,10 @@
             this.primitiveType = primitiveType;
 
             // Create and populate the attribute buffers
-            var attributeCount = attributeUsages.Count; // TODO: Assert length consistency?
-            this.attributeBufferIds = new uint[attributeCount];
-            this.attributeInfo = new VertexAttribInfo[attributeCount];
-            Gl.GenBuffers(attributeBufferIds);
-            for (int i = 0; i < attributeCount; i++)
+            this.attributeBuffers = new Buffer[attributeUsages.Count]; // TODO: Assert length consistency?
+            for (int i = 0; i < attributeBuffers.Length; i++)
             {
-                Gl.BindBuffer(BufferTarget.ArrayBuffer, attributeBufferIds[i]);
-                Gl.BufferData(BufferTarget.ArrayBuffer, GetBufferSize(attributeData[i]), attributeData[i], attributeUsages[i]);
-                this.attributeInfo[i] = VertexAttribInfo.ForType(attributeData[i].GetType());
+                this.attributeBuffers[i] = new Buffer(attributeData[i], attributeUsages[i]);
             }
 
             // Establish element count & populate index buffer if there is one
@@ -49,7 +43,7 @@
             {
                 this.indexBufferId = Gl.GenBuffer();
                 Gl.BindBuffer(BufferTarget.ElementArrayBuffer, this.indexBufferId.Value);
-                Gl.BufferData(BufferTarget.ElementArrayBuffer, GetBufferSize(indexData), indexData, BufferUsage.StaticDraw);
+                Gl.BufferData(BufferTarget.ElementArrayBuffer, (uint)(sizeof(uint) * indexData.Length), indexData, BufferUsage.DynamicDraw);
                 this.vertexCount = indexData.Length;
             }
             else
@@ -63,9 +57,10 @@
         /// </summary>
         ~GlVertexArrayObject()
         {
-            Gl.DeleteBuffers(this.attributeBufferIds); // TODO: fix me? - can't reliably reference ref type in finalizer.
             Gl.DeleteVertexArrays(this.id);
         }
+
+        public IReadOnlyList<Buffer> Buffers => this.attributeBuffers;
 
         /// <summary>
         /// Draw with the active program. TODO: Allow specification of buffer binding?
@@ -75,14 +70,14 @@
             Gl.BindVertexArray(this.id);
 
             // Set the attribute pointers..
-            for (uint i = 0; i < attributeBufferIds.Length; i++)
+            for (uint i = 0; i < attributeBuffers.Length; i++)
             {
                 Gl.EnableVertexAttribArray(i);
-                Gl.BindBuffer(BufferTarget.ArrayBuffer, attributeBufferIds[i]);
+                Gl.BindBuffer(BufferTarget.ArrayBuffer, attributeBuffers[i].Id);
                 Gl.VertexAttribPointer(
                     index: i, // must match the layout in the shader
-                    size: attributeInfo[i].multiple,
-                    type: attributeInfo[i].type,
+                    size: attributeBuffers[i].Info.multiple,
+                    type: attributeBuffers[i].Info.type,
                     normalized: false,
                     stride: 0,
                     pointer: IntPtr.Zero);
@@ -110,103 +105,133 @@
             }
 
             // Tidy up
-            for (uint i = 0; i < attributeBufferIds.Length; i++)
+            for (uint i = 0; i < attributeBuffers.Length; i++)
             {
                 Gl.DisableVertexAttribArray(i);
             }
-        }
-
-        public void BufferSubData(int bufferIndex, int offset, object data)
-        {
-            Gl.NamedBufferSubData(
-                attributeBufferIds[bufferIndex],
-                new IntPtr(offset * GetBufferSize(data)), // TODO: not right if updating with an array..
-                GetBufferSize(data),
-                data);
         }
 
         public void SetIndexData(int offset, uint data)
         {
             Gl.NamedBufferSubData(
                 this.indexBufferId.Value,
-                new IntPtr(offset * GetBufferSize(data)), // TODO: not right if updating with an array..
-                GetBufferSize(data),
+                new IntPtr(offset * sizeof(uint)), // TODO: not right if updating with an array..
+                sizeof(uint),
                 data);
         }
 
         /// <inheritdoc />
         public void Dispose()
         {
-            Gl.DeleteBuffers(this.attributeBufferIds);
+            foreach(var buffer in attributeBuffers)
+            {
+                buffer.Dispose();
+            }
+
             Gl.DeleteVertexArrays(this.id);
             GC.SuppressFinalize(this);
         }
 
-        private static uint GetBufferSize(object data)
+        public sealed class Buffer
         {
-            switch (data)
+            internal Buffer(ICollection data, BufferUsage usage)
             {
-                case Vector4 v4:
-                    return (uint)(sizeof(float) * 4);
-                case Vector4[] v4a:
-                    return (uint)(sizeof(float) * 4 * v4a.Length);
-                case Vector3 v3:
-                    return (uint)(sizeof(float) * 3);
-                case Vector3[] v3a:
-                    return (uint)(sizeof(float) * 3 * v3a.Length);
-                case Vector2 v2:
-                    return (uint)(sizeof(float) * 2);
-                case Vector2[] v2a:
-                    return (uint)(sizeof(float) * 2 * v2a.Length);
-                case uint ui:
-                    return (uint)(sizeof(uint));
-                case uint[] uia:
-                    return (uint)(sizeof(uint) * uia.Length);
-                case float f:
-                    return (uint)(sizeof(float));
-                case float[] fa:
-                    return (uint)(sizeof(float) * fa.Length);
-                default:
-                    throw new ArgumentException("Unsupported type.");
-            }
-        }
-
-        private struct VertexAttribInfo
-        {
-            public VertexAttribType type;
-            public int multiple;
-
-            public VertexAttribInfo(VertexAttribType type, int multiple)
-            {
-                this.type = type;
-                this.multiple = multiple;
+                this.Id = Gl.GenBuffer();
+                Gl.BindBuffer(BufferTarget.ArrayBuffer, Id);
+                Gl.BufferData(BufferTarget.ArrayBuffer, GetBufferSize(data), data, usage);
+                this.Info = VertexAttribInfo.ForType(data.GetType());
             }
 
-            public static VertexAttribInfo ForType(Type type)
+            ~Buffer()
             {
-                if (type == typeof(Vector4[]))
+                Gl.DeleteBuffers(this.Id);
+            }
+
+            public void SetSubData(int offset, object data)
+            {
+                Gl.NamedBufferSubData(
+                    Id,
+                    new IntPtr(offset * GetBufferSize(data)), // TODO: not right if updating with an array..
+                    GetBufferSize(data),
+                    data);
+            }
+
+            internal uint Id { get; private set; }
+
+            internal VertexAttribInfo Info { get; private set; }
+
+            internal void Dispose()
+            {
+                Gl.DeleteBuffers(this.Id);
+                GC.SuppressFinalize(this);
+            }
+
+            private static uint GetBufferSize(object data)
+            {
+                switch (data)
                 {
-                    return new VertexAttribInfo(VertexAttribType.Float, 4);
+                    case Vector4 v4:
+                        return (uint)(sizeof(float) * 4);
+                    case Vector4[] v4a:
+                        return (uint)(sizeof(float) * 4 * v4a.Length);
+                    case Vector3 v3:
+                        return (uint)(sizeof(float) * 3);
+                    case Vector3[] v3a:
+                        return (uint)(sizeof(float) * 3 * v3a.Length);
+                    case Vector2 v2:
+                        return (uint)(sizeof(float) * 2);
+                    case Vector2[] v2a:
+                        return (uint)(sizeof(float) * 2 * v2a.Length);
+                    case uint ui:
+                        return (uint)(sizeof(uint));
+                    case uint[] uia:
+                        return (uint)(sizeof(uint) * uia.Length);
+                    case float f:
+                        return (uint)(sizeof(float));
+                    case float[] fa:
+                        return (uint)(sizeof(float) * fa.Length);
+                    default:
+                        throw new ArgumentException("Unsupported type.");
                 }
-                else if (type == typeof(Vector3[]))
+            }
+
+            internal struct VertexAttribInfo
+            {
+                public VertexAttribType type;
+                public int multiple;
+
+                public VertexAttribInfo(VertexAttribType type, int multiple)
                 {
-                    return new VertexAttribInfo(VertexAttribType.Float, 3);
+                    this.type = type;
+                    this.multiple = multiple;
                 }
-                else if (type == typeof(Vector2[]))
+
+                public static VertexAttribInfo ForType(Type type)
                 {
-                    return new VertexAttribInfo(VertexAttribType.Float, 2);
-                }
-                else if (type == typeof(float[]))
-                {
-                    return new VertexAttribInfo(VertexAttribType.Float, 1);
-                }
-                else if (type == typeof(uint[]))
-                {
-                    return new VertexAttribInfo(VertexAttribType.UnsignedInt, 1);
-                }
-                else
-                {
-                    throw new ArgumentException("Unsupported type.");
+                    if (type == typeof(Vector4[]))
+                    {
+                        return new VertexAttribInfo(VertexAttribType.Float, 4);
+                    }
+                    else if (type == typeof(Vector3[]))
+                    {
+                        return new VertexAttribInfo(VertexAttribType.Float, 3);
+                    }
+                    else if (type == typeof(Vector2[]))
+                    {
+                        return new VertexAttribInfo(VertexAttribType.Float, 2);
+                    }
+                    else if (type == typeof(float[]))
+                    {
+                        return new VertexAttribInfo(VertexAttribType.Float, 1);
+                    }
+                    else if (type == typeof(uint[]))
+                    {
+                        return new VertexAttribInfo(VertexAttribType.UnsignedInt, 1);
+                    }
+                    else
+                    {
+                        throw new ArgumentException("Unsupported type.");
+                    }
                 }
             }
         }
