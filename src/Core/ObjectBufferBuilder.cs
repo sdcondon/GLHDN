@@ -2,8 +2,9 @@
 {
     using OpenGL;
     using System;
+    using System.Collections;
     using System.Collections.Generic;
-
+    
     /// <summary>
     /// Builder class for <see cref="ObjectBuffer{T}"/> objects that presents a fluent-ish interface.
     /// </summary>
@@ -14,7 +15,7 @@
         private readonly int objectCapacity;
 
         private readonly List<Type> attributeTypes = new List<Type>();
-        private readonly List<Func<T, int, object>> attributeGetters = new List<Func<T, int, object>>();
+        private readonly List<Func<T, IList>> attributeGetters = new List<Func<T, IList>>();
         private IList<int> indices;
 
         public ObjectBufferBuilder(PrimitiveType primitiveType, int verticesPerObject, int objectCapacity)
@@ -27,9 +28,18 @@
         public ObjectBufferBuilder<T> WithAttribute<TAttribute>(Func<T, TAttribute[]> attributeGetter)
         {
             attributeTypes.Add(typeof(TAttribute));
-            attributeGetters.Add((a, i) => attributeGetter(a)[i]);
+            attributeGetters.Add(attributeGetter);
             return this;
         }
+
+        /*
+        public ObjectBufferBuilder<T> WithAttributes<TAttributes, TAttribute1>(Func<T, TAttributes[]> attributesGetter) 
+            where TAttributes : struct
+        {
+            //var attributeTypes = null;
+            return this;
+        }
+        */
 
         public ObjectBufferBuilder<T> WithIndices(IList<int> indices)
         {

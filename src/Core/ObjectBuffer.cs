@@ -20,7 +20,7 @@
         private readonly Dictionary<T, int> objects = new Dictionary<T, int>();
         private readonly GlVertexArrayObject vao;
         private readonly int verticesPerObject;
-        private readonly IList<Func<T, int, object>> attributeGetters;
+        private readonly IList<Func<T, IList>> attributeGetters;
         private readonly IList<int> indices;
 
         private int objectCapacity;
@@ -30,7 +30,7 @@
             int verticesPerObject,
             int objectCapacity,
             IList<Type> attributeTypes,
-            IList<Func<T, int, object>> attributeGetters,
+            IList<Func<T, IList>> attributeGetters,
             IList<int> indices)
         {
             this.vao = new GlVertexArrayObject(
@@ -132,11 +132,12 @@
         {
             for (int i = 0; i < this.attributeGetters.Count; i++)
             {
+                var attributes = this.attributeGetters[i](item);
                 for (int j = 0; j < this.verticesPerObject; j++)
                 {
                     this.vao.Buffers[i].SetSubData(
                         itemIndex * this.verticesPerObject + j,
-                        this.attributeGetters[i](item, j));
+                        attributes[j]);
                 }
             }
         }
