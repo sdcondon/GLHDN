@@ -15,8 +15,7 @@
         private readonly PrimitiveType primitiveType;
 
         private readonly uint[] attributeBufferIds;
-        private readonly VertexAttribType[] attributeBufferVertexAttribTypes;
-        private readonly int[] attributeBufferVertexAttribMultiples;
+        private readonly VertexAttribInfo[] attributeInfo;
         private readonly uint? indexBufferId;
         private readonly int vertexCount;
 
@@ -36,15 +35,13 @@
             // Create and populate the attribute buffers
             var attributeCount = attributeUsages.Count; // TODO: Assert length consistency?
             this.attributeBufferIds = new uint[attributeCount];
-            this.attributeBufferVertexAttribTypes = new VertexAttribType[attributeCount];
-            this.attributeBufferVertexAttribMultiples = new int[attributeCount];
+            this.attributeInfo = new VertexAttribInfo[attributeCount];
             Gl.GenBuffers(attributeBufferIds);
             for (int i = 0; i < attributeCount; i++)
             {
                 Gl.BindBuffer(BufferTarget.ArrayBuffer, attributeBufferIds[i]);
                 Gl.BufferData(BufferTarget.ArrayBuffer, GetBufferSize(attributeData[i]), attributeData[i], attributeUsages[i]);
-                this.attributeBufferVertexAttribTypes[i] = GetVertexAttribType(attributeData[i].GetType());
-                this.attributeBufferVertexAttribMultiples[i] = GetVertexAttribMultiple(attributeData[i].GetType());
+                this.attributeInfo[i] = VertexAttribInfo.ForType(attributeData[i].GetType());
             }
 
             // Establish element count & populate index buffer if there is one
@@ -84,8 +81,8 @@
                 Gl.BindBuffer(BufferTarget.ArrayBuffer, attributeBufferIds[i]);
                 Gl.VertexAttribPointer(
                     index: i, // must match the layout in the shader
-                    size: attributeBufferVertexAttribMultiples[i],
-                    type: attributeBufferVertexAttribTypes[i],
+                    size: attributeInfo[i].multiple,
+                    type: attributeInfo[i].type,
                     normalized: false,
                     stride: 0,
                     pointer: IntPtr.Zero);
@@ -174,59 +171,43 @@
             }
         }
 
-        private static VertexAttribType GetVertexAttribType(Type type)
+        private struct VertexAttribInfo
         {
-            if (type == typeof(Vector4[]))
-            {
-                return VertexAttribType.Float;
-            }
-            else if (type == typeof(Vector3[]))
-            {
-                return VertexAttribType.Float;
-            }
-            else if (type == typeof(Vector2[]))
-            {
-                return VertexAttribType.Float;
-            }
-            else if (type == typeof(float[]))
-            {
-                return VertexAttribType.Float;
-            }
-            else if (type == typeof(uint[]))
-            {
-                return VertexAttribType.UnsignedInt;
-            }
-            else
-            {
-                throw new ArgumentException("Unsupported type.");
-            }
-        }
+            public VertexAttribType type;
+            public int multiple;
 
-        private static int GetVertexAttribMultiple(Type type)
-        {
-            if (type == typeof(Vector4[]))
+            public VertexAttribInfo(VertexAttribType type, int multiple)
             {
-                return 4;
+                this.type = type;
+                this.multiple = multiple;
             }
-            else if (type == typeof(Vector3[]))
+
+            public static VertexAttribInfo ForType(Type type)
             {
-                return 3;
-            }
-            else if (type == typeof(Vector2[]))
-            {
-                return 2;
-            }
-            else if (type == typeof(float[]))
-            {
-                return 1;
-            }
-            else if (type == typeof(uint[]))
-            {
-                return 1;
-            }
-            else
-            {
-                throw new ArgumentException("Unsupported type.");
+                if (type == typeof(Vector4[]))
+                {
+                    return new VertexAttribInfo(VertexAttribType.Float, 4);
+                }
+                else if (type == typeof(Vector3[]))
+                {
+                    return new VertexAttribInfo(VertexAttribType.Float, 3);
+                }
+                else if (type == typeof(Vector2[]))
+                {
+                    return new VertexAttribInfo(VertexAttribType.Float, 2);
+                }
+                else if (type == typeof(float[]))
+                {
+                    return new VertexAttribInfo(VertexAttribType.Float, 1);
+                }
+                else if (type == typeof(uint[]))
+                {
+                    return new VertexAttribInfo(VertexAttribType.UnsignedInt, 1);
+                }
+                else
+                {
+                    throw new ArgumentException("Unsupported type.");
+                }
             }
         }
     }
