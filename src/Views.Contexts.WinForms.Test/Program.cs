@@ -31,10 +31,22 @@
 
             view.Renderables.Add(new StaticTexuredRenderer(
                 camera,
-                new[] { new Vector3(-1f, -1f, 0f), new Vector3(0f, 1f, 0f), new Vector3(1f, -1f, 0f) },
-                new[] { new Vector3(0f, 0f, -1f), new Vector3(0f, 0f, -1f), new Vector3(0f, 0f, -1f) },
-                new[] { new Vector2(0f, 0f), new Vector2(0.5f, 1f), new Vector2(1f, 0f) },
-                new[] { 0u, 1u, 2u },
+                new[]
+                {
+                    new StaticTexuredRenderer.Vertex(
+                        new Vector3(-1f, -1f, 0f),
+                        new Vector2(0f, 0f),
+                        new Vector3(0f, 0f, -1f)),
+                    new StaticTexuredRenderer.Vertex(
+                        new Vector3(0f, 1f, 0f),
+                        new Vector2(0.5f, 1f),
+                        new Vector3(0f, 0f, -1f)),
+                    new StaticTexuredRenderer.Vertex(
+                        new Vector3(1f, -1f, 0f),
+                        new Vector2(1f, 0f),
+                        new Vector3(0f, 0f, -1f))
+                },
+                new uint[] { 0, 1, 2 },
                 "uvmap.DDS"));
 
             lines = new ColoredLines(camera);
@@ -50,7 +62,7 @@
                     Color = new Vector4(0.5f, 0.2f, 0.2f, 0.4f),
                     BorderWidth = 1f
                 }
-            }
+            };
 
             Application.Run(form);
         }

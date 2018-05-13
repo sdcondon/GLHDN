@@ -1,6 +1,7 @@
 ﻿namespace GLHDN.Core
 {
     using OpenGL;
+    using System;
     using System.Collections;
     using System.Collections.Generic;
 
@@ -12,7 +13,7 @@
         private readonly PrimitiveType primitiveType;
 
         private readonly List<BufferUsage> attributeUsages = new List<BufferUsage>();
-        private readonly List<ICollection> attributeData = new List<ICollection>();
+        private readonly List<Array> attributeData = new List<Array>();
         private uint[] indexData;
 
         public GlVertexArrayObjectBuilder(PrimitiveType primitiveType)
@@ -20,7 +21,7 @@
             this.primitiveType = primitiveType;
         }
 
-        public GlVertexArrayObjectBuilder WithAttribute(BufferUsage usage, ICollection data)
+        public GlVertexArrayObjectBuilder WithAttributeBuffer(BufferUsage usage, Array data)
         {
             attributeUsages.Add(usage);
             attributeData.Add(data);

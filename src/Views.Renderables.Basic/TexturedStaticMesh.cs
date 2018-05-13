@@ -5,6 +5,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Numerics;
+    using System.Runtime.InteropServices;
 
     /// <summary>
     /// Renderable class for static 3D geometry.
@@ -24,10 +25,8 @@
 
         public StaticTexuredRenderer(
             IViewProjection viewProjection,
-            IList<Vector3> vertexPositions,
-            IList<Vector3> vertexNormals,
-            IList<Vector2> vertexTextureCoordinates,
-            IList<uint> indices,
+            IEnumerable<Vertex> vertices,
+            IEnumerable<uint> indices,
             string textureFilePath)
         {
             this.viewProjection = viewProjection;
@@ -39,9 +38,7 @@
                 .WithUniforms("MVP", "V", "M", "myTextureSampler", "LightPosition_worldspace", "LightColor", "LightPower", "AmbientLightColor");
 
             this.vertexArrayObjectBuilder = new GlVertexArrayObjectBuilder(PrimitiveType.Triangles)
-                .WithAttribute(BufferUsage.StaticDraw, vertexPositions.ToArray())
-                .WithAttribute(BufferUsage.StaticDraw, vertexTextureCoordinates.ToArray())
-                .WithAttribute(BufferUsage.StaticDraw, vertexNormals.ToArray())
+                .WithAttributeBuffer(BufferUsage.StaticDraw, vertices.ToArray())
                 .WithIndex(indices.ToArray());
 
             this.textureFilePath = textureFilePath;
@@ -86,6 +83,20 @@
             this.vertexArrayObject.Dispose();
             this.program.Dispose();
             Gl.DeleteTextures(textures);
+        }
+
+        public struct Vertex
+        {
+            public Vector3 P;
+            public Vector2 UV;
+            public Vector3 N;
+
+            public Vertex(Vector3 position, Vector2 uv, Vector3 normal)
+            {
+                P = position;
+                UV = uv;
+                N = normal;
+            }
         }
     }
 }

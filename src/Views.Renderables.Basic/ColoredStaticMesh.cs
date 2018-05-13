@@ -36,9 +36,9 @@
                 .WithUniforms("MVP", "V", "M", "LightPosition_worldspace", "LightColor", "LightPower", "AmbientLightColor");
 
             this.vertexArrayObjectBuilder = new GlVertexArrayObjectBuilder(PrimitiveType.Triangles)
-                .WithAttribute(BufferUsage.StaticDraw, vertexPositions.ToArray())
-                .WithAttribute(BufferUsage.StaticDraw, vertexColors.ToArray())
-                .WithAttribute(BufferUsage.StaticDraw, vertexNormals.ToArray())
+                .WithAttributeBuffer(BufferUsage.StaticDraw, vertexPositions.ToArray())
+                .WithAttributeBuffer(BufferUsage.StaticDraw, vertexColors.ToArray())
+                .WithAttributeBuffer(BufferUsage.StaticDraw, vertexNormals.ToArray())
                 .WithIndex(indices.ToArray());
         }
 
