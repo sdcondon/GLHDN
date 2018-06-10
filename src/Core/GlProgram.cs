@@ -9,7 +9,7 @@
     using System.Text;
 
     /// <summary>
-    /// Represents a compiled Open GL program.
+    /// Represents a compiled OpenGL program.
     /// </summary>
     public sealed class GlProgram : IDisposable
     {
@@ -60,7 +60,7 @@
             // Detach and delete shaders
             foreach (var shaderId in shaderIds)
             {
-                Gl.DetachShader(this.id, shaderId);
+                Gl.DetachShader(this.id, shaderId); // Line not in superbible?
                 Gl.DeleteShader(shaderId);
             }
 
@@ -70,7 +70,7 @@
 
         ~GlProgram()
         {
-            Gl.DeleteProgram(this.id);
+            Dispose(false);
         }
 
         /// <summary>
@@ -93,10 +93,10 @@
                             true,
                             new[]
                             {
-                            m.M11, m.M12, m.M13, m.M14,
-                            m.M21, m.M22, m.M23, m.M24,
-                            m.M31, m.M32, m.M33, m.M34,
-                            m.M41, m.M42, m.M43, m.M44
+                                m.M11, m.M12, m.M13, m.M14,
+                                m.M21, m.M22, m.M23, m.M24,
+                                m.M31, m.M32, m.M33, m.M34,
+                                m.M41, m.M42, m.M43, m.M44
                             });
                         break;
                     case Vector3 v:
@@ -123,8 +123,13 @@
         /// <inheritdoc />
         public void Dispose()
         {
-            Gl.DeleteProgram(this.id);
+            Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            Gl.DeleteProgram(this.id);
         }
     }
 }

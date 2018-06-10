@@ -32,15 +32,6 @@
             return this;
         }
 
-        /*
-        public ObjectBufferBuilder<T> WithAttributes<TAttributes, TAttribute1>(Func<T, TAttributes[]> attributesGetter) 
-            where TAttributes : struct
-        {
-            //var attributeTypes = null;
-            return this;
-        }
-        */
-
         public ObjectBufferBuilder<T> WithIndices(IList<int> indices)
         {
             this.indices = indices;
@@ -52,10 +43,10 @@
             return new ObjectBuffer<T>(
                 primitiveType,
                 verticesPerObject,
-                objectCapacity,
                 attributeTypes,
                 attributeGetters,
-                indices);
+                indices,
+                objectCapacity);
         }
     }
 }

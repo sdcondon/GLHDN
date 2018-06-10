@@ -7,7 +7,7 @@
     using System.Runtime.InteropServices;
 
     /// <summary>
-    /// Represents an Open GL vertex array object.
+    /// Represents an OpenGL vertex array object.
     /// </summary>
     public sealed class GlVertexArrayObject : IDisposable
     {
@@ -26,7 +26,7 @@
         {
             //  Record primitive type for use in draw calls, create and bind the VAO
             this.primitiveType = primitiveType;
-            this.id = Gl.GenVertexArray();
+            this.id = Gl.GenVertexArray(); // TODO: superbible uses CreateVertexArray?
             Gl.BindVertexArray(id);
 
             // Create and populate the attribute buffers
@@ -70,17 +70,19 @@
             // Set the attribute pointers..
             for (uint i = 0, k = 0; i < attributeBuffers.Length; i++)
             {
-                Gl.BindBuffer(BufferTarget.ArrayBuffer, attributeBuffers[i].Id);
-                for (uint j = 0; j < attributeBuffers[i].Attributes.Length; j++, k++)
+                var buffer = attributeBuffers[i];
+                Gl.BindBuffer(BufferTarget.ArrayBuffer, buffer.Id);
+                for (uint j = 0; j < buffer.Attributes.Length; j++, k++)
                 {
+                    var attribute = buffer.Attributes[j];
                     Gl.EnableVertexAttribArray(k);
                     Gl.VertexAttribPointer(
                         index: k, // must match the layout in the shader
-                        size: attributeBuffers[i].Attributes[j].multiple,
-                        type: attributeBuffers[i].Attributes[j].type,
+                        size: attribute.multiple,
+                        type: attribute.type,
                         normalized: false,
-                        stride: attributeBuffers[i].Attributes[j].stride,
-                        pointer: attributeBuffers[i].Attributes[j].offset);
+                        stride: attribute.stride,
+                        pointer: attribute.offset);
                 }
             }
 
@@ -119,7 +121,7 @@
         {
             Gl.NamedBufferSubData(
                 this.indexBufferId.Value,
-                new IntPtr(offset * sizeof(uint)), // TODO: not right if updating with an array..
+                new IntPtr(offset * sizeof(uint)),
                 sizeof(uint),
                 data);
         }

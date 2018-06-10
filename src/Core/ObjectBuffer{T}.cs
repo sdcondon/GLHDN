@@ -19,30 +19,31 @@
     {
         private readonly Dictionary<T, int> objects = new Dictionary<T, int>();
         private readonly GlVertexArrayObject vao;
-        private readonly int verticesPerObject;
+        private readonly int verticesPerAtom;
         private readonly IList<Func<T, IList>> attributeGetters;
         private readonly IList<int> indices;
 
-        private int objectCapacity;
+        private int atomCount;
+        private int atomCapacity;
 
         internal ObjectBuffer(
             PrimitiveType primitiveType,
-            int verticesPerObject,
-            int objectCapacity,
+            int verticesPerAtom,
             IList<Type> attributeTypes,
             IList<Func<T, IList>> attributeGetters,
-            IList<int> indices)
+            IList<int> indices,
+            int atomCapacity)
         {
             this.vao = new GlVertexArrayObject(
                 primitiveType,
                 attributeTypes.Select(a => BufferUsage.DynamicDraw).ToArray(),
-                attributeTypes.Select(a => Array.CreateInstance(a, objectCapacity * verticesPerObject)).ToArray(), // TODO: different VAO ctor to avoid needless large heap allocation 
-                new uint[objectCapacity * indices.Count]); // TODO: different VAO ctor to avoid needless large heap allocation
-            this.verticesPerObject = verticesPerObject;
+                attributeTypes.Select(a => Array.CreateInstance(a, atomCapacity * verticesPerAtom)).ToArray(), // TODO: different VAO ctor to avoid needless large heap allocation 
+                new uint[atomCapacity * indices.Count]); // TODO: different VAO ctor to avoid needless large heap allocation
+            this.verticesPerAtom = verticesPerAtom;
             this.attributeGetters = attributeGetters;
             this.indices = indices;
 
-            this.objectCapacity = objectCapacity;
+            this.atomCapacity = atomCapacity;
         }
 
         /// <inheritdoc />
@@ -54,27 +55,17 @@
         /// <inheritdoc />
         public void Add(T item)
         {
-            var itemIndex = objects.Count;
-
             // Check buffer size
-            if (itemIndex >= objectCapacity)
+            if (this.atomCount >= atomCapacity)
             {
                 // TODO: expand (i.e. recreate) buffer? ResizeBuffer method in GlVertexArrayObject:
                 // Create new, glCopyBufferSubData, delete old, update buffer ID array. 
                 throw new InvalidOperationException("Buffer is full");
             }
 
-            SetAttributeData(item, itemIndex);
+            SetItemData(item, this.atomCount);
 
-            // Update the index
-            for (int i = 0; i < this.indices.Count; i++)
-            {
-                vao.SetIndexData(
-                    itemIndex * indices.Count + i,
-                    (uint)(itemIndex * verticesPerObject + indices[i]));
-            }
-
-            objects.Add(item, itemIndex);
+            objects.Add(item, this.atomCount);
 
             //TODO: item.PropertyChanged += Item_PropertyChanged;
         }
@@ -120,36 +111,65 @@
         /// </summary>
         public void Draw()
         {
-            this.vao.Draw(objects.Count * indices.Count);
+            this.vao.Draw(this.atomCount * indices.Count);
         }
 
-        /// <summary>
-        /// Updates attribute buffers in the underlying VAO for a given item.
-        /// </summary>
-        /// <param name="item">The item.</param>
-        /// <param name="itemIndex">The index of the item within the underlying VAO.</param>
-        private void SetAttributeData(T item, int itemIndex)
+        internal virtual GlVertexArrayObject MakeVertexArrayObject(PrimitiveType primitiveType, IList<Type> attributeTypes)
         {
-            for (int i = 0; i < this.attributeGetters.Count; i++)
-            {
-                var attributes = this.attributeGetters[i](item);
-                for (int j = 0; j < this.verticesPerObject; j++)
-                {
-                    this.vao.Buffers[i].SetSubData(
-                        itemIndex * this.verticesPerObject + j,
-                        attributes[j]);
-                }
-            }
+            return new GlVertexArrayObject(
+                primitiveType,
+                attributeTypes.Select(a => BufferUsage.DynamicDraw).ToArray(),
+                attributeTypes.Select(a => Array.CreateInstance(a, atomCapacity * verticesPerAtom)).ToArray(), // TODO: different VAO ctor to avoid needless large heap allocation 
+                new uint[atomCapacity * indices.Count]); // TODO: different VAO ctor to avoid needless large heap allocation
         }
 
         /* TODO
         private void Item_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             throw new NotImplementedException();
-            // TODO: more graceful error handling if ege item not found
+            // TODO: more graceful error handling if the item not found
             var itemIndex = this.objects[item];
-            SetAttributeData(item, itemIndex);
+            SetItemData(item, itemIndex);
         }
         */
+
+        /// <summary>
+        /// Updates attribute buffers in the underlying VAO for a given item.
+        /// </summary>
+        /// <param name="item">The item.</param>
+        /// <param name="atomIndex">The index of the item within the underlying VAO.</param>
+        private void SetItemData(T item, int atomIndex)
+        {
+            var atomCount = 0;
+            for (int i = 0; i < this.attributeGetters.Count; i++)
+            {
+                var vertices = this.attributeGetters[i](item);
+
+                if (vertices.Count % this.verticesPerAtom != 0)
+                {
+                    // TODO: and should be the same for each attribute getter..?
+                    throw new InvalidOperationException();
+                }
+
+                atomCount = vertices.Count / verticesPerAtom;
+
+                for (int j = 0; j < vertices.Count; j++)
+                {
+                    this.vao.Buffers[i].SetSubData(
+                        atomIndex * this.verticesPerAtom + j,
+                        vertices[j]);
+                }
+            }
+
+            this.atomCount += atomCount;
+
+            // Update the index
+            for (int i = 0; i < this.indices.Count; i++)
+            {
+                vao.SetIndexData(
+                    atomIndex * this.indices.Count + i,
+                    (uint)(atomIndex * this.verticesPerAtom + this.indices[i]));
+            }
+        }
     }
 }
