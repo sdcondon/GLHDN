@@ -114,15 +114,6 @@
             this.vao.Draw(this.atomCount * indices.Count);
         }
 
-        internal virtual GlVertexArrayObject MakeVertexArrayObject(PrimitiveType primitiveType, IList<Type> attributeTypes)
-        {
-            return new GlVertexArrayObject(
-                primitiveType,
-                attributeTypes.Select(a => BufferUsage.DynamicDraw).ToArray(),
-                attributeTypes.Select(a => Array.CreateInstance(a, atomCapacity * verticesPerAtom)).ToArray(), // TODO: different VAO ctor to avoid needless large heap allocation 
-                new uint[atomCapacity * indices.Count]); // TODO: different VAO ctor to avoid needless large heap allocation
-        }
-
         /* TODO
         private void Item_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
