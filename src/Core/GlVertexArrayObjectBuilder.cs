@@ -10,36 +10,33 @@
     public sealed class GlVertexArrayObjectBuilder
     {
         private readonly PrimitiveType primitiveType;
-
-        private readonly List<BufferUsage> attributeUsages = new List<BufferUsage>();
-        private readonly List<Array> attributeData = new List<Array>();
+        private readonly List<Func<GlVertexBufferObject>> bufferBuilders = new List<Func<GlVertexBufferObject>>();
         private uint[] indexData;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GlVertexArrayObjectBuilder"/> class.
+        /// </summary>
+        /// <param name="primitiveType"></param>
         public GlVertexArrayObjectBuilder(PrimitiveType primitiveType)
         {
             this.primitiveType = primitiveType;
         }
 
-        public GlVertexArrayObjectBuilder WithAttributeBuffer(BufferUsage usage, Array data)
+        public GlVertexArrayObjectBuilder WithAttributeBuffer(BufferUsage bufferUsage, Array data)
         {
-            attributeUsages.Add(usage);
-            attributeData.Add(data);
+            this.bufferBuilders.Add(() => new GlVertexBufferObject(bufferUsage, data));
             return this;
         }
 
         public GlVertexArrayObjectBuilder WithIndex(uint[] data)
         {
-            indexData = data;
+            this.indexData = data;
             return this;
         }
 
         public GlVertexArrayObject Build()
         {
-            return new GlVertexArrayObject(
-                primitiveType,
-                attributeUsages,
-                attributeData,
-                indexData);
+            return new GlVertexArrayObject(primitiveType, bufferBuilders, indexData);
         }
     }
 }

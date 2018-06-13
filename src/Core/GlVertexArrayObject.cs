@@ -3,8 +3,6 @@
     using OpenGL;
     using System;
     using System.Collections.Generic;
-    using System.Numerics;
-    using System.Runtime.InteropServices;
 
     /// <summary>
     /// Represents an OpenGL vertex array object.
@@ -13,15 +11,19 @@
     {
         private readonly uint id;
         private readonly PrimitiveType primitiveType;
-
-        private readonly VertexAttribBuffer[] attributeBuffers;
+        private readonly GlVertexBufferObject[] attributeBuffers;
         private readonly uint? indexBufferId;
         private readonly int vertexCount;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GlVertexArrayObject"/> class.
+        /// </summary>
+        /// <param name="primitiveType">OpenGL primitive type.</param>
+        /// <param name="attributeBufferBuilders">Builder delegates for the buffers in this VAO.</param>
+        /// <param name="indexData"></param>
         internal GlVertexArrayObject(
             PrimitiveType primitiveType,
-            IList<BufferUsage> attributeUsages,
-            IList<Array> attributeData,
+            IList<Func<GlVertexBufferObject>> attributeBufferBuilders,
             uint[] indexData)
         {
             //  Record primitive type for use in draw calls, create and bind the VAO
@@ -29,48 +31,12 @@
             this.id = Gl.GenVertexArray(); // TODO: superbible uses CreateVertexArray?
             Gl.BindVertexArray(id);
 
-            // Create and populate the attribute buffers
-            this.attributeBuffers = new VertexAttribBuffer[attributeUsages.Count]; // TODO: Assert length consistency?
+            // Set up the attribute buffers
+            this.attributeBuffers = new GlVertexBufferObject[attributeBufferBuilders.Count];
+            uint k = 0;
             for (int i = 0; i < attributeBuffers.Length; i++)
             {
-                this.attributeBuffers[i] = new VertexAttribBuffer(attributeData[i], attributeUsages[i]);
-            }
-
-            // Establish element count & populate index buffer if there is one
-            if (indexData != null)
-            {
-                this.indexBufferId = Gl.GenBuffer();
-                Gl.BindBuffer(BufferTarget.ElementArrayBuffer, this.indexBufferId.Value);
-                Gl.BufferData(BufferTarget.ElementArrayBuffer, (uint)(sizeof(uint) * indexData.Length), indexData, BufferUsage.DynamicDraw);
-                this.vertexCount = indexData.Length;
-            }
-            else
-            {
-                this.vertexCount = attributeData[0].Length;
-            }
-        }
-
-        /// <summary>
-        /// Finalizer. Releases any unmanaged resources used by an object as it is GC'd.
-        /// </summary>
-        ~GlVertexArrayObject()
-        {
-            Gl.DeleteVertexArrays(this.id);
-        }
-
-        public IReadOnlyList<VertexAttribBuffer> Buffers => this.attributeBuffers;
-
-        /// <summary>
-        /// Draw with the active program. TODO: Allow specification of buffer binding?
-        /// </summary>
-        public void Draw(int count = -1)
-        {
-            Gl.BindVertexArray(this.id);
-
-            // Set the attribute pointers..
-            for (uint i = 0, k = 0; i < attributeBuffers.Length; i++)
-            {
-                var buffer = attributeBuffers[i];
+                var buffer = attributeBuffers[i] = attributeBufferBuilders[i](); // TODO: Assert length consistency?
                 Gl.BindBuffer(BufferTarget.ArrayBuffer, buffer.Id);
                 for (uint j = 0; j < buffer.Attributes.Length; j++, k++)
                 {
@@ -86,12 +52,44 @@
                 }
             }
 
-            // ..and draw
+            // Establish element count & populate index buffer if there is one
+            if (indexData != null)
+            {
+                this.indexBufferId = Gl.GenBuffer();
+                Gl.BindBuffer(BufferTarget.ElementArrayBuffer, this.indexBufferId.Value); // NB: important to bind this last
+                Gl.BufferData(BufferTarget.ElementArrayBuffer, (uint)(sizeof(uint) * indexData.Length), indexData, BufferUsage.DynamicDraw);
+                this.vertexCount = indexData.Length;
+            }
+            else
+            {
+                this.vertexCount = attributeBuffers[0].VertexCount;
+            }
+        }
+
+        /// <summary>
+        /// Finalizer. Releases any unmanaged resources used by an object as it is GC'd.
+        /// </summary>
+        ~GlVertexArrayObject()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Gets the set of buffer objects contained within this VAO.
+        /// </summary>
+        public IReadOnlyList<GlVertexBufferObject> Buffers => this.attributeBuffers;
+
+        /// <summary>
+        /// Draw with the active program.
+        /// </summary>
+        public void Draw(int count = -1)
+        {
+            Gl.BindVertexArray(this.id);
+
             // TODO: delegate instead of 'if' every time?
             if (indexBufferId.HasValue)
             {
-                // There's an index buffer - bind it and draw
-                Gl.BindBuffer(BufferTarget.ElementArrayBuffer, indexBufferId.Value);
+                // There's an index buffer (which will be bound) - bind it and draw
                 Gl.DrawElements(
                     mode: this.primitiveType,
                     count: count == -1 ? this.vertexCount : count,
@@ -105,15 +103,6 @@
                     mode: this.primitiveType,
                     first: 0,
                     count: count == -1 ? this.vertexCount : count);
-            }
-
-            // Tidy up
-            for (uint i = 0, k = 0; i < attributeBuffers.Length; i++)
-            {
-                for (uint j = 0; j < attributeBuffers[i].Attributes.Length; j++, k++)
-                {
-                    Gl.DisableVertexAttribArray(k);
-                }
             }
         }
 
@@ -129,108 +118,21 @@
         /// <inheritdoc />
         public void Dispose()
         {
-            foreach(var buffer in attributeBuffers)
-            {
-                buffer.Dispose();
-            }
-
-            Gl.DeleteVertexArrays(this.id);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-        public sealed class VertexAttribBuffer
+        private void Dispose(bool disposing)
         {
-            internal VertexAttribBuffer(Array data, BufferUsage usage)
+            if (disposing)
             {
-                var elementType = data.GetType().GetElementType();
-                this.Attributes = VertexAttribInfo.ForType(elementType);
-
-                this.Id = Gl.GenBuffer();
-                Gl.BindBuffer(BufferTarget.ArrayBuffer, this.Id);
-                Gl.BufferData(BufferTarget.ArrayBuffer, (uint)(Marshal.SizeOf(elementType) * data.Length), data, usage);
-            }
-
-            ~VertexAttribBuffer()
-            {
-                Gl.DeleteBuffers(this.Id);
-            }
-
-            public void SetSubData(int offset, object data)
-            {
-                Gl.NamedBufferSubData(
-                    buffer: Id,
-                    offset: new IntPtr(offset * Marshal.SizeOf(data)),
-                    size: (uint)Marshal.SizeOf(data),
-                    data: data);
-            }
-
-            internal uint Id { get; private set; }
-
-            internal VertexAttribInfo[] Attributes { get; private set; }
-
-            internal void Dispose()
-            {
-                Gl.DeleteBuffers(this.Id);
-                GC.SuppressFinalize(this);
-            }
-        }
-
-        internal struct VertexAttribInfo
-        {
-            public IntPtr offset;
-            public int stride;
-            public VertexAttribType type;
-            public int multiple;
-
-            private VertexAttribInfo(VertexAttribType type, int multiple, int offset, int stride)
-            {
-                this.offset = new IntPtr(offset);
-                this.stride = stride;
-                this.type = type;
-                this.multiple = multiple;
-            }
-
-            public static VertexAttribInfo[] ForType(Type t)
-            {
-                var attributes = new List<VertexAttribInfo>();
-                ForType(t, attributes, 0, Marshal.SizeOf(t));
-                return attributes.ToArray();
-            }
-
-            private static void ForType(Type t, List<VertexAttribInfo> attributes, int offset, int stride)
-            {
-                if (t == typeof(Vector4))
+                foreach (var buffer in attributeBuffers)
                 {
-                    attributes.Add(new VertexAttribInfo(VertexAttribType.Float, 4, offset, stride));
-                }
-                else if (t == typeof(Vector3))
-                {
-                    attributes.Add(new VertexAttribInfo(VertexAttribType.Float, 3, offset, stride));
-                }
-                else if (t == typeof(Vector2))
-                {
-                    attributes.Add(new VertexAttribInfo(VertexAttribType.Float, 2, offset, stride));
-                }
-                else if (t == typeof(float))
-                {
-                    attributes.Add(new VertexAttribInfo(VertexAttribType.Float, 1, offset, stride));
-                }
-                else if (t == typeof(uint))
-                {
-                    attributes.Add(new VertexAttribInfo(VertexAttribType.UnsignedInt, 1, offset, stride));
-                }
-                else if (!t.IsValueType || t.IsAutoLayout)
-                {
-                    throw new ArgumentException("Unsupported type - passed type must be blittable");
-                }
-                else
-                {
-                    foreach (var field in t.GetFields())
-                    {
-                        ForType(field.FieldType, attributes, offset + (int)Marshal.OffsetOf(t, field.Name), stride);
-                    }
+                    buffer.Dispose();
                 }
             }
+
+            Gl.DeleteVertexArrays(this.id);
         }
     }
 }

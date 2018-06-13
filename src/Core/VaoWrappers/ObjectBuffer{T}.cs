@@ -36,8 +36,10 @@
         {
             this.vao = new GlVertexArrayObject(
                 primitiveType,
-                attributeTypes.Select(a => BufferUsage.DynamicDraw).ToArray(),
-                attributeTypes.Select(a => Array.CreateInstance(a, atomCapacity * verticesPerAtom)).ToArray(), // TODO: different VAO ctor to avoid needless large heap allocation 
+                attributeTypes.Select<Type, Func<GlVertexBufferObject>>(a => 
+                    () => new GlVertexBufferObject(
+                        BufferUsage.DynamicDraw,
+                        Array.CreateInstance(a, atomCapacity * verticesPerAtom))).ToArray(), // TODO: different VAO ctor to avoid needless large heap allocation 
                 new uint[atomCapacity * indices.Count]); // TODO: different VAO ctor to avoid needless large heap allocation
             this.verticesPerAtom = verticesPerAtom;
             this.attributeGetters = attributeGetters;
