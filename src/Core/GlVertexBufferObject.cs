@@ -6,15 +6,15 @@
 
     public sealed class GlVertexBufferObject
     {
-        public GlVertexBufferObject(BufferUsage usage, Array data)
+        public GlVertexBufferObject(BufferTarget target, BufferUsage usage, Array data)
         {
             var elementType = data.GetType().GetElementType();
             this.Attributes = VertexAttribInfo.ForType(elementType);
             this.VertexCount = data.Length;
 
             this.Id = Gl.GenBuffer();
-            Gl.BindBuffer(BufferTarget.ArrayBuffer, this.Id);
-            Gl.BufferData(BufferTarget.ArrayBuffer, (uint)(Marshal.SizeOf(elementType) * data.Length), data, usage);
+            Gl.BindBuffer(target, this.Id);
+            Gl.BufferData(target, (uint)(Marshal.SizeOf(elementType) * data.Length), data, usage);
         }
 
         ~GlVertexBufferObject()
@@ -28,13 +28,16 @@
 
         public int VertexCount { get; private set; }
 
-        public void SetSubData(int offset, object data)
+        public object this[int offset]
         {
-            Gl.NamedBufferSubData(
-                buffer: Id,
-                offset: new IntPtr(offset * Marshal.SizeOf(data)),
-                size: (uint)Marshal.SizeOf(data),
-                data: data);
+            set
+            {
+                Gl.NamedBufferSubData(
+                    buffer: Id,
+                    offset: new IntPtr(offset * Marshal.SizeOf(value)),
+                    size: (uint)Marshal.SizeOf(value),
+                    data: value);
+            }
         }
 
         public void Dispose()

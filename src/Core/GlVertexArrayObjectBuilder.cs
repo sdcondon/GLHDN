@@ -24,7 +24,7 @@
 
         public GlVertexArrayObjectBuilder WithAttributeBuffer(BufferUsage bufferUsage, Array data)
         {
-            this.bufferBuilders.Add(() => new GlVertexBufferObject(bufferUsage, data));
+            this.bufferBuilders.Add(() => new GlVertexBufferObject(BufferTarget.ArrayBuffer, bufferUsage, data));
             return this;
         }
 

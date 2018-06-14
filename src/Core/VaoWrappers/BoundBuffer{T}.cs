@@ -10,7 +10,7 @@
     public class BoundBuffer<TElement, TVertex> where TElement : INotifyPropertyChanged
     {
         private readonly Dictionary<TElement, int> objects = new Dictionary<TElement, int>();
-        private readonly GlVertexArrayObject vao;
+        private readonly IVertexArrayObject vao;
         private readonly int verticesPerAtom;
         private readonly Func<TElement, IList> attributeGetter;
         private readonly IList<int> indices;
@@ -58,11 +58,11 @@
         }
         */
 
-        internal virtual GlVertexArrayObject MakeVertexArrayObject(PrimitiveType primitiveType)
+        internal virtual IVertexArrayObject MakeVertexArrayObject(PrimitiveType primitiveType)
         {
             return new GlVertexArrayObject(
                 primitiveType,
-                new Func<GlVertexBufferObject>[] { () => new GlVertexBufferObject(BufferUsage.DynamicDraw, Array.CreateInstance(typeof(TVertex), atomCapacity * verticesPerAtom)) },  // TODO: different VAO ctor to avoid needless large heap allocation 
+                new Func<GlVertexBufferObject>[] { () => new GlVertexBufferObject(BufferTarget.ArrayBuffer, BufferUsage.DynamicDraw, Array.CreateInstance(typeof(TVertex), atomCapacity * verticesPerAtom)) },  // TODO: different VAO ctor to avoid needless large heap allocation 
                 new uint[atomCapacity * indices.Count]); // TODO: different VAO ctor to avoid needless large heap allocation
         }
 
@@ -132,9 +132,7 @@
 
             for (int j = 0; j < vertices.Count; j++)
             {
-                this.vao.Buffers[0].SetSubData(
-                    atomIndex * this.verticesPerAtom + j,
-                    vertices[j]);
+                this.vao.AttributeBuffers[0][atomIndex * this.verticesPerAtom + j] = vertices[j];
             }
 
             this.atomCount += atomCount;
@@ -142,9 +140,7 @@
             // Update the index
             for (int i = 0; i < this.indices.Count; i++)
             {
-                vao.SetIndexData(
-                    atomIndex * this.indices.Count + i,
-                    (uint)(atomIndex * this.verticesPerAtom + this.indices[i]));
+                vao.IndexBuffer[atomIndex * this.indices.Count + i] = (uint)(atomIndex * this.verticesPerAtom + this.indices[i]);
             }
         }
     }

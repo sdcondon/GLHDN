@@ -7,13 +7,12 @@
     /// <summary>
     /// Represents an OpenGL vertex array object.
     /// </summary>
-    public sealed class GlVertexArrayObject : IDisposable
+    public sealed class GlVertexArrayObject : IVertexArrayObject
     {
         private readonly uint id;
         private readonly PrimitiveType primitiveType;
         private readonly GlVertexBufferObject[] attributeBuffers;
-        private readonly uint? indexBufferId;
-        private readonly int vertexCount;
+        private readonly GlVertexBufferObject indexBuffer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GlVertexArrayObject"/> class.
@@ -55,14 +54,7 @@
             // Establish element count & populate index buffer if there is one
             if (indexData != null)
             {
-                this.indexBufferId = Gl.GenBuffer();
-                Gl.BindBuffer(BufferTarget.ElementArrayBuffer, this.indexBufferId.Value); // NB: important to bind this last
-                Gl.BufferData(BufferTarget.ElementArrayBuffer, (uint)(sizeof(uint) * indexData.Length), indexData, BufferUsage.DynamicDraw);
-                this.vertexCount = indexData.Length;
-            }
-            else
-            {
-                this.vertexCount = attributeBuffers[0].VertexCount;
+                this.indexBuffer = new GlVertexBufferObject(BufferTarget.ElementArrayBuffer, BufferUsage.DynamicDraw, indexData);
             }
         }
 
@@ -75,24 +67,28 @@
         }
 
         /// <summary>
-        /// Gets the set of buffer objects contained within this VAO.
+        /// 
         /// </summary>
-        public IReadOnlyList<GlVertexBufferObject> Buffers => this.attributeBuffers;
+        public int VertexCount => indexBuffer?.VertexCount ?? attributeBuffers[0].VertexCount;
 
-        /// <summary>
-        /// Draw with the active program.
-        /// </summary>
+        /// <inheritdoc />
+        public GlVertexBufferObject IndexBuffer => this.indexBuffer;
+
+        /// <inheritdoc />
+        public IReadOnlyList<GlVertexBufferObject> AttributeBuffers => this.attributeBuffers;
+
+        /// <inheritdoc />
         public void Draw(int count = -1)
         {
             Gl.BindVertexArray(this.id);
 
             // TODO: delegate instead of 'if' every time?
-            if (indexBufferId.HasValue)
+            if (indexBuffer != null)
             {
                 // There's an index buffer (which will be bound) - bind it and draw
                 Gl.DrawElements(
                     mode: this.primitiveType,
-                    count: count == -1 ? this.vertexCount : count,
+                    count: count == -1 ? this.VertexCount : count,
                     type: DrawElementsType.UnsignedInt,
                     indices: IntPtr.Zero);
             }
@@ -102,17 +98,8 @@
                 Gl.DrawArrays(
                     mode: this.primitiveType,
                     first: 0,
-                    count: count == -1 ? this.vertexCount : count);
+                    count: count == -1 ? this.VertexCount : count);
             }
-        }
-
-        public void SetIndexData(int offset, uint data)
-        {
-            Gl.NamedBufferSubData(
-                this.indexBufferId.Value,
-                new IntPtr(offset * sizeof(uint)),
-                sizeof(uint),
-                data);
         }
 
         /// <inheritdoc />

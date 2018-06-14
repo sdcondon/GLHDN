@@ -15,16 +15,16 @@
     /// <remarks>
     /// TODO: Maybe play with re-implementing using persistently mapped buffers at some point..
     /// </remarks>
-    public sealed class ObjectBuffer<T> : ICollection<T>, IDisposable // TODO: where T : INotifyPropertyChanged
+    public class ObjectBuffer<T> : ICollection<T>, IDisposable // TODO: where T : INotifyPropertyChanged
     {
         private readonly Dictionary<T, int> objects = new Dictionary<T, int>();
-        private readonly GlVertexArrayObject vao;
+        private readonly IVertexArrayObject vao;
         private readonly int verticesPerAtom;
         private readonly IList<Func<T, IList>> attributeGetters;
         private readonly IList<int> indices;
-
-        private int atomCount;
+        
         private int atomCapacity;
+        private int atomCount;
 
         internal ObjectBuffer(
             PrimitiveType primitiveType,
@@ -34,17 +34,10 @@
             IList<int> indices,
             int atomCapacity)
         {
-            this.vao = new GlVertexArrayObject(
-                primitiveType,
-                attributeTypes.Select<Type, Func<GlVertexBufferObject>>(a => 
-                    () => new GlVertexBufferObject(
-                        BufferUsage.DynamicDraw,
-                        Array.CreateInstance(a, atomCapacity * verticesPerAtom))).ToArray(), // TODO: different VAO ctor to avoid needless large heap allocation 
-                new uint[atomCapacity * indices.Count]); // TODO: different VAO ctor to avoid needless large heap allocation
             this.verticesPerAtom = verticesPerAtom;
+            this.vao = MakeVertexArrayObject(primitiveType, attributeTypes);
             this.attributeGetters = attributeGetters;
             this.indices = indices;
-
             this.atomCapacity = atomCapacity;
         }
 
@@ -116,6 +109,18 @@
             this.vao.Draw(this.atomCount * indices.Count);
         }
 
+        internal virtual IVertexArrayObject MakeVertexArrayObject(PrimitiveType primitiveType, IList<Type> attributeTypes)
+        {
+            return new GlVertexArrayObject(
+                primitiveType,
+                attributeTypes.Select<Type, Func<GlVertexBufferObject>>(a =>
+                    () => new GlVertexBufferObject(
+                        BufferTarget.ArrayBuffer,
+                        BufferUsage.DynamicDraw,
+                        Array.CreateInstance(a, atomCapacity * verticesPerAtom))).ToArray(), // TODO: different VAO ctor to avoid needless large heap allocation 
+                new uint[atomCapacity * indices.Count]); // TODO: different VAO ctor to avoid needless large heap allocation
+        }
+
         /* TODO
         private void Item_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
@@ -148,9 +153,7 @@
 
                 for (int j = 0; j < vertices.Count; j++)
                 {
-                    this.vao.Buffers[i].SetSubData(
-                        atomIndex * this.verticesPerAtom + j,
-                        vertices[j]);
+                    this.vao.AttributeBuffers[i][atomIndex * this.verticesPerAtom + j] = vertices[j];
                 }
             }
 
@@ -159,9 +162,7 @@
             // Update the index
             for (int i = 0; i < this.indices.Count; i++)
             {
-                vao.SetIndexData(
-                    atomIndex * this.indices.Count + i,
-                    (uint)(atomIndex * this.verticesPerAtom + this.indices[i]));
+                vao.IndexBuffer[atomIndex * this.indices.Count + i] = (uint)(atomIndex * this.verticesPerAtom + this.indices[i]);
             }
         }
     }
