@@ -9,28 +9,31 @@
 
     public class BoundBuffer<TElement, TVertex> where TElement : INotifyPropertyChanged
     {
-        private readonly Dictionary<TElement, int> objects = new Dictionary<TElement, int>();
-        private readonly IVertexArrayObject vao;
-        private readonly int verticesPerAtom;
+        private readonly int verticesPerObject;
         private readonly Func<TElement, IList> attributeGetter;
         private readonly IList<int> indices;
+        private readonly IVertexArrayObject vao;
+        private readonly List<Link> links = new List<Link>();
+        private readonly List<Link> linksByBufferIndex = new List<Link>();
 
-        private int atomCount;
-        private int atomCapacity;
-
+        private int objectCapacity;
+        
         public BoundBuffer(
             INotifyCollectionChanged collection,
             PrimitiveType primitiveType,
-            int verticesPerAtom,
-            int atomCapacity,
+            int verticesPerObject,
+            int objectCapacity,
             Func<TElement, TVertex[]> attributeGetter,
             IList<int> indices)
         {
-            this.verticesPerAtom = verticesPerAtom;
+            this.verticesPerObject = verticesPerObject;
             this.attributeGetter = attributeGetter;
             this.indices = indices;
-            this.atomCapacity = atomCapacity;
-            this.vao = MakeVertexArrayObject(primitiveType);
+            this.objectCapacity = objectCapacity;
+            this.vao = new GlVertexArrayObject(
+                primitiveType,
+                new Func<GlVertexBufferObject>[] { () => new GlVertexBufferObject(BufferTarget.ArrayBuffer, BufferUsage.DynamicDraw, Array.CreateInstance(typeof(TVertex), objectCapacity * verticesPerObject)) },  // TODO: different VAO ctor to avoid needless large heap allocation 
+                new uint[objectCapacity * indices.Count]); // TODO: different VAO ctor to avoid needless large heap allocation
             collection.CollectionChanged += Collection_CollectionChanged;
         }
 
@@ -45,25 +48,7 @@
         /// </summary>
         public void Draw()
         {
-            this.vao.Draw(this.atomCount * indices.Count);
-        }
-
-        /* TODO
-        private void Item_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            throw new NotImplementedException();
-            // TODO: more graceful error handling if the item not found
-            var itemIndex = this.objects[item];
-            SetItemData(item, itemIndex);
-        }
-        */
-
-        internal virtual IVertexArrayObject MakeVertexArrayObject(PrimitiveType primitiveType)
-        {
-            return new GlVertexArrayObject(
-                primitiveType,
-                new Func<GlVertexBufferObject>[] { () => new GlVertexBufferObject(BufferTarget.ArrayBuffer, BufferUsage.DynamicDraw, Array.CreateInstance(typeof(TVertex), atomCapacity * verticesPerAtom)) },  // TODO: different VAO ctor to avoid needless large heap allocation 
-                new uint[atomCapacity * indices.Count]); // TODO: different VAO ctor to avoid needless large heap allocation
+            this.vao.Draw(links.Count * indices.Count);
         }
 
         private void Collection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -71,76 +56,134 @@
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
-                    foreach (TElement item in e.NewItems)
+                    if (links.Count + e.NewItems.Count > objectCapacity)
                     {
-                        // Check buffer size
-                        if (this.atomCount >= atomCapacity)
-                        {
-                            // TODO: expand (i.e. recreate) buffer? ResizeBuffer method in GlVertexArrayObject:
-                            // Create new, glCopyBufferSubData, delete old, update buffer ID array. 
-                            throw new InvalidOperationException("Buffer is full");
-                        }
+                        // TODO: expand (i.e. recreate) buffer? ResizeBuffer method in GlVertexArrayObject:
+                        // Create new, glCopyBufferSubData, delete old, update buffer ID array. 
+                        throw new InvalidOperationException("Insufficient space left in buffer");
+                    }
 
-                        SetItemData(item, this.atomCount);
-                        objects.Add(item, this.atomCount);
-                        //TODO: item.PropertyChanged += Item_PropertyChanged;
+                    for (int i = 0; i < e.NewItems.Count; i++)
+                    {
+                        var link = new Link(this, links.Count, (TElement)e.NewItems[i]);
+                        links.Insert(e.NewStartingIndex + i, link);
+                        linksByBufferIndex.Add(link);
                     }
                     break;
                 case NotifyCollectionChangedAction.Move:
                     throw new NotSupportedException();
-                    break;
                 case NotifyCollectionChangedAction.Remove:
-                    throw new NotImplementedException();
-                    foreach (TElement item in e.OldItems)
+                    for (int i = 0; i < e.OldItems.Count; i++)
                     {
-                        // TODO: Find buffer segment for object (will need to keep a record).
-                        // Overwrite it with last buffer segment.
+                        var removedLink = links[e.OldStartingIndex + i]; // find link for old record
+                        var oldItemIndex = removedLink.ItemIndex; // note old item index
+                        removedLink.Item = default(TElement); // unlink to remove property changed event handler
+
+                        var bufferEndLink = linksByBufferIndex[links.Count - 1]; // find link for end of buffer
+                        bufferEndLink.ItemIndex = oldItemIndex; // Move data to vacated spot
+                        linksByBufferIndex[oldItemIndex] = bufferEndLink; // update linksByBufferIndex
+                        linksByBufferIndex.RemoveAt(links.Count - 1);
+
                         // Don't think need to do anything with indices because of their constant nature..
-                        objects.Remove(item);
-                        //TODO: item.PropertyChanged -= Item_PropertyChanged;
                     }
                     break;
                 case NotifyCollectionChangedAction.Replace:
-                    throw new NotSupportedException();
+                    for (int i = 0; i < e.NewItems.Count; i++)
+                    {
+                        links[e.NewStartingIndex + i].Item = (TElement)e.NewItems[i];
+                    }
                     break;
                 case NotifyCollectionChangedAction.Reset:
-                    // TODO (if/when resizing is supported): clear buffer data / shrink buffer? 
-                    objects.Clear();
+                    // TODO (if/when resizing is supported): clear buffer data / shrink buffer?
+                    foreach (var link in links)
+                    {
+                        link.Item = default(TElement);
+                    }
+                    links.Clear();
+                    linksByBufferIndex.Clear();
                     break;
-
             }
         }
 
-        /// <summary>
-        /// Updates attribute buffers in the underlying VAO for a given item.
-        /// </summary>
-        /// <param name="item">The item.</param>
-        /// <param name="atomIndex">The index of the item within the underlying VAO.</param>
-        private void SetItemData(TElement item, int atomIndex)
+        private class Link
         {
-            var atomCount = 0;
+            private BoundBuffer<TElement, TVertex> parent;
+            private int itemIndex;
+            private TElement item; // Wouldn't be needed if collection clear gave us the old items..
 
-            var vertices = this.attributeGetter(item);
-
-            if (vertices.Count % this.verticesPerAtom != 0)
+            public Link(BoundBuffer<TElement, TVertex> parent, int itemIndex, TElement item)
             {
-                // TODO: and should be the same for each attribute getter..?
-                throw new InvalidOperationException();
+                this.parent = parent;
+                this.ItemIndex = itemIndex;
+                this.Item = item;
             }
 
-            atomCount = vertices.Count / verticesPerAtom;
-
-            for (int j = 0; j < vertices.Count; j++)
+            /// <summary>
+            /// Gets or sets the index of the item within the underlying VAO.
+            /// </summary>
+            public int ItemIndex
             {
-                this.vao.AttributeBuffers[0][atomIndex * this.verticesPerAtom + j] = vertices[j];
+                get => itemIndex;
+                set
+                {
+                    itemIndex = value;
+                    if (item != null)
+                    {
+                        // could just copy buffer, but lets just reinvoke attr getters for now
+                        this.SetItemData(item);
+                    }
+                }
             }
 
-            this.atomCount += atomCount;
-
-            // Update the index
-            for (int i = 0; i < this.indices.Count; i++)
+            public TElement Item
             {
-                vao.IndexBuffer[atomIndex * this.indices.Count + i] = (uint)(atomIndex * this.verticesPerAtom + this.indices[i]);
+                get => item;
+                set
+                {
+                    if (item != null)
+                    {
+                        item.PropertyChanged -= ItemPropertyChanged;
+                    }
+
+                    item = value;
+
+                    if (item != null)
+                    {
+                        this.SetItemData(item);
+                        item.PropertyChanged += ItemPropertyChanged;
+                    }
+                }
+            }
+
+            private void ItemPropertyChanged(object sender, PropertyChangedEventArgs eventArgs)
+            {
+                this.SetItemData((TElement)sender);
+            }
+
+            /// <summary>
+            /// Updates attribute buffers in the underlying VAO from the given item's properties.
+            /// </summary>
+            /// <param name="item">The item.</param>
+            private void SetItemData(TElement item)
+            {
+                var vertices = parent.attributeGetter(item);
+                if (vertices.Count != parent.verticesPerObject)
+                {
+                    throw new InvalidOperationException();
+                }
+
+                for (int i = 0; i < vertices.Count; i++)
+                {
+                    parent.vao.AttributeBuffers[0][ItemIndex * parent.verticesPerObject + i] =
+                        vertices[i];
+                }
+
+                // Update the index
+                for (int i = 0; i < parent.indices.Count; i++)
+                {
+                    parent.vao.IndexBuffer[ItemIndex * parent.indices.Count + i] = 
+                        (uint)(ItemIndex * parent.verticesPerObject + parent.indices[i]);
+                }
             }
         }
     }
