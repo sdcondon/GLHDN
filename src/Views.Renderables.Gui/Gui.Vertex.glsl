@@ -10,20 +10,18 @@ layout(location = 4) in float borderWidth;
 
 // Output data ; will be interpolated for each fragment.
 out vec4 matColor;
+out float vborderWidth;
 out vec2 velementPos;
 flat out vec2 velementSize;
-out float vborderWidth;
 
 // Values that stay constant for the whole mesh.
 uniform mat4 P;
 
 void main() {
-
 	gl_Position =  P * vec4(vertexPosition_viewspace, 1);
-		
 	matColor = vertexColor;
+	vborderWidth = borderWidth;
 	velementPos = elementPos;
 	velementSize = elementSize;
-	vborderWidth = borderWidth;
 }
 

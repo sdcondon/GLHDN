@@ -5,8 +5,8 @@
     <TargetFramework>net461</TargetFramework>
     <ApplicationIcon />
     <StartupObject />
-    <AssemblyName>GLHDN.Views.Contexts.WinForms.Test</AssemblyName>
-    <RootNamespace>GLHDN.Views.Contexts.WinForms.Test</RootNamespace>
+    <AssemblyName>GLHDN.Examples.WinForms</AssemblyName>
+    <RootNamespace>GLHDN.Examples.WinForms</RootNamespace>
   </PropertyGroup>
   
   <ItemGroup>

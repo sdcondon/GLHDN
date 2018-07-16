@@ -54,13 +54,26 @@
 
             gui = new Gui(view)
             {
-                new GuiElement(null)
+                new Renderables.Gui.Panel(null)
                 {
                     ParentOrigin = new Dimensions(-1f, 0f),
                     LocalOrigin = new Dimensions(-1f, 0f),
                     Size = new Dimensions(200, 1f),
                     Color = new Vector4(0.5f, 0.2f, 0.2f, 0.4f),
-                    BorderWidth = 1f
+                    BorderWidth = 1f,
+                    /*
+                    Elements =
+                    {
+                        new Renderables.Gui.Text()
+                        {
+                            ParentOrigin = new Dimensions(0f, 0f),
+                            LocalOrigin = new Dimensions(0f, 0f),
+                            Size = new Dimensions(1f, 1f),
+                            Color = new Vector4(1f, 1f, 1f, 1f),
+                            Text = "Hello world!"
+                        }
+                    }
+                    */
                 }
             };
 

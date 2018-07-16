@@ -12,16 +12,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Internals\stb_rect_pack.cs" />
-    <Compile Remove="Internals\stb_truetype.cs" />
+    <Compile Remove="_stb\stb_rect_pack.cs" />
+    <Compile Remove="_stb\stb_truetype.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <None Remove="Gui.Fragment.glsl" />
     <None Remove="Gui.Vertex.glsl" />
+    <None Remove="Text.Fragment.glsl" />
+    <None Remove="Text.Vertex.glsl" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Text.Fragment.glsl" />
+    <EmbeddedResource Include="Text.Vertex.glsl" />
     <EmbeddedResource Include="Gui.Fragment.glsl" />
     <EmbeddedResource Include="Gui.Vertex.glsl" />
   </ItemGroup>
@@ -32,12 +36,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Fonts\Inconsolata\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="Internals\stb_rect_pack.cs" />
-    <None Include="Internals\stb_truetype.cs" />
+    <None Include="_stb\stb_rect_pack.cs" />
+    <None Include="_stb\stb_truetype.cs" />
   </ItemGroup>
 
   <ItemGroup>

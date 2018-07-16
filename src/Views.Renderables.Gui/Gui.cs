@@ -6,6 +6,8 @@
     using OpenGL;
     using GLHDN.Core;
     using System.Collections;
+    using System.Collections.ObjectModel;
+    using System.ComponentModel;
 
     /// <summary>
     /// Renderable container for a set of graphical user interface elements.
@@ -16,11 +18,13 @@
 
         private readonly View view;
         private readonly Queue<Action> updates = new Queue<Action>();
+        private readonly ObservableCollection<IGuiElement> elements = new ObservableCollection<IGuiElement>();
 
         private GlProgramBuilder programBuilder;
         private GlProgram program;
-        private ObjectBufferBuilder<GuiElement> guiElementBufferBuilder;
-        private ObjectBuffer<GuiElement> guiElementBuffer;
+        private BoundBuffer<IGuiElement, GuiVertex> guiElementBuffer;
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public Gui(View view)
         {
@@ -32,29 +36,29 @@
                 .WithShaderFromEmbeddedResource(ShaderType.VertexShader, $"{ShaderResourceNamePrefix}.Gui.Vertex.glsl")
                 .WithShaderFromEmbeddedResource(ShaderType.FragmentShader, $"{ShaderResourceNamePrefix}.Gui.Fragment.glsl")
                 .WithUniforms("P");
-
-            this.guiElementBufferBuilder = new ObjectBufferBuilder<GuiElement>(PrimitiveType.Triangles, 4, 100)
-                .WithAttribute(a => new[] { a.TopLeft(), a.TopRight(), a.BottomLeft(), a.BottomRight() })
-                .WithAttribute(a => new[] { a.Color, a.Color, a.Color, a.Color })
-                .WithAttribute(a => new[] { Vector2.Zero, new Vector2(a.ScreenSize.X, 0), new Vector2(0, a.ScreenSize.Y), a.ScreenSize })
-                .WithAttribute(a => new[] { a.ScreenSize, a.ScreenSize, a.ScreenSize, a.ScreenSize })
-                .WithAttribute(a => new[] { a.BorderWidth, a.BorderWidth, a.BorderWidth, a.BorderWidth })
-                .WithIndices(new[] { 0, 2, 3, 0, 3, 1 });
         }
 
         /// <inheritdoc />
-        public Vector2 Center => Vector2.Zero;
+        public Vector2 Center_ScreenSpace => Vector2.Zero;
 
         /// <inheritdoc />
-        public Vector2 ScreenSize => new Vector2(view.Width, view.Height);
+        public Vector2 Size_ScreenSpace => new Vector2(view.Width, view.Height);
+
+        /// <inheritdoc />
+        public GuiVertex[] Vertices { get; } = new GuiVertex[0];
 
         /// <inheritdoc />
         public void ContextCreated(DeviceContext deviceContext)
         {
             this.program = this.programBuilder.Build();
             this.programBuilder = null;
-            this.guiElementBuffer = this.guiElementBufferBuilder.Build();
-            this.guiElementBufferBuilder = null;
+            this.guiElementBuffer = new BoundBuffer<IGuiElement, GuiVertex>(
+                elements,
+                PrimitiveType.Triangles,
+                4,
+                100,
+                a => a.Vertices,
+                new[] { 0, 2, 3, 0, 3, 1 });
         }
 
         /// <inheritdoc />
@@ -67,7 +71,7 @@
                 updates.Dequeue()();
             }
 
-            this.program.UseWithUniformValues(Matrix4x4.Transpose(Matrix4x4.CreateOrthographic(ScreenSize.X, ScreenSize.Y, 1f, -1f)));
+            this.program.UseWithUniformValues(Matrix4x4.Transpose(Matrix4x4.CreateOrthographic(Size_ScreenSpace.X, Size_ScreenSpace.Y, 1f, -1f)));
             this.guiElementBuffer.Draw();
         }
 
@@ -79,25 +83,25 @@
         }
 
         /// <inheritdoc />
-        public IEnumerator<IGuiElement> GetEnumerator() => guiElementBuffer.GetEnumerator();
+        public IEnumerator<IGuiElement> GetEnumerator() => elements.GetEnumerator();
 
         /// <inheritdoc />)
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)guiElementBuffer).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)elements).GetEnumerator();
 
-        public void Add(GuiElement element)
+        public void Add(Panel element)
         {
             element.Parent = element.Parent ?? this;
-            updates.Enqueue(() => guiElementBuffer.Add(element));
+            updates.Enqueue(() => elements.Add(element));
         }
 
-        public void Remove(GuiElement element)
+        public void Remove(Panel element)
         {
-            updates.Enqueue(() => guiElementBuffer.Remove(element));
+            updates.Enqueue(() => elements.Remove(element));
         }
 
         public void Clear()
         {
-            updates.Enqueue(() => guiElementBuffer.Clear());
+            updates.Enqueue(() => elements.Clear());
         }
 
         public void Update()

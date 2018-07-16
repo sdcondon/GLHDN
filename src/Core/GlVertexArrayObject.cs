@@ -67,7 +67,7 @@
         }
 
         /// <summary>
-        /// 
+        /// The number of vertices to be rendered.
         /// </summary>
         public int VertexCount => indexBuffer?.VertexCount ?? attributeBuffers[0].VertexCount;
 

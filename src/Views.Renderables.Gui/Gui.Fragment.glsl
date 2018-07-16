@@ -2,9 +2,9 @@
 
 // Interpolated values from the vertex shaders
 in vec4 matColor;
+in float vborderWidth;
 in vec2 velementPos;
 flat in vec2 velementSize;
-in float vborderWidth;
 
 // Ouput data
 out vec4 color;

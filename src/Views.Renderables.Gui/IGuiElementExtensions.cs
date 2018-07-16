@@ -4,24 +4,24 @@
 
     public static class IGuiElementExtensions
     {
-        public static Vector2 BottomLeft(this IGuiElement e)
+        public static Vector2 GetPosBL(this IGuiElement e)
         {
-            return e.Center - e.ScreenSize / 2;
+            return e.Center_ScreenSpace - e.Size_ScreenSpace / 2;
         }
 
-        public static Vector2 BottomRight(this IGuiElement e)
+        public static Vector2 GetPosBR(this IGuiElement e)
         {
-            return new Vector2(e.Center.X + e.ScreenSize.X / 2, e.Center.Y - e.ScreenSize.Y / 2);
+            return new Vector2(e.Center_ScreenSpace.X + e.Size_ScreenSpace.X / 2, e.Center_ScreenSpace.Y - e.Size_ScreenSpace.Y / 2);
         }
 
-        public static Vector2 TopLeft(this IGuiElement e)
+        public static Vector2 GetPosTL(this IGuiElement e)
         {
-            return new Vector2(e.Center.X - e.ScreenSize.X / 2, e.Center.Y + e.ScreenSize.Y / 2);
+            return new Vector2(e.Center_ScreenSpace.X - e.Size_ScreenSpace.X / 2, e.Center_ScreenSpace.Y + e.Size_ScreenSpace.Y / 2);
         }
 
-        public static Vector2 TopRight(this IGuiElement e)
+        public static Vector2 GetPosTR(this IGuiElement e)
         {
-            return e.Center + e.ScreenSize / 2;
+            return e.Center_ScreenSpace + e.Size_ScreenSpace / 2;
         }
     }
 }
