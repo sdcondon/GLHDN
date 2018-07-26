@@ -7,6 +7,9 @@
     using System.Numerics;
     using System.Windows.Forms;
 
+    /// <summary>
+    /// Wrapper for <see cref="GlControl"/> to the <see cref="IViewContext"/> interface.
+    /// </summary>
     public sealed class GlControlAdapter : IViewContext, IDisposable
     {
         private GlControl glControl;

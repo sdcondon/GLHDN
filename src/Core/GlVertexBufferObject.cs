@@ -10,7 +10,7 @@
     public sealed class GlVertexBufferObject : IDisposable
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="GlVertexBufferObject"/> class.
+        /// Initializes a new instance of the <see cref="GlVertexBufferObject"/> class. SIDE EFFECT: New buffer will be bound to the given target.
         /// </summary>
         /// <param name="target">OpenGL buffer target specification.</param>
         /// <param name="usage">OpenGL buffer usage specification.</param>

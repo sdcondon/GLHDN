@@ -3,6 +3,9 @@
     using System;
     using System.Collections.Generic;
 
+    /// <remarks>
+    /// For testability.
+    /// </remarks>
     interface IVertexArrayObject : IDisposable
     {
         /// <summary>
