@@ -6,6 +6,15 @@
 
     public class Text : IGuiElement
     {
+        private readonly Font font;
+
+        public Text(IGuiElement parent, string fontPath, string content)
+        {
+            this.Parent = parent;
+            this.font = new Font(fontPath);
+            this.Content = content;
+        }
+
         public IGuiElement Parent { get; internal set; }
 
         /// <summary>
@@ -67,12 +76,11 @@
                 var vertices = new List<GuiVertex>();
 
                 // TODO: add vertices for chars
-                var font = new Font();
                 var position = this.GetPosBL();
                 var scale = 1f;
                 foreach (var c in Content)
                 {
-                    var ch = font[c];
+                    var ch = this.font[c];
                     var xpos = position.X + ch.Bearing.X * scale;
                     var ypos = position.Y + (ch.Bearing.Y - ch.Size.Y) * scale;
                     var w = ch.Size.X * scale;
