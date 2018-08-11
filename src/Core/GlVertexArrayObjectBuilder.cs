@@ -7,10 +7,13 @@
     /// <summary>
     /// Builder class for <see cref="GlVertexArrayObject"/> objects that presents a fluent-ish interface.
     /// </summary>
+    /// <remarks>
+    /// Useful for setting up a VAO before the OpenGL context has initialized.
+    /// </remarks>
     public sealed class GlVertexArrayObjectBuilder
     {
         private readonly PrimitiveType primitiveType;
-        private readonly List<Func<GlVertexBufferObject>> bufferBuilders = new List<Func<GlVertexBufferObject>>();
+        private readonly List<Tuple<BufferUsage, Array>> bufferSpecs = new List<Tuple<BufferUsage, Array>>();
         private uint[] indexData;
 
         /// <summary>
@@ -24,7 +27,7 @@
 
         public GlVertexArrayObjectBuilder WithAttributeBuffer(BufferUsage bufferUsage, Array data)
         {
-            this.bufferBuilders.Add(() => new GlVertexBufferObject(BufferTarget.ArrayBuffer, bufferUsage, data));
+            this.bufferSpecs.Add(Tuple.Create(bufferUsage, data));
             return this;
         }
 
@@ -36,7 +39,7 @@
 
         public GlVertexArrayObject Build()
         {
-            return new GlVertexArrayObject(primitiveType, bufferBuilders, indexData);
+            return new GlVertexArrayObject(primitiveType, bufferSpecs, indexData);
         }
     }
 }

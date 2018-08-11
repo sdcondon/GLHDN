@@ -6,17 +6,17 @@
     /// <remarks>
     /// For testability.
     /// </remarks>
-    interface IVertexArrayObject : IDisposable
+    public interface IVertexArrayObject : IDisposable
     {
         /// <summary>
         /// Gets the index buffer object for this VAO, if there is one.
         /// </summary>
-        GlVertexBufferObject IndexBuffer { get; }
+        IVertexBufferObject IndexBuffer { get; }
 
         /// <summary>
         /// Gets the set of buffer objects contained within this VAO.
         /// </summary>
-        IReadOnlyList<GlVertexBufferObject> AttributeBuffers { get; }
+        IReadOnlyList<IVertexBufferObject> AttributeBuffers { get; }
 
         /// <summary>
         /// Draw with the active program.

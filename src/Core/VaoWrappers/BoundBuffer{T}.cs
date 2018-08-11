@@ -7,7 +7,12 @@
     using System.Collections.Specialized;
     using System.ComponentModel;
 
-    public class BoundBuffer<TElement, TVertex> where TElement : INotifyPropertyChanged
+    /// <summary>
+    /// Encapsulates an OpenGL buffer bound to a particular <see cref="INotifyCollectionChanged"/> object containing 
+    /// </summary>
+    /// <typeparam name="TElement"></typeparam>
+    /// <typeparam name="TVertex"></typeparam>
+    public sealed class BoundBuffer<TElement, TVertex> where TElement : INotifyPropertyChanged
     {
         private readonly int verticesPerObject;
         private readonly Func<TElement, IList> attributeGetter;
@@ -17,7 +22,7 @@
         private readonly List<Link> linksByBufferIndex = new List<Link>();
 
         private int objectCapacity;
-        
+
         public BoundBuffer(
             INotifyCollectionChanged collection,
             PrimitiveType primitiveType,
@@ -25,14 +30,33 @@
             int objectCapacity,
             Func<TElement, TVertex[]> attributeGetter,
             IList<int> indices)
+            : this(
+                collection,
+                primitiveType,
+                verticesPerObject,
+                objectCapacity,
+                attributeGetter,
+                indices,
+                DefaultMakeVertexArrayObject)
+        {
+        }
+
+        internal BoundBuffer(
+            INotifyCollectionChanged collection,
+            PrimitiveType primitiveType,
+            int verticesPerObject,
+            int objectCapacity,
+            Func<TElement, TVertex[]> attributeGetter,
+            IList<int> indices,
+            Func<PrimitiveType, IList<Tuple<BufferUsage, Array>>, uint[], IVertexArrayObject> makeVertexArrayObject)
         {
             this.verticesPerObject = verticesPerObject;
             this.attributeGetter = attributeGetter;
             this.indices = indices;
             this.objectCapacity = objectCapacity;
-            this.vao = new GlVertexArrayObject(
+            this.vao = makeVertexArrayObject(
                 primitiveType,
-                new Func<GlVertexBufferObject>[] { () => new GlVertexBufferObject(BufferTarget.ArrayBuffer, BufferUsage.DynamicDraw, Array.CreateInstance(typeof(TVertex), objectCapacity * verticesPerObject)) },  // TODO: different VAO ctor to avoid needless large heap allocation 
+                new[] { Tuple.Create(BufferUsage.DynamicDraw, Array.CreateInstance(typeof(TVertex), objectCapacity * verticesPerObject)) },  // TODO: different VAO ctor to avoid needless large heap allocation 
                 new uint[objectCapacity * indices.Count]); // TODO: different VAO ctor to avoid needless large heap allocation
             collection.CollectionChanged += Collection_CollectionChanged;
         }
@@ -49,6 +73,14 @@
         public void Draw()
         {
             this.vao.Draw(linksByCollectionIndex.Count * indices.Count);
+        }
+
+        private static IVertexArrayObject DefaultMakeVertexArrayObject(PrimitiveType primitiveType, IList<Tuple<BufferUsage, Array>> attributeBufferSpecs, uint[] indices)
+        {
+            return new GlVertexArrayObject(
+                primitiveType,
+                attributeBufferSpecs, // TODO: different VAO ctor to avoid needless large heap allocation 
+                indices); // TODO: different VAO ctor to avoid needless large heap allocation
         }
 
         private void Collection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)

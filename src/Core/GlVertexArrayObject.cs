@@ -19,10 +19,10 @@
         /// </summary>
         /// <param name="primitiveType">OpenGL primitive type.</param>
         /// <param name="attributeBufferBuilders">Builder delegates for the buffers in this VAO.</param>
-        /// <param name="indexData"></param>
+        /// <param name="indexData">The data to populate the index buffer with, or null if there should be no index.</param>
         internal GlVertexArrayObject(
             PrimitiveType primitiveType,
-            IList<Func<GlVertexBufferObject>> attributeBufferBuilders,
+            IList<Tuple<BufferUsage, Array>> attributeBufferSpecs,
             uint[] indexData)
         {
             //  Record primitive type for use in draw calls, create and bind the VAO
@@ -31,11 +31,11 @@
             Gl.BindVertexArray(id);
 
             // Set up the attribute buffers
-            this.attributeBuffers = new GlVertexBufferObject[attributeBufferBuilders.Count];
+            this.attributeBuffers = new GlVertexBufferObject[attributeBufferSpecs.Count];
             uint k = 0;
             for (int i = 0; i < attributeBuffers.Length; i++)
             {
-                var buffer = attributeBuffers[i] = attributeBufferBuilders[i](); // TODO: Assert length consistency?
+                var buffer = attributeBuffers[i] = new GlVertexBufferObject(BufferTarget.ArrayBuffer, attributeBufferSpecs[i].Item1, attributeBufferSpecs[i].Item2);
                 Gl.BindBuffer(BufferTarget.ArrayBuffer, buffer.Id);
                 for (uint j = 0; j < buffer.Attributes.Length; j++, k++)
                 {
@@ -72,10 +72,10 @@
         public int VertexCount => indexBuffer?.VertexCount ?? attributeBuffers[0].VertexCount;
 
         /// <inheritdoc />
-        public GlVertexBufferObject IndexBuffer => this.indexBuffer;
+        public IVertexBufferObject IndexBuffer => this.indexBuffer;
 
         /// <inheritdoc />
-        public IReadOnlyList<GlVertexBufferObject> AttributeBuffers => this.attributeBuffers;
+        public IReadOnlyList<IVertexBufferObject> AttributeBuffers => this.attributeBuffers;
 
         /// <inheritdoc />
         public void Draw(int count = -1)

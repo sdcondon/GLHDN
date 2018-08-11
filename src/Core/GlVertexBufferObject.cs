@@ -7,7 +7,7 @@
     /// <summary>
     /// A OpenGL vertex buffer object. This class will map appropriately from .NET 
     /// </summary>
-    public sealed class GlVertexBufferObject : IDisposable
+    public sealed class GlVertexBufferObject : IVertexBufferObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="GlVertexBufferObject"/> class. SIDE EFFECT: New buffer will be bound to the given target.
@@ -31,25 +31,16 @@
             Gl.DeleteBuffers(this.Id);
         }
 
-        /// <summary>
-        /// Gets the ID of the buffer object.
-        /// </summary>
+        /// <inheritdoc />
         public uint Id { get; private set; }
 
-        /// <summary>
-        /// Gets the vertex attribute info for this buffer.
-        /// </summary>
+        /// <inheritdoc />
         public GlVertexAttribInfo[] Attributes { get; private set; }
 
-        /// <summary>
-        /// Gets the number of vertices that the buffer contains data for.
-        /// </summary>
+        /// <inheritdoc />
         public int VertexCount { get; private set; }
 
-        /// <summary>
-        /// Sets data for the vertex at a particular index.
-        /// </summary>
-        /// <param name="index"></param>
+        /// <inheritdoc />
         public object this[int index]
         {
             set
