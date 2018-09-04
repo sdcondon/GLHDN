@@ -15,7 +15,7 @@
         private readonly GlVertexBufferObject indexBuffer;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="GlVertexArrayObject"/> class.
+        /// Initializes a new instance of the <see cref="GlVertexArrayObject"/> class. SIDE EFFECT: new VAO will be bound.
         /// </summary>
         /// <param name="primitiveType">OpenGL primitive type.</param>
         /// <param name="attributeBufferBuilders">Builder delegates for the buffers in this VAO.</param>
@@ -36,7 +36,6 @@
             for (int i = 0; i < attributeBuffers.Length; i++)
             {
                 var buffer = attributeBuffers[i] = new GlVertexBufferObject(BufferTarget.ArrayBuffer, attributeBufferSpecs[i].Item1, attributeBufferSpecs[i].Item2);
-                Gl.BindBuffer(BufferTarget.ArrayBuffer, buffer.Id);
                 for (uint j = 0; j < buffer.Attributes.Length; j++, k++)
                 {
                     var attribute = buffer.Attributes[j];
@@ -69,7 +68,7 @@
         /// <summary>
         /// The number of vertices to be rendered.
         /// </summary>
-        public int VertexCount => indexBuffer?.VertexCount ?? attributeBuffers[0].VertexCount;
+        public int VertexCount => indexBuffer?.Count ?? attributeBuffers[0].Count;
 
         /// <inheritdoc />
         public IVertexBufferObject IndexBuffer => this.indexBuffer;

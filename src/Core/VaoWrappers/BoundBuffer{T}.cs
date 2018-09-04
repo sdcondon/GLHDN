@@ -6,6 +6,7 @@
     using System.Collections.Generic;
     using System.Collections.Specialized;
     using System.ComponentModel;
+    using System.Linq;
 
     /// <summary>
     /// Encapsulates an OpenGL buffer bound to a particular <see cref="INotifyCollectionChanged"/> object containing 
@@ -15,7 +16,7 @@
     public sealed class BoundBuffer<TElement, TVertex> where TElement : INotifyPropertyChanged
     {
         private readonly int verticesPerObject;
-        private readonly Func<TElement, IList> attributeGetter;
+        private readonly Func<TElement, IList<TVertex>> attributeGetter;
         private readonly IList<int> indices;
         private readonly IVertexArrayObject vao;
         private readonly List<Link> linksByCollectionIndex = new List<Link>();
@@ -23,17 +24,23 @@
 
         private int objectCapacity;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BoundBuffer"/> class.
+        /// </summary>
+        /// <param name="collection">The collection to bind to.</param>
+        /// <param name="primitiveType">The type of primitive to be drawn.</param>
+        /// <param name="objectCapacity">The capacity for the buffer, in objects.</param>
+        /// <param name="attributeGetter">Delegate to transform source object into vertex data.</param>
+        /// <param name="indices"></param>
         public BoundBuffer(
             INotifyCollectionChanged collection,
             PrimitiveType primitiveType,
-            int verticesPerObject,
             int objectCapacity,
-            Func<TElement, TVertex[]> attributeGetter,
+            Func<TElement, IList<TVertex>> attributeGetter,
             IList<int> indices)
             : this(
                 collection,
                 primitiveType,
-                verticesPerObject,
                 objectCapacity,
                 attributeGetter,
                 indices,
@@ -44,13 +51,12 @@
         internal BoundBuffer(
             INotifyCollectionChanged collection,
             PrimitiveType primitiveType,
-            int verticesPerObject,
             int objectCapacity,
-            Func<TElement, TVertex[]> attributeGetter,
+            Func<TElement, IList<TVertex>> attributeGetter,
             IList<int> indices,
             Func<PrimitiveType, IList<Tuple<BufferUsage, Array>>, uint[], IVertexArrayObject> makeVertexArrayObject)
         {
-            this.verticesPerObject = verticesPerObject;
+            this.verticesPerObject = indices.Max() + 1;
             this.attributeGetter = attributeGetter;
             this.indices = indices;
             this.objectCapacity = objectCapacity;
@@ -206,8 +212,7 @@
 
                 for (int i = 0; i < vertices.Count; i++)
                 {
-                    parent.vao.AttributeBuffers[0][ItemIndex * parent.verticesPerObject + i] =
-                        vertices[i];
+                    parent.vao.AttributeBuffers[0][ItemIndex * parent.verticesPerObject + i] = vertices[i];
                 }
 
                 // Update the index

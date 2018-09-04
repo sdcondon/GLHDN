@@ -1,13 +1,12 @@
 ﻿namespace GLHDN.Core.UnitTests.VaoWrappers
 {
     using FluentAssertions;
-    using Moq;
     using OpenGL;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
-    using System.Numerics;
+    using System.Linq;
     using Xunit;
 
     public class BoundBufferTests
@@ -20,45 +19,81 @@
         {
             this.collection = new ObservableCollection<Element>();
             this.target = new BoundBuffer<Element, Vertex>(
-                collection,
-                PrimitiveType.Points,
-                2,
-                5,
-                a => new[] { new Vertex(a.center - Vector3.UnitX), new Vertex(a.center + Vector3.UnitX) },
-                new[] { 0, 1, 2 },
-                (p, a, i) => this.vao = new MockVertexArrayObject(p, a, i));
+                collection: this.collection,
+                primitiveType: PrimitiveType.Points,
+                objectCapacity: 5,
+                attributeGetter: a => Enumerable.Range(1, a.vertexCount).Select(b => new Vertex(a.id, b)).ToArray(),
+                indices: new[] { 0, 1 },
+                makeVertexArrayObject: (p, a, i) => this.vao = new MockVertexArrayObject(p, a, i));
         }
 
-        [Fact]
-        public void Test1()
+        public static IEnumerable<object[]> TestCases => new List<object[]>()
+        { 
+            MakeTestCase(
+                a =>
+                {
+                    a.Add(new Element(1, 2));
+                    a.Add(new Element(2, 2));
+                },
+                new[] { new Vertex(1, 1), new Vertex(1, 2), new Vertex(2, 1), new Vertex(2, 2) },
+                new[] { 0, 1, 2, 3 }),
+            MakeTestCase(
+                a =>
+                {
+                    a.Add(new Element(1, 2));
+                    a.Add(new Element(2, 2));
+                    a.Remove(new Element(1, 2));
+                },
+                new[] { new Vertex(2, 1), new Vertex(2, 2) },
+                new[] { 0, 1 }),
+        };
+
+        [Theory]
+        [MemberData(nameof(TestCases))]
+        public void Test(Action<ObservableCollection<Element>> action, ICollection<Vertex> expectedVertices, ICollection<int> expectedIndices)
         {
-            this.collection.Add(new Element(Vector3.Zero));
-            this.vao.AttributeBuffers[0].Contents.Should().BeEquivalentTo(
-                new Vertex(new Vector3(-1f, 0f, 0f)),
-                new Vertex(new Vector3(1f, 0f, 0f)));
-            this.vao.IndexBuffer.Contents.Should().BeEquivalentTo(
-                0, 1, 2);
+            action(this.collection);
+            this.vao.AttributeBuffers[0].Contents.Take(expectedVertices.Count).Should().BeEquivalentTo(expectedVertices);
+            this.vao.IndexBuffer.Contents.Take(expectedIndices.Count).Should().BeEquivalentTo(expectedIndices);
         }
 
-        private class Element : INotifyPropertyChanged
+        private static object[] MakeTestCase(
+            Action<ObservableCollection<Element>> action,
+            ICollection<Vertex> expectedVertices,
+            ICollection<int> expectedIndices)
         {
-            public readonly Vector3 center;
-
-            public Element(Vector3 center)
+            return new object[]
             {
-                this.center = center;
+                action,
+                expectedVertices,
+                expectedIndices
+            };
+        }
+
+        public struct Element : INotifyPropertyChanged
+        {
+            public readonly int id;
+            public readonly int vertexCount;
+
+            public Element(int id, int vertexCount)
+            {
+                this.id = id;
+                this.vertexCount = vertexCount;
+                this.PropertyChanged = null;
             }
 
             public event PropertyChangedEventHandler PropertyChanged;
         }
 
-        private struct Vertex
+        public struct Vertex
         {
-            public readonly Vector3 position;
+            public readonly int elementId;
+            public readonly int vertexId;
 
-            public Vertex(Vector3 position)
+            public Vertex(int elementId, int vertexId)
             {
-                this.position = position;
+                this.elementId = elementId;
+                this.vertexId = vertexId;
             }
         }
     }

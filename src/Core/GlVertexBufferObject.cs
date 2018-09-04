@@ -9,6 +9,8 @@
     /// </summary>
     public sealed class GlVertexBufferObject : IVertexBufferObject
     {
+        private int count;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="GlVertexBufferObject"/> class. SIDE EFFECT: New buffer will be bound to the given target.
         /// </summary>
@@ -19,7 +21,7 @@
         {
             var elementType = vertexData.GetType().GetElementType();
             this.Attributes = GlVertexAttribInfo.ForType(elementType);
-            this.VertexCount = vertexData.Length;
+            this.count = vertexData.Length;
 
             this.Id = Gl.GenBuffer();
             Gl.BindBuffer(target, this.Id); // NB: Side effect - leaves this buffer bound. 
@@ -38,7 +40,21 @@
         public GlVertexAttribInfo[] Attributes { get; private set; }
 
         /// <inheritdoc />
-        public int VertexCount { get; private set; }
+        public int Count
+        {
+            get
+            {
+                return count;
+            }
+            
+            //set
+            //{
+            //    var newId = Gl.GenBuffer();
+            //    Gl.NamedBufferData(newId, (uint)(Marshal.SizeOf(elementType) * value), null, usage);
+            //    Gl.CopyNamedBufferSubData(this.Id, newId, 0, 0, (uint)(Marshal.SizeOf(elementType) * count));
+            //    count = value;
+            //}
+        }
 
         /// <inheritdoc />
         public object this[int index]

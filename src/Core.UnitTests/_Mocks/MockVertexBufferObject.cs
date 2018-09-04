@@ -32,7 +32,7 @@
 
         public GlVertexAttribInfo[] Attributes => throw new NotImplementedException();
 
-        public int VertexCount => Contents.Count;
+        public int Count => Contents.Count;
 
         public void Dispose()
         {

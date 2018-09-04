@@ -15,9 +15,9 @@ namespace GLHDN.Core
         GlVertexAttribInfo[] Attributes { get; }
 
         /// <summary>
-        /// Gets the number of vertices that the buffer contains data for.
+        /// Gets the number of vertices that the buffer has the capacity for.
         /// </summary>
-        int VertexCount { get; }
+        int Count { get; }
 
         /// <summary>
         /// Sets data for the vertex at a particular index.
