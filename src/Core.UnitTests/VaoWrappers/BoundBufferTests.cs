@@ -46,6 +46,15 @@
                 },
                 new[] { new Vertex(2, 1), new Vertex(2, 2) },
                 new[] { 0, 1 }),
+            MakeTestCase(
+                a =>
+                {
+                    a.Add(new Element(1, 3));
+                    a.Add(new Element(2, 2));
+                    a.Remove(new Element(1, 3));
+                },
+                new[] { new Vertex(2, 1), new Vertex(2, 2) },
+                new[] { 0, 1 }),
         };
 
         [Theory]

@@ -2,14 +2,13 @@
 {
     using OpenGL;
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Collections.Specialized;
     using System.ComponentModel;
     using System.Linq;
 
     /// <summary>
-    /// Encapsulates an OpenGL buffer bound to a particular <see cref="INotifyCollectionChanged"/> object containing 
+    /// Encapsulates an OpenGL buffer bound to a particular <see cref="INotifyCollectionChanged"/> object.
     /// </summary>
     /// <typeparam name="TElement"></typeparam>
     /// <typeparam name="TVertex"></typeparam>
@@ -103,9 +102,8 @@
 
                     for (int i = 0; i < e.NewItems.Count; i++)
                     {
-                        var link = new Link(this, linksByCollectionIndex.Count, (TElement)e.NewItems[i]);
+                        var link = new Link(this, (TElement)e.NewItems[i]);
                         linksByCollectionIndex.Insert(e.NewStartingIndex + i, link);
-                        linksByBufferIndex.Add(link);
                     }
                     break;
                 case NotifyCollectionChangedAction.Move:
@@ -113,15 +111,9 @@
                 case NotifyCollectionChangedAction.Remove:
                     for (int i = 0; i < e.OldItems.Count; i++)
                     {
-                        var removedLink = linksByCollectionIndex[e.OldStartingIndex + i]; // find link for old record
-                        var oldItemIndex = removedLink.ItemIndex; // note old item index
-                        removedLink.Item = default(TElement); // unlink to remove property changed event handler
-
-                        var bufferEndLink = linksByBufferIndex[linksByCollectionIndex.Count - 1]; // find link for end of buffer
-                        bufferEndLink.ItemIndex = oldItemIndex; // Move data to vacated spot
-                        linksByBufferIndex[oldItemIndex] = bufferEndLink; // update linksByBufferIndex
-                        linksByBufferIndex.RemoveAt(linksByCollectionIndex.Count - 1);
-
+                        var link = linksByCollectionIndex[e.OldStartingIndex]; // not + i because we've already removed the preceding ones..
+                        linksByCollectionIndex.RemoveAt(e.OldStartingIndex);
+                        link.Remove();
                         // Don't think need to do anything with indices because of their constant nature..
                     }
                     break;
@@ -133,12 +125,11 @@
                     break;
                 case NotifyCollectionChangedAction.Reset:
                     // TODO (if/when resizing is supported): clear buffer data / shrink buffer?
+                    linksByCollectionIndex.Clear();
                     foreach (var link in linksByCollectionIndex)
                     {
-                        link.Item = default(TElement);
+                        link.Remove();
                     }
-                    linksByCollectionIndex.Clear();
-                    linksByBufferIndex.Clear();
                     break;
             }
         }
@@ -149,27 +140,37 @@
             private int bufferIndex;
             private TElement item; // Wouldn't be needed if collection clear gave us the old items..
 
-            public Link(BoundBuffer<TElement, TVertex> parent, int bufferIndex, TElement item)
+            public Link(BoundBuffer<TElement, TVertex> parent, TElement item)
             {
                 this.parent = parent;
-                this.ItemIndex = bufferIndex;
-                this.Item = item;
+                this.bufferIndex = this.parent.linksByBufferIndex.Count;
+                this.parent.linksByBufferIndex.Add(this);
+                this.item = item;
+                this.SetItemData(item);
+                this.item.PropertyChanged += ItemPropertyChanged;
             }
 
             /// <summary>
             /// Gets or sets the index of the item within the underlying VAO.
             /// </summary>
-            public int ItemIndex
+            public int BufferIndex
             {
                 get => bufferIndex;
-                set
+                private set
                 {
-                    bufferIndex = value;
-                    if (item != null)
+                    if (bufferIndex != parent.linksByBufferIndex.Count - 1)
                     {
-                        // could just copy buffer, but lets just reinvoke attr getters for now
-                        this.SetItemData(item);
+                        throw new InvalidOperationException("Buffer objects can only be moved from the end");
                     }
+
+                    parent.linksByBufferIndex.RemoveAt(bufferIndex);
+
+                    bufferIndex = value;
+                    
+                    // could just copy buffer, but lets just reinvoke attr getters for now
+                    this.SetItemData(item);
+
+                    this.parent.linksByBufferIndex[value] = this;
                 }
             }
 
@@ -178,19 +179,17 @@
                 get => item;
                 set
                 {
-                    if (item != null)
-                    {
-                        item.PropertyChanged -= ItemPropertyChanged;
-                    }
-
+                    item.PropertyChanged -= ItemPropertyChanged;
                     item = value;
-
-                    if (item != null)
-                    {
-                        this.SetItemData(item);
-                        item.PropertyChanged += ItemPropertyChanged;
-                    }
+                    this.SetItemData(item);
+                    item.PropertyChanged += ItemPropertyChanged;
                 }
+            }
+
+            public void Remove()
+            {
+                this.item.PropertyChanged -= ItemPropertyChanged;
+                this.parent.linksByBufferIndex[this.parent.linksByBufferIndex.Count - 1].BufferIndex = this.BufferIndex; // Move last buffer content to vacated spot
             }
 
             private void ItemPropertyChanged(object sender, PropertyChangedEventArgs eventArgs)
@@ -207,19 +206,19 @@
                 var vertices = parent.attributeGetter(item);
                 if (vertices.Count != parent.verticesPerObject)
                 {
-                    throw new InvalidOperationException();
+                    throw new InvalidOperationException($"Attribute getter must return correct number of vertices ({parent.verticesPerObject}), but actually returned {vertices.Count}.");
                 }
 
                 for (int i = 0; i < vertices.Count; i++)
                 {
-                    parent.vao.AttributeBuffers[0][ItemIndex * parent.verticesPerObject + i] = vertices[i];
+                    parent.vao.AttributeBuffers[0][BufferIndex * parent.verticesPerObject + i] = vertices[i];
                 }
 
                 // Update the index
                 for (int i = 0; i < parent.indices.Count; i++)
                 {
-                    parent.vao.IndexBuffer[ItemIndex * parent.indices.Count + i] = 
-                        (uint)(ItemIndex * parent.verticesPerObject + parent.indices[i]);
+                    parent.vao.IndexBuffer[BufferIndex * parent.indices.Count + i] = 
+                        (uint)(BufferIndex * parent.verticesPerObject + parent.indices[i]);
                 }
             }
         }

@@ -54,7 +54,7 @@
 
             gui = new Gui(view)
             {
-                new Renderables.Gui.Panel(null)
+                new Renderables.Gui.PanelElement(null)
                 {
                     ParentOrigin = new Dimensions(-1f, 0f),
                     LocalOrigin = new Dimensions(-1f, 0f),
