@@ -49,12 +49,21 @@
             MakeTestCase(
                 a =>
                 {
-                    a.Add(new Element(1, 3));
+                    a.Add(new Element(1, 4));
                     a.Add(new Element(2, 2));
-                    a.Remove(new Element(1, 3));
+                    a.Remove(new Element(1, 4));
                 },
                 new[] { new Vertex(2, 1), new Vertex(2, 2) },
                 new[] { 0, 1 }),
+            MakeTestCase(
+                a =>
+                {
+                    a.Add(new Element(1, 2));
+                    a.Add(new Element(2, 4));
+                    a.Remove(new Element(1, 2));
+                },
+                new[] { new Vertex(2, 3), new Vertex(2, 4), new Vertex(2, 1), new Vertex(2, 2), },
+                new[] { 0, 1, 2, 3 }),
         };
 
         [Theory]

@@ -143,15 +143,15 @@
             public Link(BoundBuffer<TElement, TVertex> parent, TElement item)
             {
                 this.parent = parent;
+
                 this.bufferIndex = this.parent.linksByBufferIndex.Count;
                 this.parent.linksByBufferIndex.Add(this);
-                this.item = item;
-                this.SetItemData(item);
-                this.item.PropertyChanged += ItemPropertyChanged;
+
+                SetItem(item);
             }
 
             /// <summary>
-            /// Gets or sets the index of the item within the underlying VAO.
+            /// Gets the index of the item within the underlying VAO.
             /// </summary>
             public int BufferIndex
             {
@@ -166,10 +166,7 @@
                     parent.linksByBufferIndex.RemoveAt(bufferIndex);
 
                     bufferIndex = value;
-                    
-                    // could just copy buffer, but lets just reinvoke attr getters for now
-                    this.SetItemData(item);
-
+                    this.SetItemData(item); // could just copy buffer, but lets just reinvoke attr getters for now
                     this.parent.linksByBufferIndex[value] = this;
                 }
             }
@@ -180,9 +177,7 @@
                 set
                 {
                     item.PropertyChanged -= ItemPropertyChanged;
-                    item = value;
-                    this.SetItemData(item);
-                    item.PropertyChanged += ItemPropertyChanged;
+                    SetItem(item);
                 }
             }
 
@@ -190,6 +185,13 @@
             {
                 this.item.PropertyChanged -= ItemPropertyChanged;
                 this.parent.linksByBufferIndex[this.parent.linksByBufferIndex.Count - 1].BufferIndex = this.BufferIndex; // Move last buffer content to vacated spot
+            }
+
+            private void SetItem(TElement item)
+            {
+                this.item = item;
+                this.SetItemData(item);
+                this.item.PropertyChanged += ItemPropertyChanged;
             }
 
             private void ItemPropertyChanged(object sender, PropertyChangedEventArgs eventArgs)
