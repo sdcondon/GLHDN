@@ -111,9 +111,8 @@
                 case NotifyCollectionChangedAction.Remove:
                     for (int i = 0; i < e.OldItems.Count; i++)
                     {
-                        var link = linksByCollectionIndex[e.OldStartingIndex]; // not + i because we've already removed the preceding ones..
+                        linksByCollectionIndex[e.OldStartingIndex].Remove(); // not + i because we've already removed the preceding ones..
                         linksByCollectionIndex.RemoveAt(e.OldStartingIndex);
-                        link.Remove();
                         // Don't think need to do anything with indices because of their constant nature..
                     }
                     break;
@@ -166,7 +165,7 @@
                     parent.linksByBufferIndex.RemoveAt(bufferIndex);
 
                     bufferIndex = value;
-                    this.SetItemData(item); // could just copy buffer, but lets just reinvoke attr getters for now
+                    this.SetItemData(item); // could just copy buffer (eliminating need for item field use here), but lets just reinvoke attr getters for now
                     this.parent.linksByBufferIndex[value] = this;
                 }
             }
@@ -191,7 +190,7 @@
             {
                 this.item = item;
                 this.SetItemData(item);
-                this.item.PropertyChanged += ItemPropertyChanged;
+                item.PropertyChanged += ItemPropertyChanged;
             }
 
             private void ItemPropertyChanged(object sender, PropertyChangedEventArgs eventArgs)

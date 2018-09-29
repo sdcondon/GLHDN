@@ -29,41 +29,46 @@
 
         public static IEnumerable<object[]> TestCases => new List<object[]>()
         { 
-            MakeTestCase(
+            MakeTestCase( // addition, const size
                 a =>
                 {
                     a.Add(new Element(1, 2));
                     a.Add(new Element(2, 2));
                 },
-                new[] { new Vertex(1, 1), new Vertex(1, 2), new Vertex(2, 1), new Vertex(2, 2) },
-                new[] { 0, 1, 2, 3 }),
-            MakeTestCase(
+                new[] { new Vertex(1, 1), new Vertex(1, 2), new Vertex(2, 1), new Vertex(2, 2) }),
+            MakeTestCase( // removal, const size
                 a =>
                 {
                     a.Add(new Element(1, 2));
                     a.Add(new Element(2, 2));
                     a.Remove(new Element(1, 2));
                 },
-                new[] { new Vertex(2, 1), new Vertex(2, 2) },
-                new[] { 0, 1 }),
-            MakeTestCase(
+                new[] { new Vertex(2, 1), new Vertex(2, 2) }),
+            MakeTestCase( // addition, varying sizes
                 a =>
                 {
                     a.Add(new Element(1, 4));
                     a.Add(new Element(2, 2));
                     a.Remove(new Element(1, 4));
                 },
-                new[] { new Vertex(2, 1), new Vertex(2, 2) },
-                new[] { 0, 1 }),
-            MakeTestCase(
+                new[] { new Vertex(2, 1), new Vertex(2, 2) }),
+            MakeTestCase( // removal, varying sizes
                 a =>
                 {
                     a.Add(new Element(1, 2));
                     a.Add(new Element(2, 4));
                     a.Remove(new Element(1, 2));
                 },
-                new[] { new Vertex(2, 3), new Vertex(2, 4), new Vertex(2, 1), new Vertex(2, 2), },
-                new[] { 0, 1, 2, 3 }),
+                new[] { new Vertex(2, 3), new Vertex(2, 4), new Vertex(2, 1), new Vertex(2, 2) }),
+            MakeTestCase( // clear
+                a =>
+                {
+                    a.Add(new Element(1, 2));
+                    a.Add(new Element(2, 2));
+                    a.Clear();
+                    a.Add(new Element(3, 2));
+                },
+                new[] { new Vertex(3, 1), new Vertex(3, 2) }),
         };
 
         [Theory]
@@ -77,14 +82,13 @@
 
         private static object[] MakeTestCase(
             Action<ObservableCollection<Element>> action,
-            ICollection<Vertex> expectedVertices,
-            ICollection<int> expectedIndices)
+            ICollection<Vertex> expectedVertices)
         {
             return new object[]
             {
                 action,
                 expectedVertices,
-                expectedIndices
+                Enumerable.Range(0, expectedVertices.Count)
             };
         }
 
