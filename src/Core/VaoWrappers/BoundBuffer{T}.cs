@@ -177,7 +177,7 @@
                 set
                 {
                     item.PropertyChanged -= ItemPropertyChanged;
-                    SetItem(item);
+                    SetItem(value);
                 }
             }
 
