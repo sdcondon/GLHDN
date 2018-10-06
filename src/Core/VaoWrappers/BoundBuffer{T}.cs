@@ -107,7 +107,7 @@
                 case NotifyCollectionChangedAction.Remove:
                     for (int i = 0; i < e.OldItems.Count; i++)
                     {
-                        linksByCollectionIndex[e.OldStartingIndex].Remove(); // not + i because we've already removed the preceding ones..
+                        linksByCollectionIndex[e.OldStartingIndex].Delete(); // not + i because we've already removed the preceding ones..
                         linksByCollectionIndex.RemoveAt(e.OldStartingIndex);
                         // Don't need to do anything with indices because of their constant nature..
                     }
@@ -115,16 +115,16 @@
                 case NotifyCollectionChangedAction.Replace:
                     for (int i = 0; i < e.NewItems.Count; i++)
                     {
-                        linksByCollectionIndex[e.NewStartingIndex + i].Item = (TElement)e.NewItems[i];
+                        linksByCollectionIndex[e.NewStartingIndex + i].ReplaceItem((TElement)e.NewItems[i]);
                     }
                     break;
                 case NotifyCollectionChangedAction.Reset:
                     // TODO (if/when resizing is supported): clear buffer data / shrink buffer?
-                    linksByCollectionIndex.Clear();
                     foreach (var link in linksByCollectionIndex)
                     {
-                        link.Remove();
+                        link.Delete();
                     }
+                    linksByCollectionIndex.Clear();
                     break;
             }
         }
@@ -145,57 +145,43 @@
                 SetItem(item);
             }
 
-            /// <summary>
-            /// Gets the index of the item within the underlying VAO.
-            /// </summary>
-            public int BufferIndex
-            {
-                get => bufferIndex;
-                private set
-                {
-                    Debug.Assert(bufferIndex == parent.linksByBufferIndex.Count - 1, "Buffer objects can only be moved from the end");
-
-                    parent.linksByBufferIndex.RemoveAt(bufferIndex);
-
-                    bufferIndex = value;
-                    this.SetItemData(this.item); // could just copy buffer (eliminating need for item field use here), but lets just reinvoke attr getters for now
-                    this.parent.linksByBufferIndex[value] = this;
-                }
-            }
-
-            public TElement Item
-            {
-                get => item;
-                set
-                {
-                    item.PropertyChanged -= ItemPropertyChanged;
-                    SetItem(value);
-                }
-            }
-
-            public void Remove()
+            public void ReplaceItem(TElement item)
             {
                 this.item.PropertyChanged -= ItemPropertyChanged;
-                this.parent.linksByBufferIndex[this.parent.linksByBufferIndex.Count - 1].BufferIndex = this.BufferIndex; // Move last buffer content to vacated spot
+                SetItem(item);
+            }
+
+            public void Delete()
+            {
+                this.item.PropertyChanged -= ItemPropertyChanged;
+
+                // Grab the last link by buffer index, remove it
+                var lastLink = this.parent.linksByBufferIndex[this.parent.linksByBufferIndex.Count - 1];
+                parent.linksByBufferIndex.RemoveAt(lastLink.bufferIndex);
+
+                // If the last link isn't this one, replace this one with it
+                if (this.parent.linksByBufferIndex.Count > 0)
+                {
+                    lastLink.bufferIndex = this.bufferIndex;
+                    lastLink.SetBufferContent(); // could just copy buffer (eliminating need for item field use here), but lets just reinvoke attr getters for now
+                    parent.linksByBufferIndex[this.bufferIndex] = lastLink;
+                }
             }
 
             private void SetItem(TElement item)
             {
                 this.item = item;
-                this.SetItemData(item);
+                this.SetBufferContent();
                 item.PropertyChanged += ItemPropertyChanged;
             }
 
             private void ItemPropertyChanged(object sender, PropertyChangedEventArgs eventArgs)
             {
-                this.SetItemData((TElement)sender);
+                this.item = (TElement)sender; // Needed if TElement is a value type..
+                this.SetBufferContent();
             }
 
-            /// <summary>
-            /// Updates attribute buffers in the underlying VAO from the given item's properties.
-            /// </summary>
-            /// <param name="item">The item.</param>
-            private void SetItemData(TElement item)
+            private void SetBufferContent()
             {
                 var vertices = parent.attributeGetter(item);
                 if (vertices.Count != parent.verticesPerObject)
@@ -205,14 +191,14 @@
 
                 for (int i = 0; i < vertices.Count; i++)
                 {
-                    parent.vao.AttributeBuffers[0][BufferIndex * parent.verticesPerObject + i] = vertices[i];
+                    parent.vao.AttributeBuffers[0][bufferIndex * parent.verticesPerObject + i] = vertices[i];
                 }
 
                 // Update the index
                 for (int i = 0; i < parent.indices.Count; i++)
                 {
-                    parent.vao.IndexBuffer[BufferIndex * parent.indices.Count + i] = 
-                        (uint)(BufferIndex * parent.verticesPerObject + parent.indices[i]);
+                    parent.vao.IndexBuffer[bufferIndex * parent.indices.Count + i] = 
+                        (uint)(bufferIndex * parent.verticesPerObject + parent.indices[i]);
                 }
             }
         }
