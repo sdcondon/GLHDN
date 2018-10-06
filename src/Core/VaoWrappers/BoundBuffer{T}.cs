@@ -5,18 +5,17 @@
     using System.Collections.Generic;
     using System.Collections.Specialized;
     using System.ComponentModel;
-    using System.Diagnostics;
     using System.Linq;
 
     /// <summary>
     /// Encapsulates an OpenGL buffer bound to a particular <see cref="INotifyCollectionChanged"/> object.
     /// </summary>
-    /// <typeparam name="TElement">The type of objects in the collection object.</typeparam>
+    /// <typeparam name="TItem">The type of objects in the collection object.</typeparam>
     /// <typeparam name="TVertex">The type of vertex data to e stored in the buffer.</typeparam>
-    public sealed class BoundBuffer<TElement, TVertex> where TElement : INotifyPropertyChanged
+    public sealed class BoundBuffer<TItem, TVertex> where TItem : INotifyPropertyChanged
     {
         private readonly int verticesPerObject;
-        private readonly Func<TElement, IList<TVertex>> attributeGetter;
+        private readonly Func<TItem, IList<TVertex>> attributeGetter;
         private readonly IList<int> indices;
         private readonly IVertexArrayObject vao;
         private readonly List<Link> linksByCollectionIndex = new List<Link>();
@@ -36,7 +35,7 @@
             INotifyCollectionChanged collection,
             PrimitiveType primitiveType,
             int objectCapacity,
-            Func<TElement, IList<TVertex>> attributeGetter,
+            Func<TItem, IList<TVertex>> attributeGetter,
             IList<int> indices)
             : this(collection, primitiveType, objectCapacity, attributeGetter, indices, DefaultMakeVertexArrayObject)
         {
@@ -46,7 +45,7 @@
             INotifyCollectionChanged collection,
             PrimitiveType primitiveType,
             int objectCapacity,
-            Func<TElement, IList<TVertex>> attributeGetter,
+            Func<TItem, IList<TVertex>> attributeGetter,
             IList<int> indices,
             Func<PrimitiveType, IList<Tuple<BufferUsage, Array>>, uint[], IVertexArrayObject> makeVertexArrayObject)
         {
@@ -98,7 +97,7 @@
 
                     for (int i = 0; i < e.NewItems.Count; i++)
                     {
-                        var link = new Link(this, (TElement)e.NewItems[i]);
+                        var link = new Link(this, (TItem)e.NewItems[i]);
                         linksByCollectionIndex.Insert(e.NewStartingIndex + i, link);
                     }
                     break;
@@ -115,7 +114,7 @@
                 case NotifyCollectionChangedAction.Replace:
                     for (int i = 0; i < e.NewItems.Count; i++)
                     {
-                        linksByCollectionIndex[e.NewStartingIndex + i].ReplaceItem((TElement)e.NewItems[i]);
+                        linksByCollectionIndex[e.NewStartingIndex + i].ReplaceItem((TItem)e.NewItems[i]);
                     }
                     break;
                 case NotifyCollectionChangedAction.Reset:
@@ -131,11 +130,11 @@
 
         private class Link
         {
-            private readonly BoundBuffer<TElement, TVertex> parent;
+            private readonly BoundBuffer<TItem, TVertex> parent;
             private int bufferIndex;
-            private TElement item; // Wouldn't be needed if collection clear gave us the old items..
+            private TItem item; // Wouldn't be needed if collection clear gave us the old items..
 
-            public Link(BoundBuffer<TElement, TVertex> parent, TElement item)
+            public Link(BoundBuffer<TItem, TVertex> parent, TItem item)
             {
                 this.parent = parent;
 
@@ -145,7 +144,7 @@
                 SetItem(item);
             }
 
-            public void ReplaceItem(TElement item)
+            public void ReplaceItem(TItem item)
             {
                 this.item.PropertyChanged -= ItemPropertyChanged;
                 SetItem(item);
@@ -168,7 +167,7 @@
                 }
             }
 
-            private void SetItem(TElement item)
+            private void SetItem(TItem item)
             {
                 this.item = item;
                 this.SetBufferContent();
@@ -177,7 +176,7 @@
 
             private void ItemPropertyChanged(object sender, PropertyChangedEventArgs eventArgs)
             {
-                this.item = (TElement)sender; // Needed if TElement is a value type..
+                this.item = (TItem)sender; // Needed if TItem is a value type..
                 this.SetBufferContent();
             }
 
