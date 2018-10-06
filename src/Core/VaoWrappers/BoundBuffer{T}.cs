@@ -5,13 +5,14 @@
     using System.Collections.Generic;
     using System.Collections.Specialized;
     using System.ComponentModel;
+    using System.Diagnostics;
     using System.Linq;
 
     /// <summary>
     /// Encapsulates an OpenGL buffer bound to a particular <see cref="INotifyCollectionChanged"/> object.
     /// </summary>
-    /// <typeparam name="TElement"></typeparam>
-    /// <typeparam name="TVertex"></typeparam>
+    /// <typeparam name="TElement">The type of objects in the collection object.</typeparam>
+    /// <typeparam name="TVertex">The type of vertex data to e stored in the buffer.</typeparam>
     public sealed class BoundBuffer<TElement, TVertex> where TElement : INotifyPropertyChanged
     {
         private readonly int verticesPerObject;
@@ -37,13 +38,7 @@
             int objectCapacity,
             Func<TElement, IList<TVertex>> attributeGetter,
             IList<int> indices)
-            : this(
-                collection,
-                primitiveType,
-                objectCapacity,
-                attributeGetter,
-                indices,
-                DefaultMakeVertexArrayObject)
+            : this(collection, primitiveType, objectCapacity, attributeGetter, indices, DefaultMakeVertexArrayObject)
         {
         }
 
@@ -70,6 +65,7 @@
         public void Dispose()
         {
             this.vao.Dispose();
+            // TODO: clear the links to remove event handlers
         }
 
         /// <summary>
@@ -113,7 +109,7 @@
                     {
                         linksByCollectionIndex[e.OldStartingIndex].Remove(); // not + i because we've already removed the preceding ones..
                         linksByCollectionIndex.RemoveAt(e.OldStartingIndex);
-                        // Don't think need to do anything with indices because of their constant nature..
+                        // Don't need to do anything with indices because of their constant nature..
                     }
                     break;
                 case NotifyCollectionChangedAction.Replace:
@@ -135,7 +131,7 @@
 
         private class Link
         {
-            private BoundBuffer<TElement, TVertex> parent;
+            private readonly BoundBuffer<TElement, TVertex> parent;
             private int bufferIndex;
             private TElement item; // Wouldn't be needed if collection clear gave us the old items..
 
@@ -157,15 +153,12 @@
                 get => bufferIndex;
                 private set
                 {
-                    if (bufferIndex != parent.linksByBufferIndex.Count - 1)
-                    {
-                        throw new InvalidOperationException("Buffer objects can only be moved from the end");
-                    }
+                    Debug.Assert(bufferIndex == parent.linksByBufferIndex.Count - 1, "Buffer objects can only be moved from the end");
 
                     parent.linksByBufferIndex.RemoveAt(bufferIndex);
 
                     bufferIndex = value;
-                    this.SetItemData(item); // could just copy buffer (eliminating need for item field use here), but lets just reinvoke attr getters for now
+                    this.SetItemData(this.item); // could just copy buffer (eliminating need for item field use here), but lets just reinvoke attr getters for now
                     this.parent.linksByBufferIndex[value] = this;
                 }
             }
