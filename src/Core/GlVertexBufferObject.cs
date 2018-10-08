@@ -59,6 +59,14 @@
         /// <inheritdoc />
         public object this[int index]
         {
+            //get
+            //{
+            //    Gl.GetNamedBufferSubData(
+            //        buffer: Id,
+            //        offset: new IntPtr(index * Marshal.SizeOf(value)),
+            //        size: (uint)Marshal.SizeOf(value),
+            //        );
+            //}
             set
             {
                 Gl.NamedBufferSubData(
