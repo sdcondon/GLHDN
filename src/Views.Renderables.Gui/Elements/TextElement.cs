@@ -4,33 +4,15 @@
     using System.ComponentModel;
     using System.Numerics;
 
-    public class Text : IGuiElement
+    public class TextElement : GuiElement
     {
         private readonly Font font;
 
-        public Text(IGuiElement parent, string fontPath, string content)
+        public TextElement(string fontPath, string content)
         {
-            this.Parent = parent;
             this.font = new Font(fontPath);
             this.Content = content;
         }
-
-        public IGuiElement Parent { get; internal set; }
-
-        /// <summary>
-        /// Gets or sets the position in parent-space of the local origin.
-        /// </summary>
-        public Dimensions ParentOrigin { get; set; }
-
-        /// <summary>
-        /// Gets or sets the position relative to the control that will be placed at the parent origin.
-        /// </summary>
-        public Dimensions LocalOrigin { get; set; }
-
-        /// <summary>
-        /// Gets or sets the size of the element.
-        /// </summary>
-        public Dimensions Size { get; set; }
 
         /// <summary>
         /// Gets or sets the text color.
@@ -43,33 +25,7 @@
         public string Content { get; set; }
 
         /// <inheritdoc />
-        public Vector2 Center_ScreenSpace
-        {
-            get
-            {
-                var parentOriginScreenSpace = new Vector2(
-                    Parent.Center_ScreenSpace.X + (ParentOrigin.IsXRelative ? ParentOrigin.X * Parent.Size_ScreenSpace.X / 2 : ParentOrigin.X),
-                    Parent.Center_ScreenSpace.Y + (ParentOrigin.IsYRelative ? ParentOrigin.Y * Parent.Size_ScreenSpace.Y / 2 : ParentOrigin.Y));
-
-                return new Vector2(
-                    parentOriginScreenSpace.X - (LocalOrigin.IsXRelative ? LocalOrigin.X * Size_ScreenSpace.X / 2 : LocalOrigin.X),
-                    parentOriginScreenSpace.Y - (LocalOrigin.IsYRelative ? LocalOrigin.Y * Size_ScreenSpace.Y / 2 : LocalOrigin.Y));
-            }
-        }
-
-        /// <inheritdoc />
-        public Vector2 Size_ScreenSpace
-        {
-            get
-            {
-                return new Vector2(
-                    Size.IsXRelative ? Parent.Size_ScreenSpace.X * Size.X : Size.X,
-                    Size.IsYRelative ? Parent.Size_ScreenSpace.Y * Size.Y : Size.Y);
-            }
-        }
-
-        /// <inheritdoc />
-        public GuiVertex[] Vertices
+        public override GuiVertex[] Vertices
         {
             get
             {
@@ -102,6 +58,6 @@
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public override event PropertyChangedEventHandler PropertyChanged;
     }
 }

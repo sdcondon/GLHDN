@@ -5,27 +5,31 @@
     using System.Numerics;
     using OpenGL;
     using GLHDN.Core;
-    using System.Collections;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
 
     /// <summary>
     /// Renderable container for a set of graphical user interface elements.
     /// </summary>
-    public class Gui : IRenderable, IGuiElement, IEnumerable<IGuiElement>
+    public class Gui : IRenderable
     {
         private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.Gui";
 
         private readonly View view;
         private readonly Queue<Action> updates = new Queue<Action>();
-        private readonly ObservableCollection<IGuiElement> elements = new ObservableCollection<IGuiElement>();
+        private readonly RootElement rootElement;
+        private readonly ObservableCollection<GuiElement> elements = new ObservableCollection<GuiElement>();
 
         private GlProgramBuilder programBuilder;
         private GlProgram program;
-        private BoundBuffer<IGuiElement, GuiVertex> guiElementBuffer;
+        private BoundBuffer<GuiElement, GuiVertex> guiElementBuffer;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Gui"/> class, 
+        /// </summary>
+        /// <param name="view"></param>
         public Gui(View view)
         {
             this.view = view;
@@ -39,20 +43,11 @@
         }
 
         /// <inheritdoc />
-        public Vector2 Center_ScreenSpace => Vector2.Zero;
-
-        /// <inheritdoc />
-        public Vector2 Size_ScreenSpace => new Vector2(view.Width, view.Height);
-
-        /// <inheritdoc />
-        public GuiVertex[] Vertices { get; } = new GuiVertex[0];
-
-        /// <inheritdoc />
         public void ContextCreated(DeviceContext deviceContext)
         {
             this.program = this.programBuilder.Build();
             this.programBuilder = null;
-            this.guiElementBuffer = new BoundBuffer<IGuiElement, GuiVertex>(
+            this.guiElementBuffer = new BoundBuffer<GuiElement, GuiVertex>(
                 elements,
                 PrimitiveType.Triangles,
                 4,
@@ -80,28 +75,6 @@
         {
             this.program.Dispose();
             this.guiElementBuffer.Dispose();
-        }
-
-        /// <inheritdoc />
-        public IEnumerator<IGuiElement> GetEnumerator() => elements.GetEnumerator();
-
-        /// <inheritdoc />)
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)elements).GetEnumerator();
-
-        public void Add(Panel element)
-        {
-            element.Parent = element.Parent ?? this;
-            updates.Enqueue(() => elements.Add(element));
-        }
-
-        public void Remove(Panel element)
-        {
-            updates.Enqueue(() => elements.Remove(element));
-        }
-
-        public void Clear()
-        {
-            updates.Enqueue(() => elements.Clear());
         }
 
         public void Update()

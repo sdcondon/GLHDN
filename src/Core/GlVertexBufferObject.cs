@@ -59,6 +59,14 @@
         /// <inheritdoc />
         public object this[int index]
         {
+            //get
+            //{
+            //    Gl.GetNamedBufferSubData(
+            //        buffer: Id,
+            //        offset: new IntPtr(index * Marshal.SizeOf(value)),
+            //        size: (uint)Marshal.SizeOf(value),
+            //        data: null);
+            //}
             set
             {
                 Gl.NamedBufferSubData(
@@ -67,6 +75,17 @@
                     size: (uint)Marshal.SizeOf(value),
                     data: value);
             }
+        }
+
+        public void Copy<T>(int readIndex, int writeIndex, int count)
+        {
+            var elementSize = Marshal.SizeOf(typeof(T));
+            Gl.CopyNamedBufferSubData(
+                readBuffer: Id,
+                writeBuffer: Id,
+                readOffset: new IntPtr(readIndex * elementSize),
+                writeOffset: new IntPtr(writeIndex * elementSize),
+                size: (uint)(count * elementSize));
         }
 
         /// <inheritdoc />

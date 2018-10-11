@@ -2,21 +2,20 @@
 {
     using OpenGL;
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Collections.Specialized;
     using System.ComponentModel;
     using System.Linq;
 
     /// <summary>
-    /// Encapsulates an OpenGL buffer bound to a particular <see cref="INotifyCollectionChanged"/> object containing 
+    /// Encapsulates an OpenGL buffer bound to a particular <see cref="INotifyCollectionChanged"/> object.
     /// </summary>
-    /// <typeparam name="TElement"></typeparam>
-    /// <typeparam name="TVertex"></typeparam>
-    public sealed class BoundBuffer<TElement, TVertex> where TElement : INotifyPropertyChanged
+    /// <typeparam name="TItem">The type of objects in the collection object.</typeparam>
+    /// <typeparam name="TVertex">The type of vertex data to e stored in the buffer.</typeparam>
+    public sealed class BoundBuffer<TItem, TVertex> where TItem : INotifyPropertyChanged
     {
-        private readonly int verticesPerObject;
-        private readonly Func<TElement, IList<TVertex>> attributeGetter;
+        private readonly int verticesPerAtom;
+        private readonly Func<TItem, IList<TVertex>> attributeGetter;
         private readonly IList<int> indices;
         private readonly IVertexArrayObject vao;
         private readonly List<Link> linksByCollectionIndex = new List<Link>();
@@ -30,40 +29,34 @@
         /// <param name="collection">The collection to bind to.</param>
         /// <param name="primitiveType">The type of primitive to be drawn.</param>
         /// <param name="objectCapacity">The capacity for the buffer, in objects.</param>
-        /// <param name="attributeGetter">Delegate to transform source object into vertex data.</param>
+        /// <param name="vertexGetter">Delegate to transform source object into vertex data.</param>
         /// <param name="indices"></param>
         public BoundBuffer(
             INotifyCollectionChanged collection,
             PrimitiveType primitiveType,
             int objectCapacity,
-            Func<TElement, IList<TVertex>> attributeGetter,
+            Func<TItem, IList<TVertex>> vertexGetter,
             IList<int> indices)
-            : this(
-                collection,
-                primitiveType,
-                objectCapacity,
-                attributeGetter,
-                indices,
-                DefaultMakeVertexArrayObject)
+            : this(collection, primitiveType, objectCapacity, vertexGetter, indices, DefaultMakeVertexArrayObject)
         {
         }
 
         internal BoundBuffer(
             INotifyCollectionChanged collection,
             PrimitiveType primitiveType,
-            int objectCapacity,
-            Func<TElement, IList<TVertex>> attributeGetter,
+            int atomCapacity,
+            Func<TItem, IList<TVertex>> vertexGetter,
             IList<int> indices,
             Func<PrimitiveType, IList<Tuple<BufferUsage, Array>>, uint[], IVertexArrayObject> makeVertexArrayObject)
         {
-            this.verticesPerObject = indices.Max() + 1;
-            this.attributeGetter = attributeGetter;
+            this.verticesPerAtom = indices.Max() + 1;
+            this.attributeGetter = vertexGetter;
             this.indices = indices;
-            this.objectCapacity = objectCapacity;
+            this.objectCapacity = atomCapacity;
             this.vao = makeVertexArrayObject(
                 primitiveType,
-                new[] { Tuple.Create(BufferUsage.DynamicDraw, Array.CreateInstance(typeof(TVertex), objectCapacity * verticesPerObject)) },  // TODO: different VAO ctor to avoid needless large heap allocation 
-                new uint[objectCapacity * indices.Count]); // TODO: different VAO ctor to avoid needless large heap allocation
+                new[] { Tuple.Create(BufferUsage.DynamicDraw, Array.CreateInstance(typeof(TVertex), atomCapacity * verticesPerAtom)) },  // TODO: different VAO ctor to avoid needless large heap allocation 
+                new uint[atomCapacity * indices.Count]); // TODO: different VAO ctor to avoid needless large heap allocation
             collection.CollectionChanged += Collection_CollectionChanged;
         }
 
@@ -71,6 +64,7 @@
         public void Dispose()
         {
             this.vao.Dispose();
+            // TODO: clear the links to remove event handlers
         }
 
         /// <summary>
@@ -103,9 +97,8 @@
 
                     for (int i = 0; i < e.NewItems.Count; i++)
                     {
-                        var link = new Link(this, linksByCollectionIndex.Count, (TElement)e.NewItems[i]);
+                        var link = new Link(this, (TItem)e.NewItems[i]);
                         linksByCollectionIndex.Insert(e.NewStartingIndex + i, link);
-                        linksByBufferIndex.Add(link);
                     }
                     break;
                 case NotifyCollectionChangedAction.Move:
@@ -113,113 +106,127 @@
                 case NotifyCollectionChangedAction.Remove:
                     for (int i = 0; i < e.OldItems.Count; i++)
                     {
-                        var removedLink = linksByCollectionIndex[e.OldStartingIndex + i]; // find link for old record
-                        var oldItemIndex = removedLink.ItemIndex; // note old item index
-                        removedLink.Item = default(TElement); // unlink to remove property changed event handler
-
-                        var bufferEndLink = linksByBufferIndex[linksByCollectionIndex.Count - 1]; // find link for end of buffer
-                        bufferEndLink.ItemIndex = oldItemIndex; // Move data to vacated spot
-                        linksByBufferIndex[oldItemIndex] = bufferEndLink; // update linksByBufferIndex
-                        linksByBufferIndex.RemoveAt(linksByCollectionIndex.Count - 1);
-
-                        // Don't think need to do anything with indices because of their constant nature..
+                        linksByCollectionIndex[e.OldStartingIndex].Delete(); // not + i because we've already removed the preceding ones..
+                        linksByCollectionIndex.RemoveAt(e.OldStartingIndex); // PERF: Slow..
+                        // Don't need to do anything with indices because of their constant nature..
                     }
                     break;
                 case NotifyCollectionChangedAction.Replace:
                     for (int i = 0; i < e.NewItems.Count; i++)
                     {
-                        linksByCollectionIndex[e.NewStartingIndex + i].Item = (TElement)e.NewItems[i];
+                        linksByCollectionIndex[e.NewStartingIndex + i].ReplaceItem((TItem)e.NewItems[i]);
                     }
                     break;
                 case NotifyCollectionChangedAction.Reset:
                     // TODO (if/when resizing is supported): clear buffer data / shrink buffer?
                     foreach (var link in linksByCollectionIndex)
                     {
-                        link.Item = default(TElement);
+                        link.Delete();
                     }
                     linksByCollectionIndex.Clear();
-                    linksByBufferIndex.Clear();
                     break;
             }
         }
 
         private class Link
         {
-            private BoundBuffer<TElement, TVertex> parent;
-            private int bufferIndex;
-            private TElement item; // Wouldn't be needed if collection clear gave us the old items..
+            private readonly BoundBuffer<TItem, TVertex> parent;
+            private SortedList<int, int> bufferIndices = new SortedList<int, int>();
+            private TItem item; // Wouldn't be needed if collection clear gave us the old items..
 
-            public Link(BoundBuffer<TElement, TVertex> parent, int bufferIndex, TElement item)
+            public Link(BoundBuffer<TItem, TVertex> parent, TItem item)
             {
                 this.parent = parent;
-                this.ItemIndex = bufferIndex;
-                this.Item = item;
+                SetItem(item);
             }
 
-            /// <summary>
-            /// Gets or sets the index of the item within the underlying VAO.
-            /// </summary>
-            public int ItemIndex
+            public void ReplaceItem(TItem item)
             {
-                get => bufferIndex;
-                set
+                this.item.PropertyChanged -= ItemPropertyChanged;
+                SetItem(item);
+            }
+
+            public void Delete()
+            {
+                this.item.PropertyChanged -= ItemPropertyChanged;
+                for (var i = 0; i < bufferIndices.Count; i++)
                 {
-                    bufferIndex = value;
-                    if (item != null)
-                    {
-                        // could just copy buffer, but lets just reinvoke attr getters for now
-                        this.SetItemData(item);
-                    }
+                    DeleteBufferContentAt(this.bufferIndices.Values[i]);
                 }
             }
 
-            public TElement Item
+            private void DeleteBufferContentAt(int index)
             {
-                get => item;
-                set
+                // Grab the last link by buffer index, remove its last 
+                var lastLink = this.parent.linksByBufferIndex[this.parent.linksByBufferIndex.Count - 1];
+                var finalBufferIndex = lastLink.bufferIndices.Values[lastLink.bufferIndices.Count - 1];
+                lastLink.bufferIndices.RemoveAt(lastLink.bufferIndices.Count - 1);
+                parent.linksByBufferIndex.RemoveAt(finalBufferIndex);
+
+                // If last one in the buffer isn't the one being removed, move it
+                // to replace the one being removed so that the buffer stays contiguous
+                if (finalBufferIndex != index)
                 {
-                    if (item != null)
-                    {
-                        item.PropertyChanged -= ItemPropertyChanged;
-                    }
-
-                    item = value;
-
-                    if (item != null)
-                    {
-                        this.SetItemData(item);
-                        item.PropertyChanged += ItemPropertyChanged;
-                    }
+                    lastLink.bufferIndices.Add(index, index);
+                    this.parent.vao.AttributeBuffers[0].Copy<TVertex>(
+                        finalBufferIndex * parent.verticesPerAtom,
+                        index * parent.verticesPerAtom,
+                        this.parent.verticesPerAtom);
+                    parent.linksByBufferIndex[index] = lastLink;
                 }
+            }
+
+            private void SetItem(TItem item)
+            {
+                this.item = item;
+                this.SetBufferContent();
+                item.PropertyChanged += ItemPropertyChanged;
             }
 
             private void ItemPropertyChanged(object sender, PropertyChangedEventArgs eventArgs)
             {
-                this.SetItemData((TElement)sender);
+                this.item = (TItem)sender; // Needed if TItem is a value type
+                this.SetBufferContent();
             }
 
-            /// <summary>
-            /// Updates attribute buffers in the underlying VAO from the given item's properties.
-            /// </summary>
-            /// <param name="item">The item.</param>
-            private void SetItemData(TElement item)
+            private void SetBufferContent()
             {
                 var vertices = parent.attributeGetter(item);
-                if (vertices.Count != parent.verticesPerObject)
+                if (vertices.Count % parent.verticesPerAtom != 0)
                 {
-                    throw new InvalidOperationException();
+                    throw new InvalidOperationException($"Attribute getter must return multiple of correct number of vertices ({parent.verticesPerAtom}), but actually returned {vertices.Count}.");
                 }
 
-                for (int i = 0; i < vertices.Count; i++)
+                var atomIndex = 0;
+                for (; atomIndex < vertices.Count / parent.verticesPerAtom; atomIndex++)
                 {
-                    parent.vao.AttributeBuffers[0][ItemIndex * parent.verticesPerObject + i] = vertices[i];
-                }
+                    // Add a buffer index to the list if we need to
+                    if (atomIndex >= bufferIndices.Count)
+                    {
+                        bufferIndices.Add(this.parent.linksByBufferIndex.Count, this.parent.linksByBufferIndex.Count);
+                        this.parent.linksByBufferIndex.Add(this);
+                    }
 
-                // Update the index
-                for (int i = 0; i < parent.indices.Count; i++)
+                    // Establish buffer index to write to
+                    var bufferIndex = bufferIndices.Values[atomIndex];
+
+                    // Set vertex attributes
+                    for (int i = 0; i < parent.verticesPerAtom; i++)
+                    {
+                        parent.vao.AttributeBuffers[0][bufferIndex * parent.verticesPerAtom + i] = vertices[atomIndex * parent.verticesPerAtom + i];
+                    }
+
+                    // Update the index
+                    for (int i = 0; i < parent.indices.Count; i++)
+                    {
+                        parent.vao.IndexBuffer[bufferIndex * parent.indices.Count + i] =
+                            (uint)(bufferIndex * parent.verticesPerAtom + parent.indices[i]);
+                    }
+                }               
+                while (atomIndex < bufferIndices.Count)
                 {
-                    parent.vao.IndexBuffer[ItemIndex * parent.indices.Count + i] = 
-                        (uint)(ItemIndex * parent.verticesPerObject + parent.indices[i]);
+                    DeleteBufferContentAt(bufferIndices.Values[atomIndex]);
+                    bufferIndices.RemoveAt(atomIndex); // PERF: Slow? Removing from middle to end - just want to truncate..
                 }
             }
         }
