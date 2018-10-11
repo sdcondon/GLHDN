@@ -69,30 +69,29 @@
                     a.Add(new Element(3, 2));
                 },
                 new[] { new Vertex(3, 1), new Vertex(3, 2) }),
-            //MakeTestCase( "addition, varying sizes",
-            //    a =>
-            //    {
-            //        a.Add(new Element(1, 4));
-            //        a.Add(new Element(2, 2));
-            //        a.Remove(new Element(1, 4));
-            //    },
-            //    new[] { new Vertex(2, 1), new Vertex(2, 2) }),
-            //MakeTestCase( "removal, varying sizes",
-            //    a =>
-            //    {
-            //        a.Add(new Element(1, 2));
-            //        a.Add(new Element(2, 4));
-            //        a.Remove(new Element(1, 2));
-            //    },
-            //    new[] { new Vertex(2, 3), new Vertex(2, 4), new Vertex(2, 1), new Vertex(2, 2) }),
-            //MakeTestCase( "replacement, varying sizes - bigger",
-            //    a =>
-            //    {
-            //        a.Add(new Element(1, 2));
-            //        a.Add(new Element(2, 2));
-            //        a[0] = new Element(3, 4);
-            //    },
-            //    new[] { new Vertex(3, 1), new Vertex(3, 2), new Vertex(2, 1), new Vertex(2, 2), new Vertex(3, 3), new Vertex(3, 4) }),
+            MakeTestCase( "addition, varying sizes",
+                a =>
+                {
+                    a.Add(new Element(1, 4));
+                    a.Add(new Element(2, 2));
+                },
+                new[] { new Vertex(1, 1), new Vertex(1, 2), new Vertex(1, 3), new Vertex(1, 4), new Vertex(2, 1), new Vertex(2, 2) }),
+            MakeTestCase( "removal, varying sizes",
+                a =>
+                {
+                    a.Add(new Element(1, 2));
+                    a.Add(new Element(2, 4));
+                    a.RemoveAt(0);
+                },
+                new[] { new Vertex(2, 3), new Vertex(2, 4), new Vertex(2, 1), new Vertex(2, 2) }),
+            MakeTestCase( "replacement, varying sizes - bigger",
+                a =>
+                {
+                    a.Add(new Element(1, 2));
+                    a.Add(new Element(2, 2));
+                    a[0] = new Element(3, 4);
+                },
+                new[] { new Vertex(3, 1), new Vertex(3, 2), new Vertex(2, 1), new Vertex(2, 2), new Vertex(3, 3), new Vertex(3, 4) }),
         };
 
         [Theory]

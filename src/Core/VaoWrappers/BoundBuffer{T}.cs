@@ -131,7 +131,7 @@
         private class Link
         {
             private readonly BoundBuffer<TItem, TVertex> parent;
-            private List<int> bufferIndices = new List<int>();
+            private SortedList<int, int> bufferIndices = new SortedList<int, int>();
             private TItem item; // Wouldn't be needed if collection clear gave us the old items..
 
             public Link(BoundBuffer<TItem, TVertex> parent, TItem item)
@@ -151,21 +151,27 @@
                 this.item.PropertyChanged -= ItemPropertyChanged;
                 for (var i = 0; i < bufferIndices.Count; i++)
                 {
-                    DeleteBufferContentAt(this.bufferIndices[i]);
+                    DeleteBufferContentAt(this.bufferIndices.Values[i]);
                 }
             }
 
             private void DeleteBufferContentAt(int index)
             {
-                // Grab the last link by buffer index, remove it
+                // Grab the last link by buffer index, remove its last 
                 var lastLink = this.parent.linksByBufferIndex[this.parent.linksByBufferIndex.Count - 1];
-                parent.linksByBufferIndex.RemoveAt(lastLink.bufferIndex);
+                var finalBufferIndex = lastLink.bufferIndices.Values[lastLink.bufferIndices.Count - 1];
+                lastLink.bufferIndices.RemoveAt(lastLink.bufferIndices.Count - 1);
+                parent.linksByBufferIndex.RemoveAt(finalBufferIndex);
 
-                // If the last link isn't this one, replace this one with it
-                if (this.parent.linksByBufferIndex.Count > 0)
+                // If last one in the buffer isn't the one being removed, move it
+                // to replace the one being removed so that the buffer stays contiguous
+                if (finalBufferIndex != index)
                 {
-                    lastLink.bufferIndex = index;
-                    lastLink.SetBufferContent(); // should just copy individual atom (faster & eliminates need for item field use), but lets reinvoke attr getters for now
+                    lastLink.bufferIndices.Add(index, index);
+                    this.parent.vao.AttributeBuffers[0].Copy<TVertex>(
+                        finalBufferIndex * parent.verticesPerAtom,
+                        index * parent.verticesPerAtom,
+                        this.parent.verticesPerAtom);
                     parent.linksByBufferIndex[index] = lastLink;
                 }
             }
@@ -197,17 +203,17 @@
                     // Add a buffer index to the list if we need to
                     if (atomIndex >= bufferIndices.Count)
                     {
-                        bufferIndices.Add(this.parent.linksByBufferIndex.Count);
+                        bufferIndices.Add(this.parent.linksByBufferIndex.Count, this.parent.linksByBufferIndex.Count);
                         this.parent.linksByBufferIndex.Add(this);
                     }
 
                     // Establish buffer index to write to
-                    var bufferIndex = bufferIndices[atomIndex];
+                    var bufferIndex = bufferIndices.Values[atomIndex];
 
                     // Set vertex attributes
-                    for (int i = 0; i < vertices.Count; i++)
+                    for (int i = 0; i < parent.verticesPerAtom; i++)
                     {
-                        parent.vao.AttributeBuffers[0][bufferIndex * parent.verticesPerAtom + i] = vertices[i];
+                        parent.vao.AttributeBuffers[0][bufferIndex * parent.verticesPerAtom + i] = vertices[atomIndex * parent.verticesPerAtom + i];
                     }
 
                     // Update the index
@@ -219,7 +225,7 @@
                 }               
                 while (atomIndex < bufferIndices.Count)
                 {
-                    DeleteBufferContentAt(bufferIndices[atomIndex]);
+                    DeleteBufferContentAt(bufferIndices.Values[atomIndex]);
                     bufferIndices.RemoveAt(atomIndex); // PERF: Slow? Removing from middle to end - just want to truncate..
                 }
             }

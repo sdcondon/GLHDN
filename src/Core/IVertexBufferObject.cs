@@ -24,5 +24,7 @@ namespace GLHDN.Core
         /// </summary>
         /// <param name="index"></param>
         object this[int index] { set; }
+
+        void Copy<T>(int readIndex, int writeIndex, int count);
     }
 }

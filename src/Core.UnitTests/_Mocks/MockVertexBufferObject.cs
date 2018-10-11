@@ -30,6 +30,14 @@
             }
         }
 
+        public void Copy<T>(int readIndex, int writeIndex, int count)
+        {
+            for (var i = 0; i < count; i++)
+            {
+                Contents[writeIndex + i] = Contents[readIndex + i];
+            }
+        }
+
         public GlVertexAttribInfo[] Attributes => throw new NotImplementedException();
 
         public int Count => Contents.Count;
