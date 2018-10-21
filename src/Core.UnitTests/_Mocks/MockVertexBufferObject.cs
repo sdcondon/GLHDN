@@ -38,6 +38,11 @@
             }
         }
 
+        public void Flush()
+        {
+
+        }
+
         public GlVertexAttribInfo[] Attributes => throw new NotImplementedException();
 
         public int Count => Contents.Count;

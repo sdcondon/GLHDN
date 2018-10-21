@@ -51,7 +51,6 @@
             this.linesBuffer = new BoundBuffer<Line, Vertex>(
                 lines,
                 PrimitiveType.Lines,
-                2,
                 100,
                 a => new[] { new Vertex(a.from, Vector3.One, a.from), new Vertex(a.to, Vector3.One, a.to) },
                 new[] { 0, 1 }); // TODO: Change so not needed

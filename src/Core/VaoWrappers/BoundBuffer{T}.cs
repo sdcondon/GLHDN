@@ -72,6 +72,8 @@
         /// </summary>
         public void Draw()
         {
+            this.vao.IndexBuffer.Flush();
+            this.vao.AttributeBuffers[0].Flush();
             this.vao.Draw(linksByCollectionIndex.Count * indices.Count);
         }
 

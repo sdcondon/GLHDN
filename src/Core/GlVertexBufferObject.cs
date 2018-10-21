@@ -2,6 +2,7 @@
 {
     using OpenGL;
     using System;
+    using System.Collections.Generic;
     using System.Runtime.InteropServices;
 
     /// <summary>
@@ -10,6 +11,7 @@
     public sealed class GlVertexBufferObject : IVertexBufferObject
     {
         private int count;
+        private Queue<Action> actions = new Queue<Action>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GlVertexBufferObject"/> class. SIDE EFFECT: New buffer will be bound to the given target.
@@ -69,23 +71,34 @@
             //}
             set
             {
-                Gl.NamedBufferSubData(
-                    buffer: Id,
-                    offset: new IntPtr(index * Marshal.SizeOf(value)),
-                    size: (uint)Marshal.SizeOf(value),
-                    data: value);
+                actions.Enqueue(() =>
+                    Gl.NamedBufferSubData(
+                        buffer: Id,
+                        offset: new IntPtr(index * Marshal.SizeOf(value)),
+                        size: (uint)Marshal.SizeOf(value),
+                        data: value));
             }
         }
 
         public void Copy<T>(int readIndex, int writeIndex, int count)
         {
             var elementSize = Marshal.SizeOf(typeof(T));
-            Gl.CopyNamedBufferSubData(
-                readBuffer: Id,
-                writeBuffer: Id,
-                readOffset: new IntPtr(readIndex * elementSize),
-                writeOffset: new IntPtr(writeIndex * elementSize),
-                size: (uint)(count * elementSize));
+            actions.Enqueue(() =>
+                Gl.CopyNamedBufferSubData(
+                    readBuffer: Id,
+                    writeBuffer: Id,
+                    readOffset: new IntPtr(readIndex * elementSize),
+                    writeOffset: new IntPtr(writeIndex * elementSize),
+                    size: (uint)(count * elementSize)));
+        }
+
+        // TODO: at least snapshot by switching the queues. and/or look into streaming?
+        public void Flush()
+        {
+            while (actions.Count > 0)
+            {
+                actions.Dequeue()();
+            }
         }
 
         /// <inheritdoc />

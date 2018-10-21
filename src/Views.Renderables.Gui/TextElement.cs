@@ -4,7 +4,7 @@
     using System.ComponentModel;
     using System.Numerics;
 
-    public class TextElement : GuiElement
+    public class TextElement : Element
     {
         private readonly Font font;
 
@@ -32,7 +32,7 @@
                 var vertices = new List<GuiVertex>();
 
                 // TODO: add vertices for chars
-                var position = this.GetPosBL();
+                var position = this.PosBL;
                 var scale = 1f;
                 foreach (var c in Content)
                 {
@@ -42,13 +42,13 @@
                     var w = ch.Size.X * scale;
                     var h = ch.Size.Y * scale;
 
-                    //vertices.AddRange(new[]
-                    //{
-                    //    new GuiVertex(new Vector2(xpos, ypos + h), Color, new Vector2(0, ScreenSize.Y), ScreenSize, BorderWidth),
-                    //    new GuiVertex(new Vector2(xpos + w, ypos + h), Color, ScreenSize, ScreenSize, BorderWidth),
-                    //    new GuiVertex(new Vector2(xpos, ypos), Color, Vector2.Zero, ScreenSize, BorderWidth),
-                    //    new GuiVertex(new Vector2(xpos + w, ypos), Color, new Vector2(ScreenSize.X, 0), ScreenSize, BorderWidth)
-                    //});
+                    vertices.AddRange(new[]
+                    {
+                        new GuiVertex(new Vector2(xpos, ypos + h), Color, new Vector2(0, Size_ScreenSpace.Y), Size_ScreenSpace, 0),
+                        new GuiVertex(new Vector2(xpos + w, ypos + h), Color, Size_ScreenSpace, Size_ScreenSpace, 0),
+                        new GuiVertex(new Vector2(xpos, ypos), Color, Vector2.Zero, Size_ScreenSpace, 0),
+                        new GuiVertex(new Vector2(xpos + w, ypos), Color, new Vector2(Size_ScreenSpace.X, 0), Size_ScreenSpace, 0)
+                    });
 
                     // Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
                     position.X += (ch.Advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64)

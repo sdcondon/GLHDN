@@ -1,7 +1,5 @@
 ﻿namespace GLHDN.Views.Renderables.Gui
 {
-    using System.Collections;
-    using System.Collections.Generic;
     using System.ComponentModel;
     using System.Numerics;
 
@@ -11,14 +9,12 @@
     /// <remarks>
     /// Shoehorns quite a bit into one class, reducing flexibility. Might want to refactor at some point.
     /// </remarks>
-    public abstract class GuiElement : INotifyPropertyChanged
+    public abstract class Element : INotifyPropertyChanged
     {
-        private ICollection<GuiElement> masterElementCollection;
-
         /// <summary>
         /// Gets the parent element of this element.
         /// </summary>
-        public GuiElement Parent { get; private set; }
+        public IElementParent Parent { get; internal set; }
 
         /// <summary>
         /// Gets or sets the position in parent-space of the local origin.
@@ -38,7 +34,7 @@
         /// <summary>
         /// Gets the position of the center of the element, in screen space.
         /// </summary>
-        public Vector2 Center_ScreenSpace
+        public virtual Vector2 Center_ScreenSpace
         {
             get
             {
@@ -55,7 +51,7 @@
         /// <summary>
         /// Gets the size of the element, in screen space (i.e. pixels).
         /// </summary>
-        public Vector2 Size_ScreenSpace
+        public virtual Vector2 Size_ScreenSpace
         {
             get
             {
@@ -76,57 +72,5 @@
         public abstract GuiVertex[] Vertices { get; }
 
         public abstract event PropertyChangedEventHandler PropertyChanged;
-
-        public ICollection<GuiElement> SubElements { get; } = new SubElementCollection();
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <remarks>
-        /// Ultimately to work nicely with our BoundBuffer class, we need to flatten the elements in the single collection
-        /// in the <see cref="Gui"/> instance. So that collection ultimately backs this one, which just provides a view on
-        /// it consisting of all the elements with a particular parent element.
-        /// </remarks>
-        private class SubElementCollection : ICollection<GuiElement>
-        {
-            private GuiElement parent;
-            private ICollection<GuiElement> masterElementCollection;
-
-            public int Count => throw new System.NotImplementedException();
-
-            public bool IsReadOnly => throw new System.NotImplementedException();
-
-            public void Add(PanelElement element)
-            {
-                element.Parent = element.Parent ?? this;
-                updates.Enqueue(() => elements.Add(element));
-            }
-
-            public void Remove(PanelElement element)
-            {
-                updates.Enqueue(() => elements.Remove(element));
-            }
-
-            public void Clear()
-            {
-                updates.Enqueue(() => elements.Clear());
-            }
-
-            public bool Contains(GuiElement item)
-            {
-                throw new System.NotImplementedException();
-            }
-
-            public void CopyTo(GuiElement[] array, int arrayIndex)
-            {
-                throw new System.NotImplementedException();
-            }
-
-            /// <inheritdoc />
-            public IEnumerator<GuiElement> GetEnumerator() => elements.GetEnumerator();
-
-            /// <inheritdoc />)
-            IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)elements).GetEnumerator();
-        }
     }
 }

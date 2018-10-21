@@ -29,7 +29,7 @@
 
             camera = new FirstPersonCamera();
 
-            view.Renderables.Add(new StaticTexuredRenderer(
+            /*view.Renderables.Add(new StaticTexuredRenderer(
                 camera,
                 new[]
                 {
@@ -50,31 +50,34 @@
                 "uvmap.DDS"));
 
             lines = new ColoredLines(camera);
-            view.Renderables.Add(lines);
+            view.Renderables.Add(lines);*/
 
             gui = new Gui(view)
             {
-                new Renderables.Gui.PanelElement(null)
+                /*SubElements =
                 {
-                    ParentOrigin = new Dimensions(-1f, 0f),
-                    LocalOrigin = new Dimensions(-1f, 0f),
-                    Size = new Dimensions(200, 1f),
-                    Color = new Vector4(0.5f, 0.2f, 0.2f, 0.4f),
-                    BorderWidth = 1f,
-                    /*
-                    Elements =
+                    new PanelElement()
                     {
-                        new Renderables.Gui.Text()
+                        ParentOrigin = new Dimensions(-1f, 0f),
+                        LocalOrigin = new Dimensions(-1f, 0f),
+                        Size = new Dimensions(200, 1f),
+                        Color = new Vector4(0.5f, 0.2f, 0.2f, 0.5f),
+                        BorderWidth = 1f,
+                        /*
+                        Elements =
                         {
-                            ParentOrigin = new Dimensions(0f, 0f),
-                            LocalOrigin = new Dimensions(0f, 0f),
-                            Size = new Dimensions(1f, 1f),
-                            Color = new Vector4(1f, 1f, 1f, 1f),
-                            Text = "Hello world!"
+                            new Renderables.Gui.Text()
+                            {
+                                ParentOrigin = new Dimensions(0f, 0f),
+                                LocalOrigin = new Dimensions(0f, 0f),
+                                Size = new Dimensions(1f, 1f),
+                                Color = new Vector4(1f, 1f, 1f, 1f),
+                                Text = "Hello world!"
+                            }
                         }
+                        *
                     }
-                    */
-                }
+                }*/
             };
 
             Application.Run(form);

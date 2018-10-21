@@ -13,10 +13,12 @@
         {
             this.SuspendLayout();
 
-            this.FormBorderStyle = FormBorderStyle.None;
-            this.WindowState = FormWindowState.Maximized;
+            //this.FormBorderStyle = FormBorderStyle.None;
+            //this.WindowState = FormWindowState.Maximized;
+            this.Size = new Size(1000, 600);
             this.Name = "OpenGl";
             this.Text = "OpenGl";
+
 
             var glControl = new GlControl()
             {
