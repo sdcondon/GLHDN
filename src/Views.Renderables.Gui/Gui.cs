@@ -38,13 +38,6 @@
                 .WithShaderFromEmbeddedResource(ShaderType.VertexShader, $"{ShaderResourceNamePrefix}.Gui.Vertex.glsl")
                 .WithShaderFromEmbeddedResource(ShaderType.FragmentShader, $"{ShaderResourceNamePrefix}.Gui.Fragment.glsl")
                 .WithUniforms("P");
-
-            this.guiElementBuffer = new BoundBuffer<Element, GuiVertex>(
-                elements,
-                PrimitiveType.Triangles,
-                100,
-                a => a.Vertices,
-                new[] { 0, 2, 3, 0, 3, 1 });
         }
 
         public ICollection<Element> SubElements { get; }
@@ -58,33 +51,29 @@
         {
             this.program = this.programBuilder.Build();
             this.programBuilder = null;
-            /*
+
             this.guiElementBuffer = new BoundBuffer<Element, GuiVertex>(
                 elements,
                 PrimitiveType.Triangles,
                 100,
                 a => a.Vertices,
-                new[] { 0, 2, 3, 0, 3, 1 });*/
-            this.SubElements.Add(new PanelElement()
+                new[] { 0, 2, 3, 0, 3, 1 });
+
+            var panel = new PanelElement()
             {
-                ParentOrigin = new Dimensions(1f, 0f),
-                LocalOrigin = new Dimensions(1f, 0f),
+                ParentOrigin = new Dimensions(-1f, 0f),
+                LocalOrigin = new Dimensions(-1f, 0f),
                 Size = new Dimensions(200, 1f),
                 Color = new Vector4(0.5f, 0.2f, 0.2f, 0.5f),
-                BorderWidth = 1f,
-                /*
-                Elements =
-                {
-                    new Renderables.Gui.Text()
-                    {
-                        ParentOrigin = new Dimensions(0f, 0f),
-                        LocalOrigin = new Dimensions(0f, 0f),
-                        Size = new Dimensions(1f, 1f),
-                        Color = new Vector4(1f, 1f, 1f, 1f),
-                        Text = "Hello world!"
-                    }
-                }
-                */
+                BorderWidth = 1f
+            };
+            this.SubElements.Add(panel);
+            panel.SubElements.Add(new TextElement("Fonts\\Inconsolata\\Inconsolata-Regular.ttf", "Hello world!")
+            {
+                ParentOrigin = new Dimensions(0f, 0f),
+                LocalOrigin = new Dimensions(0f, 0f),
+                Size = new Dimensions(1f, 1f),
+                Color = new Vector4(1f, 1f, 1f, 1f)
             });
         }
 

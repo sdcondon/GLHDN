@@ -7,13 +7,27 @@
     <StartupObject />
     <AssemblyName>GLHDN.Examples.WinForms</AssemblyName>
     <RootNamespace>GLHDN.Examples.WinForms</RootNamespace>
+    <Platforms>AnyCPU;x86</Platforms>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   
   <ItemGroup>
+    <None Remove="Fonts\Inconsolata\Inconsolata-Regular.ttf" />
     <None Remove="uvmap.DDS" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Fonts\Inconsolata\Inconsolata-Regular.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="uvmap.DDS">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

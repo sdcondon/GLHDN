@@ -1,4 +1,4 @@
-﻿namespace GLHDN.Views.Renderables.Gui.Elements
+﻿namespace GLHDN.Views.Renderables.Gui
 {
     using System.Collections.Generic;
     using System.ComponentModel;

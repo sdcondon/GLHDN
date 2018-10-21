@@ -29,7 +29,7 @@
 
             camera = new FirstPersonCamera();
 
-            /*view.Renderables.Add(new StaticTexuredRenderer(
+            view.Renderables.Add(new StaticTexuredRenderer(
                 camera,
                 new[]
                 {
@@ -50,7 +50,7 @@
                 "uvmap.DDS"));
 
             lines = new ColoredLines(camera);
-            view.Renderables.Add(lines);*/
+            view.Renderables.Add(lines);
 
             gui = new Gui(view)
             {
