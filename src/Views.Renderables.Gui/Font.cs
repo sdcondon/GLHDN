@@ -87,13 +87,7 @@
         /// </summary>
         public uint TextureId { get; private set; }
 
-        public GlyphInfo this[char c]
-        {
-            get
-            {
-                return glyphs[c];
-            }
-        }
+        public GlyphInfo this[char c] => glyphs[c];
 
         /// <inheritdoc />
         public void Dispose()

@@ -42,9 +42,9 @@
 
         public ICollection<Element> SubElements { get; }
 
-        public Vector2 Center_ScreenSpace => Vector2.Zero;
+        public Vector2 Center => Vector2.Zero;
 
-        public Vector2 Size_ScreenSpace => new Vector2(view.Width, view.Height);
+        public Vector2 Size => new Vector2(view.Width, view.Height);
 
         /// <inheritdoc />
         public void ContextCreated(DeviceContext deviceContext)
@@ -63,7 +63,7 @@
             {
                 ParentOrigin = new Dimensions(-1f, 0f),
                 LocalOrigin = new Dimensions(-1f, 0f),
-                Size = new Dimensions(200, 1f),
+                RelativeSize = new Dimensions(200, 1f),
                 Color = new Vector4(0.5f, 0.2f, 0.2f, 0.5f),
                 BorderWidth = 1f
             };
@@ -72,7 +72,7 @@
             {
                 ParentOrigin = new Dimensions(0f, 0f),
                 LocalOrigin = new Dimensions(0f, 0f),
-                Size = new Dimensions(1f, 1f),
+                RelativeSize = new Dimensions(1f, 1f),
                 Color = new Vector4(1f, 1f, 1f, 1f)
             });
         }
@@ -80,7 +80,7 @@
         /// <inheritdoc />
         public void Render(DeviceContext deviceContext)
         {
-            this.program.UseWithUniformValues(Matrix4x4.Transpose(Matrix4x4.CreateOrthographic(Size_ScreenSpace.X, Size_ScreenSpace.Y, 1f, -1f)));
+            this.program.UseWithUniformValues(Matrix4x4.Transpose(Matrix4x4.CreateOrthographic(Size.X, Size.Y, 1f, -1f)));
             this.guiElementBuffer.Draw();
         }
 

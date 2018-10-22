@@ -36,22 +36,23 @@
                 var scale = 1f;
                 foreach (var c in Content)
                 {
-                    var ch = this.font[c];
-                    var xpos = position.X + ch.Bearing.X * scale;
-                    var ypos = position.Y + (ch.Bearing.Y - ch.Size.Y) * scale;
-                    var w = ch.Size.X * scale;
-                    var h = ch.Size.Y * scale;
+                    var glyphInfo = this.font[c];
+                    var charSize = new Vector2(glyphInfo.Size.X * scale, glyphInfo.Size.Y * scale);
+                    var charPosBL = new Vector2(position.X + glyphInfo.Bearing.X * scale, position.Y + (glyphInfo.Bearing.Y - glyphInfo.Size.Y) * scale);
+                    var charPosBR = charPosBL + Vector2.UnitX * charSize.X;
+                    var charPosTL = charPosBL + Vector2.UnitY * charSize.Y;
+                    var charPosTR = charPosBL + charSize;
 
                     vertices.AddRange(new[]
                     {
-                        new GuiVertex(new Vector2(xpos, ypos + h), Color, new Vector2(0, Size_ScreenSpace.Y), Size_ScreenSpace, 0),
-                        new GuiVertex(new Vector2(xpos + w, ypos + h), Color, Size_ScreenSpace, Size_ScreenSpace, 0),
-                        new GuiVertex(new Vector2(xpos, ypos), Color, Vector2.Zero, Size_ScreenSpace, 0),
-                        new GuiVertex(new Vector2(xpos + w, ypos), Color, new Vector2(Size_ScreenSpace.X, 0), Size_ScreenSpace, 0)
+                        new GuiVertex(charPosTL, Color, charPosBL, charSize, (int)c),
+                        new GuiVertex(charPosTR, Color, charPosBL, charSize, (int)c),
+                        new GuiVertex(charPosBL, Color, charPosBL, charSize, (int)c),
+                        new GuiVertex(charPosBR, Color, charPosBL, charSize, (int)c)
                     });
 
                     // Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-                    position.X += (ch.Advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64)
+                    position.X += (glyphInfo.Advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64)
                 }
 
                 return vertices.ToArray();

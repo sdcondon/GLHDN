@@ -29,10 +29,10 @@
         /// <inheritdoc />
         public override GuiVertex[] Vertices => new[]
         {
-            new GuiVertex(this.PosTL, Color, new Vector2(0, Size_ScreenSpace.Y), Size_ScreenSpace, BorderWidth),
-            new GuiVertex(this.PosTR, Color, Size_ScreenSpace, Size_ScreenSpace, BorderWidth),
-            new GuiVertex(this.PosBL, Color, Vector2.Zero, Size_ScreenSpace, BorderWidth),
-            new GuiVertex(this.PosBR, Color, new Vector2(Size_ScreenSpace.X, 0), Size_ScreenSpace, BorderWidth)
+            new GuiVertex(PosTL, Color, PosBL, Size, BorderWidth),
+            new GuiVertex(PosTR, Color, PosBL, Size, BorderWidth),
+            new GuiVertex(PosBL, Color, PosBL, Size, BorderWidth),
+            new GuiVertex(PosBR, Color, PosBL, Size, BorderWidth)
         };
 
         public override event PropertyChangedEventHandler PropertyChanged;

@@ -27,47 +27,47 @@
         public Dimensions LocalOrigin { get; set; }
 
         /// <summary>
-        /// Gets or sets the size of the element.
+        /// Gets or sets the size of the element in relation to its parent.
         /// </summary>
-        public Dimensions Size { get; set; }
+        public Dimensions RelativeSize { get; set; }
 
         /// <summary>
         /// Gets the position of the center of the element, in screen space.
         /// </summary>
-        public virtual Vector2 Center_ScreenSpace
+        public virtual Vector2 Center
         {
             get
             {
                 var parentOriginScreenSpace = new Vector2(
-                    Parent.Center_ScreenSpace.X + (ParentOrigin.IsXRelative ? ParentOrigin.X * Parent.Size_ScreenSpace.X / 2 : ParentOrigin.X),
-                    Parent.Center_ScreenSpace.Y + (ParentOrigin.IsYRelative ? ParentOrigin.Y * Parent.Size_ScreenSpace.Y / 2 : ParentOrigin.Y));
+                    Parent.Center.X + (ParentOrigin.IsXRelative ? ParentOrigin.X * Parent.Size.X / 2 : ParentOrigin.X),
+                    Parent.Center.Y + (ParentOrigin.IsYRelative ? ParentOrigin.Y * Parent.Size.Y / 2 : ParentOrigin.Y));
 
                 return new Vector2(
-                    parentOriginScreenSpace.X - (LocalOrigin.IsXRelative ? LocalOrigin.X * Size_ScreenSpace.X / 2 : LocalOrigin.X),
-                    parentOriginScreenSpace.Y - (LocalOrigin.IsYRelative ? LocalOrigin.Y * Size_ScreenSpace.Y / 2 : LocalOrigin.Y));
+                    parentOriginScreenSpace.X - (LocalOrigin.IsXRelative ? LocalOrigin.X * Size.X / 2 : LocalOrigin.X),
+                    parentOriginScreenSpace.Y - (LocalOrigin.IsYRelative ? LocalOrigin.Y * Size.Y / 2 : LocalOrigin.Y));
             }
         }
 
         /// <summary>
         /// Gets the size of the element, in screen space (i.e. pixels).
         /// </summary>
-        public virtual Vector2 Size_ScreenSpace
+        public virtual Vector2 Size
         {
             get
             {
                 return new Vector2(
-                    Size.IsXRelative ? Parent.Size_ScreenSpace.X * Size.X : Size.X,
-                    Size.IsYRelative ? Parent.Size_ScreenSpace.Y * Size.Y : Size.Y);
+                    RelativeSize.IsXRelative ? Parent.Size.X * RelativeSize.X : RelativeSize.X,
+                    RelativeSize.IsYRelative ? Parent.Size.Y * RelativeSize.Y : RelativeSize.Y);
             }
         }
 
-        public Vector2 PosBL => this.Center_ScreenSpace - this.Size_ScreenSpace / 2;
+        public Vector2 PosBL => this.Center - this.Size / 2;
 
-        public Vector2 PosBR => new Vector2(this.Center_ScreenSpace.X + this.Size_ScreenSpace.X / 2, this.Center_ScreenSpace.Y - this.Size_ScreenSpace.Y / 2);
+        public Vector2 PosBR => new Vector2(this.Center.X + this.Size.X / 2, this.Center.Y - this.Size.Y / 2);
 
-        public Vector2 PosTL => new Vector2(this.Center_ScreenSpace.X - this.Size_ScreenSpace.X / 2, this.Center_ScreenSpace.Y + this.Size_ScreenSpace.Y / 2);
+        public Vector2 PosTL => new Vector2(this.Center.X - this.Size.X / 2, this.Center.Y + this.Size.Y / 2);
 
-        public Vector2 PosTR => this.Center_ScreenSpace + this.Size_ScreenSpace / 2;
+        public Vector2 PosTR => this.Center + this.Size / 2;
 
         public abstract GuiVertex[] Vertices { get; }
 
