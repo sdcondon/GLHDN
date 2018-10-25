@@ -59,7 +59,7 @@
         {
             Gl.ClearColor(0.0f, 0.0f, 0.1f, 0.0f); // Dark blue background
             Gl.Enable(EnableCap.DepthTest); // Enable depth test
-            Gl.DepthFunc(DepthFunction.Less); // Accept fragment if it closer to the camera than the former one
+            Gl.DepthFunc(DepthFunction.Always); // Accept fragment if it closer to the camera than the former one
             Gl.Enable(EnableCap.CullFace); // Cull triangles which normal is not towards the camera
 
             //transparency

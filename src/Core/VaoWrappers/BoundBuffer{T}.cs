@@ -74,7 +74,7 @@
         {
             this.vao.IndexBuffer.Flush();
             this.vao.AttributeBuffers[0].Flush();
-            this.vao.Draw(linksByCollectionIndex.Count * indices.Count);
+            this.vao.Draw(linksByBufferIndex.Count * indices.Count);
         }
 
         private static IVertexArrayObject DefaultMakeVertexArrayObject(PrimitiveType primitiveType, IList<Tuple<BufferUsage, Array>> attributeBufferSpecs, uint[] indices)

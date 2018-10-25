@@ -6,11 +6,10 @@
 
     public class TextElement : Element
     {
-        private readonly Font font;
+        public static readonly Font font = new Font("Fonts\\Inconsolata\\Inconsolata-Regular.ttf");
 
-        public TextElement(string fontPath, string content)
+        public TextElement(string content)
         {
-            this.font = new Font(fontPath);
             this.Content = content;
         }
 
@@ -36,7 +35,7 @@
                 var scale = 1f;
                 foreach (var c in Content)
                 {
-                    var glyphInfo = this.font[c];
+                    var glyphInfo = font[c];
                     var charSize = new Vector2(glyphInfo.Size.X * scale, glyphInfo.Size.Y * scale);
                     var charPosBL = new Vector2(position.X + glyphInfo.Bearing.X * scale, position.Y + (glyphInfo.Bearing.Y - glyphInfo.Size.Y) * scale);
                     var charPosBR = charPosBL + Vector2.UnitX * charSize.X;
@@ -49,10 +48,16 @@
                         new GuiVertex(charPosTR, Color, charPosBL, charSize, (int)c),
                         new GuiVertex(charPosBL, Color, charPosBL, charSize, (int)c),
                         new GuiVertex(charPosBR, Color, charPosBL, charSize, (int)c)
+
+                        //new GuiVertex(charPosTL, Color, charPosBL, charSize, 0f),
+                        //new GuiVertex(charPosTR, Color, charPosBL, charSize, 0f),
+                        //new GuiVertex(charPosBL, Color, charPosBL, charSize, 0f),
+                        //new GuiVertex(charPosBR, Color, charPosBL, charSize, 0f)
                     });
 
                     // Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-                    position.X += (glyphInfo.Advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64)
+                    //position.X += (glyphInfo.Advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64)
+                    position.X += glyphInfo.Advance * scale;
                 }
 
                 return vertices.ToArray();

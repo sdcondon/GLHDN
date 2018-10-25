@@ -116,6 +116,11 @@
                 {
                     buffer.Dispose();
                 }
+
+                if (indexBuffer != null)
+                {
+                    indexBuffer.Dispose();
+                }
             }
 
             Gl.DeleteVertexArrays(this.id);

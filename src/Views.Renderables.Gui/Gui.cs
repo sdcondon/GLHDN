@@ -37,7 +37,7 @@
             this.programBuilder = new GlProgramBuilder()
                 .WithShaderFromEmbeddedResource(ShaderType.VertexShader, $"{ShaderResourceNamePrefix}.Gui.Vertex.glsl")
                 .WithShaderFromEmbeddedResource(ShaderType.FragmentShader, $"{ShaderResourceNamePrefix}.Gui.Fragment.glsl")
-                .WithUniforms("P");
+                .WithUniforms("P", "text");
         }
 
         public ICollection<Element> SubElements { get; }
@@ -55,7 +55,7 @@
             this.guiElementBuffer = new BoundBuffer<Element, GuiVertex>(
                 elements,
                 PrimitiveType.Triangles,
-                100,
+                1000,
                 a => a.Vertices,
                 new[] { 0, 2, 3, 0, 3, 1 });
 
@@ -68,11 +68,11 @@
                 BorderWidth = 1f
             };
             this.SubElements.Add(panel);
-            panel.SubElements.Add(new TextElement("Fonts\\Inconsolata\\Inconsolata-Regular.ttf", "Hello world!")
+            panel.SubElements.Add(new TextElement("Hello, world!")
             {
                 ParentOrigin = new Dimensions(0f, 0f),
                 LocalOrigin = new Dimensions(0f, 0f),
-                RelativeSize = new Dimensions(1f, 1f),
+                RelativeSize = new Dimensions(0.5f, 0.5f),
                 Color = new Vector4(1f, 1f, 1f, 1f)
             });
         }
@@ -80,7 +80,9 @@
         /// <inheritdoc />
         public void Render(DeviceContext deviceContext)
         {
-            this.program.UseWithUniformValues(Matrix4x4.Transpose(Matrix4x4.CreateOrthographic(Size.X, Size.Y, 1f, -1f)));
+            this.program.UseWithUniformValues(Matrix4x4.Transpose(Matrix4x4.CreateOrthographic(Size.X, Size.Y, 1f, -1f)), 0);
+            Gl.ActiveTexture(TextureUnit.Texture0);
+            Gl.BindTexture(TextureTarget.Texture2dArray, TextElement.font.TextureId);
             this.guiElementBuffer.Draw();
         }
 
