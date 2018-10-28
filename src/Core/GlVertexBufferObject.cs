@@ -92,6 +92,25 @@
                     size: (uint)(count * elementSize)));
         }
 
+        public T Get<T>(int index)
+        {
+            var elementSize = Marshal.SizeOf(typeof(T));
+            var ptr = Marshal.AllocHGlobal(elementSize);
+            try
+            {
+                Gl.GetNamedBufferSubData(
+                    buffer: this.Id,
+                    offset: new IntPtr(index * elementSize),
+                    size: (uint)elementSize,
+                    data: ptr);
+                return Marshal.PtrToStructure<T>(ptr);
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(ptr);
+            }
+        }
+
         // TODO: at least snapshot by switching the queues. and/or look into streaming?
         public void Flush()
         {

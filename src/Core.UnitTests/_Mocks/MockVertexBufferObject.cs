@@ -38,6 +38,11 @@
             }
         }
 
+        public T Get<T>(int index)
+        {
+            return (T)Contents[index];
+        }
+
         public void Flush()
         {
 
