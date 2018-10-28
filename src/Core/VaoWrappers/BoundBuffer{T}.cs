@@ -151,9 +151,9 @@
             public void Delete()
             {
                 this.item.PropertyChanged -= ItemPropertyChanged;
-                for (var i = 0; i < bufferIndices.Count; i++)
+                while (bufferIndices.Count > 0)
                 {
-                    DeleteBufferContentAt(this.bufferIndices.Values[i]);
+                    DeleteAtom(0);
                 }
             }
 
@@ -206,16 +206,17 @@
                 }               
                 while (atomIndex < bufferIndices.Count)
                 {
-                    DeleteBufferContentAt(bufferIndices.Values[atomIndex]);
-                    bufferIndices.RemoveAt(atomIndex); // PERF: Slow? Removing from middle to end - just want to truncate..
+                    DeleteAtom(atomIndex);
                 }
             }
 
-            private void DeleteBufferContentAt(int index)
+            private void DeleteAtom(int atomIndex)
             {
+                var index = bufferIndices.Values[atomIndex];
+
                 // Grab the last link by buffer index, remove its last 
-                var lastLink = this.parent.linksByBufferIndex[this.parent.linksByBufferIndex.Count - 1];
-                var finalBufferIndex = lastLink.bufferIndices.Values[lastLink.bufferIndices.Count - 1];
+                var finalBufferIndex = this.parent.linksByBufferIndex.Count - 1;
+                var lastLink = this.parent.linksByBufferIndex[finalBufferIndex];
                 lastLink.bufferIndices.RemoveAt(lastLink.bufferIndices.Count - 1);
                 parent.linksByBufferIndex.RemoveAt(finalBufferIndex);
 
@@ -223,6 +224,7 @@
                 // to replace the one being removed so that the buffer stays contiguous
                 if (finalBufferIndex != index)
                 {
+                    this.bufferIndices.Remove(index); // PERF: Slow? Removing from middle to end - just want to truncate..
                     lastLink.bufferIndices.Add(index, index);
                     this.parent.vao.AttributeBuffers[0].Copy<TVertex>(
                         finalBufferIndex * parent.verticesPerAtom,
