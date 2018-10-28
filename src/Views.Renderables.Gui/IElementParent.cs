@@ -5,6 +5,9 @@
 
     public interface IElementParent
     {
+        /// <summary>
+        /// Gets the elements that this object contains.
+        /// </summary>
         ICollection<Element> SubElements { get; }
 
         /// <summary>

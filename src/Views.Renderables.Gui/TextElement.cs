@@ -8,6 +8,13 @@
     {
         public static readonly Font font = new Font("Fonts\\Inconsolata\\Inconsolata-Regular.ttf");
 
+        private Vector4 color;
+        private string content;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TextElement"/> class.
+        /// </summary>
+        /// <param name="content"></param>
         public TextElement(string content)
         {
             this.Content = content;
@@ -16,12 +23,28 @@
         /// <summary>
         /// Gets or sets the text color.
         /// </summary>
-        public Vector4 Color { get; set; }
+        public Vector4 Color
+        {
+            get => color;
+            set
+            {
+                color = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Color)));
+            }
+        }
 
         /// <summary>
         /// Gets or sets the text.
         /// </summary>
-        public string Content { get; set; }
+        public string Content
+        {
+            get => content;
+            set
+            {
+                content = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Content)));
+            }
+        }
 
         /// <inheritdoc />
         public override GuiVertex[] Vertices
@@ -30,7 +53,6 @@
             {
                 var vertices = new List<GuiVertex>();
 
-                // TODO: add vertices for chars
                 var position = this.PosBL;
                 var scale = 1f;
                 foreach (var c in Content)
@@ -48,15 +70,9 @@
                         new GuiVertex(charPosTR, Color, charPosBL, charSize, (int)c),
                         new GuiVertex(charPosBL, Color, charPosBL, charSize, (int)c),
                         new GuiVertex(charPosBR, Color, charPosBL, charSize, (int)c)
-
-                        //new GuiVertex(charPosTL, Color, charPosBL, charSize, 0f),
-                        //new GuiVertex(charPosTR, Color, charPosBL, charSize, 0f),
-                        //new GuiVertex(charPosBL, Color, charPosBL, charSize, 0f),
-                        //new GuiVertex(charPosBR, Color, charPosBL, charSize, 0f)
                     });
 
-                    // Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-                    //position.X += (glyphInfo.Advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64)
+                    // Now advance cursor for next glyph
                     position.X += glyphInfo.Advance * scale;
                 }
 

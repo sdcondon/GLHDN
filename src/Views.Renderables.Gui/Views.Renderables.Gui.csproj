@@ -19,13 +19,9 @@
   <ItemGroup>
     <None Remove="Gui.Fragment.glsl" />
     <None Remove="Gui.Vertex.glsl" />
-    <None Remove="Text.Fragment.glsl" />
-    <None Remove="Text.Vertex.glsl" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Text.Fragment.glsl" />
-    <EmbeddedResource Include="Text.Vertex.glsl" />
     <EmbeddedResource Include="Gui.Fragment.glsl" />
     <EmbeddedResource Include="Gui.Vertex.glsl" />
   </ItemGroup>

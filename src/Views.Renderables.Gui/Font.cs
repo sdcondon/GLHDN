@@ -23,7 +23,7 @@
         /// </summary>
         /// <param name="filePath"></param>
         /// <param name="pixelSize"></param>
-        public Font(string filePath, uint pixelSize = 32)
+        public Font(string filePath, uint pixelSize = 16)
         {
             face = new Face(sharpFont, filePath);
             face.SetPixelSizes(0, pixelSize); 

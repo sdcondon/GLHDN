@@ -7,6 +7,7 @@
     using System.Collections.Generic;
     using System.Collections;
     using System.Linq;
+    using System;
 
     /// <summary>
     /// Renderable container for a set of graphical user interface elements.
@@ -40,13 +41,18 @@
                 .WithUniforms("P", "text");
         }
 
+        public event EventHandler Initialized;
+
+        /// <inheritdoc /> from IElementParent
         public ICollection<Element> SubElements { get; }
 
+        /// <inheritdoc /> from IElementParent
         public Vector2 Center => Vector2.Zero;
 
+        /// <inheritdoc /> from IElementParent
         public Vector2 Size => new Vector2(view.Width, view.Height);
 
-        /// <inheritdoc />
+        /// <inheritdoc /> from IRenderable
         public void ContextCreated(DeviceContext deviceContext)
         {
             this.program = this.programBuilder.Build();
@@ -59,25 +65,10 @@
                 a => a.Vertices,
                 new[] { 0, 2, 3, 0, 3, 1 });
 
-            var panel = new PanelElement()
-            {
-                ParentOrigin = new Dimensions(-1f, 0f),
-                LocalOrigin = new Dimensions(-1f, 0f),
-                RelativeSize = new Dimensions(200, 1f),
-                Color = new Vector4(0.5f, 0.2f, 0.2f, 0.5f),
-                BorderWidth = 1f
-            };
-            this.SubElements.Add(panel);
-            panel.SubElements.Add(new TextElement("Hello, world!")
-            {
-                ParentOrigin = new Dimensions(0f, 0f),
-                LocalOrigin = new Dimensions(0f, 0f),
-                RelativeSize = new Dimensions(0.5f, 0.5f),
-                Color = new Vector4(1f, 1f, 1f, 1f)
-            });
+            Initialized?.Invoke(this, EventArgs.Empty);
         }
 
-        /// <inheritdoc />
+        /// <inheritdoc /> from IRenderable
         public void Render(DeviceContext deviceContext)
         {
             this.program.UseWithUniformValues(Matrix4x4.Transpose(Matrix4x4.CreateOrthographic(Size.X, Size.Y, 1f, -1f)), 0);
@@ -86,7 +77,7 @@
             this.guiElementBuffer.Draw();
         }
 
-        /// <inheritdoc />
+        /// <inheritdoc /> from IRenderable
         public void ContextDestroying(DeviceContext deviceContext)
         {
             this.program.Dispose();

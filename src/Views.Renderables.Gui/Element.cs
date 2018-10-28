@@ -6,9 +6,6 @@
     /// <summary>
     /// Base class for GUI elements. Provides for a nested element hierarchy, with elements being placed relative to their parents.
     /// </summary>
-    /// <remarks>
-    /// Shoehorns quite a bit into one class, reducing flexibility. Might want to refactor at some point.
-    /// </remarks>
     public abstract class Element : INotifyPropertyChanged
     {
         /// <summary>
@@ -34,7 +31,7 @@
         /// <summary>
         /// Gets the position of the center of the element, in screen space.
         /// </summary>
-        public virtual Vector2 Center
+        public Vector2 Center
         {
             get
             {
@@ -51,7 +48,7 @@
         /// <summary>
         /// Gets the size of the element, in screen space (i.e. pixels).
         /// </summary>
-        public virtual Vector2 Size
+        public Vector2 Size
         {
             get
             {
