@@ -27,7 +27,7 @@
         public float BorderWidth { get; set; }
 
         /// <inheritdoc />
-        public override GuiVertex[] Vertices => new[]
+        public override IList<GuiVertex> Vertices => new[]
         {
             new GuiVertex(PosTL, Color, PosBL, Size, BorderWidth),
             new GuiVertex(PosTR, Color, PosBL, Size, BorderWidth),

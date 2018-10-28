@@ -224,7 +224,7 @@
                 // to replace the one being removed so that the buffer stays contiguous
                 if (finalBufferIndex != index)
                 {
-                    this.bufferIndices.Remove(index); // PERF: Slow? Removing from middle to end - just want to truncate..
+                    this.bufferIndices.Remove(index);
                     lastLink.bufferIndices.Add(index, index);
                     this.parent.vao.AttributeBuffers[0].Copy<TVertex>(
                         finalBufferIndex * parent.verticesPerAtom,

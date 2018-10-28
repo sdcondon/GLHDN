@@ -1,5 +1,6 @@
 ﻿namespace GLHDN.Views.Renderables.Gui
 {
+    using System.Collections.Generic;
     using System.ComponentModel;
     using System.Numerics;
 
@@ -66,7 +67,7 @@
 
         public Vector2 PosTR => this.Center + this.Size / 2;
 
-        public abstract GuiVertex[] Vertices { get; }
+        public abstract IList<GuiVertex> Vertices { get; }
 
         public abstract event PropertyChangedEventHandler PropertyChanged;
     }

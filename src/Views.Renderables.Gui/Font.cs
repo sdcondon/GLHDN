@@ -90,6 +90,8 @@
         /// </summary>
         public uint TextureId { get; private set; }
 
+        public short LineHeight => face.Height;
+
         public GlyphInfo this[char c] => glyphs[c];
 
         /// <inheritdoc />

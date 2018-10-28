@@ -32,6 +32,7 @@
 
         ~GlVertexBufferObject()
         {
+            // todo: throws..
             Gl.DeleteBuffers(this.Id);
         }
 
