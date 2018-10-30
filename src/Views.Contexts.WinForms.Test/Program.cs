@@ -24,9 +24,13 @@
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            var form = new GlForm();
+            var form = new GlForm()
+            {
+                WindowState = FormWindowState.Normal,
+                FormBorderStyle = FormBorderStyle.Sizable
+            };
 
-            view = new Views.View(form.ViewContext, ModelUpdate, true);
+            view = new Views.View(form.ViewContext, ModelUpdate, false);
 
             camera = new FirstPersonCamera();
 
@@ -56,22 +60,18 @@
             gui = new Gui(view);
             gui.Initialized += (s, e) =>
             {
-                var panel = new PanelElement()
-                {
-                    ParentOrigin = new Dimensions(-1f, 0f),
-                    LocalOrigin = new Dimensions(-1f, 0f),
-                    RelativeSize = new Dimensions(200, 1f),
-                    Color = new Vector4(0.2f, 0.2f, 0.5f, 0.5f),
-                    BorderWidth = 0f
-                };
+                var panel = new PanelElement(
+                    parentOrigin: new Dimensions(-1f, 0f),
+                    localOrigin: new Dimensions(-1f, 0f),
+                    relativeSize: new Dimensions(200, 1f),
+                    color: new Vector4(0.2f, 0.2f, 0.5f, 0.0f),
+                    borderWidth: 0f);
                 gui.SubElements.Add(panel);
-                camText = new TextElement($"X: {camera.Position.X:F2}")
-                {
-                    ParentOrigin = new Dimensions(-1f, 1f),
-                    LocalOrigin = new Dimensions(-1f, 1f),
-                    RelativeSize = new Dimensions(1f, 0f),
-                    Color = new Vector4(1f, 1f, 1f, 1f)
-                };
+                camText = new TextElement(
+                    parentOrigin: new Dimensions(-1f, 1f),
+                    localOrigin: new Dimensions(-1f, 1f),
+                    relativeSize: new Dimensions(1f, 0f),
+                    color: new Vector4(1f, 1f, 1f, 1f));
                 panel.SubElements.Add(camText);
             };
 
@@ -81,7 +81,6 @@
         private static void ModelUpdate(TimeSpan elapsed)
         {
             camera.Update(elapsed, view);
-            gui.Update();
             camText.Content = $"Cam: {camera.Position:F2}\n\nHello, world!";
 
             if (view.MouseButtonReleased)

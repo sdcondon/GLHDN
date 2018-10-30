@@ -2,7 +2,6 @@
 {
     using System.Collections;
     using System.Collections.Generic;
-    using System.ComponentModel;
     using System.Linq;
     using System.Numerics;
 
@@ -11,20 +10,47 @@
     /// </summary>
     public class PanelElement : Element, IElementParent
     {
-        public PanelElement()
+        private Vector4 color;
+        private float borderWidth;
+
+        public PanelElement(
+            Dimensions parentOrigin,
+            Dimensions localOrigin,
+            Dimensions relativeSize,
+            Vector4 color,
+            float borderWidth)
+            : base(parentOrigin, localOrigin, relativeSize)
         {
+            this.color = color;
+            this.borderWidth = borderWidth;
             SubElements = new SubElementCollection(this);
         }
 
         /// <summary>
         /// Gets or sets the background color of the element.
         /// </summary>
-        public Vector4 Color { get; set; }
+        public Vector4 Color
+        {
+            get => color;
+            set
+            {
+                color = value;
+                OnPropertyChanged(nameof(Color));
+            }
+        }
 
         /// <summary>
         /// Gets or sets the width of the border of the element.
         /// </summary>
-        public float BorderWidth { get; set; }
+        public float BorderWidth
+        {
+            get => borderWidth;
+            set
+            {
+                borderWidth = value;
+                OnPropertyChanged(nameof(BorderWidth));
+            }
+        }
 
         /// <inheritdoc />
         public override IList<GuiVertex> Vertices => new[]
@@ -35,11 +61,19 @@
             new GuiVertex(PosBR, Color, PosBL, Size, BorderWidth)
         };
 
-        public override event PropertyChangedEventHandler PropertyChanged;
-
         // TODO: handlers? - onclick, onmouseover, onmouseout etc
 
         public ICollection<Element> SubElements { get; }
+
+        /// <inheritdoc />
+        public override void OnPropertyChanged(string propertyName)
+        {
+            foreach (var subElement in SubElements)
+            {
+                subElement.OnPropertyChanged(nameof(Parent));
+            }
+            base.OnPropertyChanged(propertyName);
+        }
 
         /// <summary>
         /// 

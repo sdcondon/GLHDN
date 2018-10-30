@@ -46,14 +46,16 @@
 
         public List<IRenderable> Renderables { get; private set; } = new List<IRenderable>();
 
-        public int Width => context.Width;
-        public int Height => context.Height;
-        public HashSet<char> PressedKeys { get; set; } = new HashSet<char>();
+        public HashSet<char> PressedKeys { get; private set; } = new HashSet<char>();
         public Vector2 CursorMovement { get; private set; }
         public int MouseWheelDelta { get; private set; }
         public bool MouseButtonReleased { get; private set; }
 
+        public int Width => context.Width;
+        public int Height => context.Height;
         public float AspectRatio => (float)context.Width / (float)context.Height;
+
+        public event EventHandler<Vector2> Resized;
 
         private void ContextCreated(object sender, DeviceContext context)
         {
@@ -128,7 +130,7 @@
         private void Resize(object sender, Vector2 size)
         {
             Gl.Viewport(0, 0, (int)size.X, (int)size.Y);
-            // renderers need to handle?
+            Resized?.Invoke(this, size);
         }
 
         private void HandleDebugMessage(

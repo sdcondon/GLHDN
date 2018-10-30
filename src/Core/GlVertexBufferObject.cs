@@ -2,7 +2,7 @@
 {
     using OpenGL;
     using System;
-    using System.Collections.Generic;
+    using System.Collections.Concurrent;
     using System.Runtime.InteropServices;
 
     /// <summary>
@@ -11,7 +11,7 @@
     public sealed class GlVertexBufferObject : IVertexBufferObject
     {
         private int count;
-        private Queue<Action> actions = new Queue<Action>();
+        private ConcurrentQueue<Action> actions = new ConcurrentQueue<Action>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GlVertexBufferObject"/> class. SIDE EFFECT: New buffer will be bound to the given target.
@@ -112,12 +112,14 @@
             }
         }
 
-        // TODO: at least snapshot by switching the queues. and/or look into streaming?
+        // TODO: this is hacky. look into streaming?
         public void Flush()
         {
-            while (actions.Count > 0)
+            // Only process the actions in the queue at the outset in case they are being continually added.
+            for (int i = actions.Count; i > 0; i--)
             {
-                actions.Dequeue()();
+                actions.TryDequeue(out var action);
+                action?.Invoke();
             }
         }
 

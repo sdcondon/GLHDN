@@ -1,7 +1,6 @@
 ﻿namespace GLHDN.Views.Renderables.Gui
 {
     using System.Collections.Generic;
-    using System.ComponentModel;
     using System.Numerics;
     using System.Text;
 
@@ -12,13 +11,16 @@
         private Vector4 color;
         private string content;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TextElement"/> class.
-        /// </summary>
-        /// <param name="content"></param>
-        public TextElement(string content)
+        public TextElement(
+            Dimensions parentOrigin,
+            Dimensions localOrigin,
+            Dimensions relativeSize,
+            Vector4 color,
+            string content = "")
+            : base(parentOrigin, localOrigin, relativeSize)
         {
-            this.Content = content;
+            this.color = color;
+            this.content = content;
         }
 
         /// <summary>
@@ -30,7 +32,7 @@
             set
             {
                 color = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Color)));
+                OnPropertyChanged(nameof(Color));
             }
         }
 
@@ -43,7 +45,7 @@
             set
             {
                 content = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Content)));
+                OnPropertyChanged(nameof(Content));
             }
         }
 
@@ -71,8 +73,6 @@
                 return vertices.ToArray();
             }
         }
-
-        public override event PropertyChangedEventHandler PropertyChanged;
 
         private IEnumerable<string> GetLines(float scale)
         {

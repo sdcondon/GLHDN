@@ -9,25 +9,69 @@
     /// </summary>
     public abstract class Element : INotifyPropertyChanged
     {
+        private IElementParent parent;
+        private Dimensions parentOrigin;
+        private Dimensions localOrigin;
+        private Dimensions relativeSize;
+
+        public Element(Dimensions parentOrigin, Dimensions localOrigin, Dimensions relativeSize)
+        {
+            this.parentOrigin = parentOrigin;
+            this.localOrigin = localOrigin;
+            this.relativeSize = relativeSize;
+        }
+
         /// <summary>
         /// Gets the parent element of this element.
         /// </summary>
-        public IElementParent Parent { get; internal set; }
+        public IElementParent Parent
+        {
+            get => parent;
+            internal set
+            {
+                parent = value;
+                OnPropertyChanged(nameof(Parent));
+            }
+        }
 
         /// <summary>
         /// Gets or sets the position in parent-space of the local origin.
         /// </summary>
-        public Dimensions ParentOrigin { get; set; }
+        public Dimensions ParentOrigin
+        {
+            get => parentOrigin;
+            set
+            {
+                parentOrigin = value;
+                OnPropertyChanged(nameof(ParentOrigin));
+            }
+        }
 
         /// <summary>
         /// Gets or sets the position relative to the center of the element that will be placed at the parent origin.
         /// </summary>
-        public Dimensions LocalOrigin { get; set; }
+        public Dimensions LocalOrigin
+        {
+            get => localOrigin;
+            set
+            {
+                localOrigin = value;
+                OnPropertyChanged(nameof(LocalOrigin));
+            }
+        }
 
         /// <summary>
         /// Gets or sets the size of the element in relation to its parent.
         /// </summary>
-        public Dimensions RelativeSize { get; set; }
+        public Dimensions RelativeSize
+        {
+            get => relativeSize;
+            set
+            {
+                parentOrigin = value;
+                OnPropertyChanged(nameof(RelativeSize));
+            }
+        }
 
         /// <summary>
         /// Gets the position of the center of the element, in screen space.
@@ -69,6 +113,11 @@
 
         public abstract IList<GuiVertex> Vertices { get; }
 
-        public abstract event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 }

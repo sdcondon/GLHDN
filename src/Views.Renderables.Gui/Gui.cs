@@ -31,6 +31,13 @@
         {
             this.view = view;
             view.Renderables.Add(this);
+            view.Resized += (s, e) =>
+            {
+                foreach (var element in SubElements)
+                {
+                    element.OnPropertyChanged("Parent");
+                }
+            };
 
             this.SubElements = new SubElementCollection(this);
 
@@ -82,11 +89,6 @@
         {
             this.program.Dispose();
             this.guiElementBuffer.Dispose();
-        }
-
-        public void Update()
-        {
-            // If size has changed, we need to recalculate the position of anything that's relatively positioned
         }
 
         /// <remarks>
