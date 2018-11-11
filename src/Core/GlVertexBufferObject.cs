@@ -2,6 +2,7 @@
 {
     using OpenGL;
     using System;
+    using System.Collections.Concurrent;
     using System.Runtime.InteropServices;
 
     /// <summary>
@@ -10,6 +11,7 @@
     public sealed class GlVertexBufferObject : IVertexBufferObject
     {
         private int count;
+        private ConcurrentQueue<Action> actions = new ConcurrentQueue<Action>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GlVertexBufferObject"/> class. SIDE EFFECT: New buffer will be bound to the given target.
@@ -30,6 +32,7 @@
 
         ~GlVertexBufferObject()
         {
+            // todo: throws..
             Gl.DeleteBuffers(this.Id);
         }
 
@@ -69,23 +72,55 @@
             //}
             set
             {
-                Gl.NamedBufferSubData(
-                    buffer: Id,
-                    offset: new IntPtr(index * Marshal.SizeOf(value)),
-                    size: (uint)Marshal.SizeOf(value),
-                    data: value);
+                actions.Enqueue(() =>
+                    Gl.NamedBufferSubData(
+                        buffer: Id,
+                        offset: new IntPtr(index * Marshal.SizeOf(value)),
+                        size: (uint)Marshal.SizeOf(value),
+                        data: value));
             }
         }
 
         public void Copy<T>(int readIndex, int writeIndex, int count)
         {
             var elementSize = Marshal.SizeOf(typeof(T));
-            Gl.CopyNamedBufferSubData(
-                readBuffer: Id,
-                writeBuffer: Id,
-                readOffset: new IntPtr(readIndex * elementSize),
-                writeOffset: new IntPtr(writeIndex * elementSize),
-                size: (uint)(count * elementSize));
+            actions.Enqueue(() =>
+                Gl.CopyNamedBufferSubData(
+                    readBuffer: Id,
+                    writeBuffer: Id,
+                    readOffset: new IntPtr(readIndex * elementSize),
+                    writeOffset: new IntPtr(writeIndex * elementSize),
+                    size: (uint)(count * elementSize)));
+        }
+
+        public T Get<T>(int index)
+        {
+            var elementSize = Marshal.SizeOf(typeof(T));
+            var ptr = Marshal.AllocHGlobal(elementSize);
+            try
+            {
+                Gl.GetNamedBufferSubData(
+                    buffer: this.Id,
+                    offset: new IntPtr(index * elementSize),
+                    size: (uint)elementSize,
+                    data: ptr);
+                return Marshal.PtrToStructure<T>(ptr);
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(ptr);
+            }
+        }
+
+        // TODO: this is hacky. look into streaming?
+        public void Flush()
+        {
+            // Only process the actions in the queue at the outset in case they are being continually added.
+            for (int i = actions.Count; i > 0; i--)
+            {
+                actions.TryDequeue(out var action);
+                action?.Invoke();
+            }
         }
 
         /// <inheritdoc />

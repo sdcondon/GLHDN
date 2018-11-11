@@ -92,6 +92,22 @@
                     a[0] = new Element(3, 4);
                 },
                 new[] { new Vertex(3, 1), new Vertex(3, 2), new Vertex(2, 1), new Vertex(2, 2), new Vertex(3, 3), new Vertex(3, 4) }),
+            MakeTestCase( "replacement, varying sizes - smaller",
+                a =>
+                {
+                    a.Add(new Element(1, 4));
+                    a.Add(new Element(2, 2));
+                    a[0] = new Element(3, 2);
+                },
+                new[] { new Vertex(3, 1), new Vertex(3, 2), new Vertex(2, 2), new Vertex(2, 1) }),
+            MakeTestCase( "replacement at end, varying sizes - smaller",
+                a =>
+                {
+                    a.Add(new Element(1, 2));
+                    a.Add(new Element(2, 4));
+                    a[1] = new Element(3, 2);
+                },
+                new[] { new Vertex(1, 1), new Vertex(1, 2), new Vertex(3, 1), new Vertex(3, 2) })
         };
 
         [Theory]

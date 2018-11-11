@@ -13,6 +13,7 @@
         private static Views.View view;
 
         private static ColoredLines lines;
+        private static TextElement camText;
 
         /// <summary>
         /// The main entry point for the application.
@@ -23,9 +24,13 @@
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            var form = new GlForm();
+            var form = new GlForm()
+            {
+                WindowState = FormWindowState.Normal,
+                FormBorderStyle = FormBorderStyle.Sizable
+            };
 
-            view = new Views.View(form.ViewContext, ModelUpdate, true);
+            view = new Views.View(form.ViewContext, ModelUpdate, false);
 
             camera = new FirstPersonCamera();
 
@@ -52,29 +57,22 @@
             lines = new ColoredLines(camera);
             view.Renderables.Add(lines);
 
-            gui = new Gui(view)
+            gui = new Gui(view);
+            gui.Initialized += (s, e) =>
             {
-                new Renderables.Gui.PanelElement(null)
-                {
-                    ParentOrigin = new Dimensions(-1f, 0f),
-                    LocalOrigin = new Dimensions(-1f, 0f),
-                    Size = new Dimensions(200, 1f),
-                    Color = new Vector4(0.5f, 0.2f, 0.2f, 0.4f),
-                    BorderWidth = 1f,
-                    /*
-                    Elements =
-                    {
-                        new Renderables.Gui.Text()
-                        {
-                            ParentOrigin = new Dimensions(0f, 0f),
-                            LocalOrigin = new Dimensions(0f, 0f),
-                            Size = new Dimensions(1f, 1f),
-                            Color = new Vector4(1f, 1f, 1f, 1f),
-                            Text = "Hello world!"
-                        }
-                    }
-                    */
-                }
+                var panel = new PanelElement(
+                    parentOrigin: new Dimensions(-1f, 0f),
+                    localOrigin: new Dimensions(-1f, 0f),
+                    relativeSize: new Dimensions(200, 1f),
+                    color: new Vector4(0.2f, 0.2f, 0.5f, 0.0f),
+                    borderWidth: 0f);
+                gui.SubElements.Add(panel);
+                camText = new TextElement(
+                    parentOrigin: new Dimensions(-1f, 1f),
+                    localOrigin: new Dimensions(-1f, 1f),
+                    relativeSize: new Dimensions(1f, 0f),
+                    color: new Vector4(1f, 1f, 1f, 1f));
+                panel.SubElements.Add(camText);
             };
 
             Application.Run(form);
@@ -83,7 +81,7 @@
         private static void ModelUpdate(TimeSpan elapsed)
         {
             camera.Update(elapsed, view);
-            gui.Update();
+            camText.Content = $"Cam: {camera.Position:F2}\n\nHello, world!";
 
             if (view.MouseButtonReleased)
             {

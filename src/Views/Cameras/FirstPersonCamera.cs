@@ -37,14 +37,14 @@
             private set;
         }
 
-        public void Update(TimeSpan elapsed, View context)
+        public void Update(TimeSpan elapsed, View view)
         {
             // Compute new orientation
-            var xDiff = context.CursorMovement.X;
+            var xDiff = view.CursorMovement.X;
             if (Math.Abs(xDiff) < 2) xDiff = 0;
             horizontalAngle += mouseSpeed * xDiff;
 
-            var yDiff = context.CursorMovement.Y;
+            var yDiff = view.CursorMovement.Y;
             if (Math.Abs(yDiff) < 2) yDiff = 0;
             verticalAngle += mouseSpeed * yDiff;
             verticalAngle = Math.Max(-(float)Math.PI / 2, Math.Min(verticalAngle, (float)Math.PI / 2));
@@ -65,22 +65,22 @@
             var up = Vector3.Cross(right, direction);
 
             // Move forward
-            if (context.PressedKeys.Contains('W'))
+            if (view.PressedKeys.Contains('W'))
             {
                 position += direction * (float)elapsed.TotalSeconds * speed;
             }
             // Move backward
-            if (context.PressedKeys.Contains('S'))
+            if (view.PressedKeys.Contains('S'))
             {
                 position -= direction * (float)elapsed.TotalSeconds * speed;
             }
             // Strafe right
-            if (context.PressedKeys.Contains('D'))
+            if (view.PressedKeys.Contains('D'))
             {
                 position += right * (float)elapsed.TotalSeconds * speed;
             }
             // Strafe left
-            if (context.PressedKeys.Contains('A'))
+            if (view.PressedKeys.Contains('A'))
             {
                 position -= right * (float)elapsed.TotalSeconds * speed;
             }
@@ -90,7 +90,7 @@
             // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.01 unit <-> 100 units
             Projection = Matrix4x4.CreatePerspectiveFieldOfView(
                 FoV,
-                context.AspectRatio,
+                view.AspectRatio,
                 0.01f,
                 100.0f);
 

@@ -72,7 +72,9 @@
         /// </summary>
         public void Draw()
         {
-            this.vao.Draw(linksByCollectionIndex.Count * indices.Count);
+            this.vao.IndexBuffer.Flush();
+            this.vao.AttributeBuffers[0].Flush();
+            this.vao.Draw(linksByBufferIndex.Count * indices.Count);
         }
 
         private static IVertexArrayObject DefaultMakeVertexArrayObject(PrimitiveType primitiveType, IList<Tuple<BufferUsage, Array>> attributeBufferSpecs, uint[] indices)
@@ -149,30 +151,9 @@
             public void Delete()
             {
                 this.item.PropertyChanged -= ItemPropertyChanged;
-                for (var i = 0; i < bufferIndices.Count; i++)
+                while (bufferIndices.Count > 0)
                 {
-                    DeleteBufferContentAt(this.bufferIndices.Values[i]);
-                }
-            }
-
-            private void DeleteBufferContentAt(int index)
-            {
-                // Grab the last link by buffer index, remove its last 
-                var lastLink = this.parent.linksByBufferIndex[this.parent.linksByBufferIndex.Count - 1];
-                var finalBufferIndex = lastLink.bufferIndices.Values[lastLink.bufferIndices.Count - 1];
-                lastLink.bufferIndices.RemoveAt(lastLink.bufferIndices.Count - 1);
-                parent.linksByBufferIndex.RemoveAt(finalBufferIndex);
-
-                // If last one in the buffer isn't the one being removed, move it
-                // to replace the one being removed so that the buffer stays contiguous
-                if (finalBufferIndex != index)
-                {
-                    lastLink.bufferIndices.Add(index, index);
-                    this.parent.vao.AttributeBuffers[0].Copy<TVertex>(
-                        finalBufferIndex * parent.verticesPerAtom,
-                        index * parent.verticesPerAtom,
-                        this.parent.verticesPerAtom);
-                    parent.linksByBufferIndex[index] = lastLink;
+                    DeleteAtom(0);
                 }
             }
 
@@ -225,8 +206,31 @@
                 }               
                 while (atomIndex < bufferIndices.Count)
                 {
-                    DeleteBufferContentAt(bufferIndices.Values[atomIndex]);
-                    bufferIndices.RemoveAt(atomIndex); // PERF: Slow? Removing from middle to end - just want to truncate..
+                    DeleteAtom(atomIndex);
+                }
+            }
+
+            private void DeleteAtom(int atomIndex)
+            {
+                var index = bufferIndices.Values[atomIndex];
+
+                // Grab the last link by buffer index, remove its last 
+                var finalBufferIndex = this.parent.linksByBufferIndex.Count - 1;
+                var lastLink = this.parent.linksByBufferIndex[finalBufferIndex];
+                lastLink.bufferIndices.RemoveAt(lastLink.bufferIndices.Count - 1);
+                parent.linksByBufferIndex.RemoveAt(finalBufferIndex);
+
+                // If last one in the buffer isn't the one being removed, move it
+                // to replace the one being removed so that the buffer stays contiguous
+                if (finalBufferIndex != index)
+                {
+                    this.bufferIndices.Remove(index);
+                    lastLink.bufferIndices.Add(index, index);
+                    this.parent.vao.AttributeBuffers[0].Copy<TVertex>(
+                        finalBufferIndex * parent.verticesPerAtom,
+                        index * parent.verticesPerAtom,
+                        this.parent.verticesPerAtom);
+                    parent.linksByBufferIndex[index] = lastLink;
                 }
             }
         }

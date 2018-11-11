@@ -26,5 +26,9 @@ namespace GLHDN.Core
         object this[int index] { set; }
 
         void Copy<T>(int readIndex, int writeIndex, int count);
+
+        T Get<T>(int index);
+
+        void Flush();
     }
 }
