@@ -108,6 +108,14 @@
             GC.SuppressFinalize(this);
         }
 
+        internal static IVertexArrayObject MakeVertexArrayObject(PrimitiveType primitiveType, IList<Tuple<BufferUsage, Array>> attributeBufferSpecs, uint[] indices)
+        {
+            return new GlVertexArrayObject(
+                primitiveType,
+                attributeBufferSpecs, // TODO: different VAO ctor to avoid needless large heap allocation 
+                indices); // TODO: different VAO ctor to avoid needless large heap allocation
+        }
+
         private void Dispose(bool disposing)
         {
             if (disposing)

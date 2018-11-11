@@ -19,7 +19,7 @@
 
         private GlProgramBuilder programBuilder;
         private GlProgram program;
-        private BoundBuffer<Line, Vertex> linesBuffer;
+        private CollectionBoundBuffer<Line, Vertex> linesBuffer;
 
         public ColoredLines(IViewProjection viewProjection)
         {
@@ -48,7 +48,7 @@
         {
             this.program = this.programBuilder.Build();
             this.programBuilder = null;
-            this.linesBuffer = new BoundBuffer<Line, Vertex>(
+            this.linesBuffer = new CollectionBoundBuffer<Line, Vertex>(
                 lines,
                 PrimitiveType.Lines,
                 100,

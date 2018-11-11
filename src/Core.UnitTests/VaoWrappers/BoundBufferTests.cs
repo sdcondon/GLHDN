@@ -9,16 +9,16 @@
     using System.Linq;
     using Xunit;
 
-    public class BoundBufferTests
+    public class CollectionBoundBufferTests
     {
         private ObservableCollection<Element> collection;
-        private BoundBuffer<Element, Vertex> target;
+        private CollectionBoundBuffer<Element, Vertex> target;
         private MockVertexArrayObject vao;
 
-        public BoundBufferTests()
+        public CollectionBoundBufferTests()
         {
             this.collection = new ObservableCollection<Element>();
-            this.target = new BoundBuffer<Element, Vertex>(
+            this.target = new CollectionBoundBuffer<Element, Vertex>(
                 collection: this.collection,
                 primitiveType: PrimitiveType.Points,
                 atomCapacity: 5,
