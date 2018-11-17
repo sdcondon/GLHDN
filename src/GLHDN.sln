@@ -3,21 +3,21 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27004.2009
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{4AFA3865-7E06-4CB0-84BD-4B5E8B9BE9ED}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Examples.WinForms", "Examples.WinForms\Examples.WinForms.csproj", "{969ECA8B-E0DF-487C-A65E-AF08C5AB1064}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Core\Core.csproj", "{AF5DC9F2-FFF2-442B-9B2A-4B935CE4E4F2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core.UnitTests", "Core.UnitTests\Core.UnitTests.csproj", "{DB4E3705-79B6-42D2-96B1-2A67FABA6EC7}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Views", "Views\Views.csproj", "{CD34FEE4-C4D8-4915-B150-722BB0C1BD2D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Views.Contexts.WinForms", "Views.Contexts.WinForms\Views.Contexts.WinForms.csproj", "{216FFA39-DBEB-4DE2-BC56-EB21185D14AC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Examples.WinForms", "Views.Contexts.WinForms.Test\Examples.WinForms.csproj", "{969ECA8B-E0DF-487C-A65E-AF08C5AB1064}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Views.Renderables.Basic", "Views.Renderables.Basic\Views.Renderables.Basic.csproj", "{EB71ED01-30A1-4F29-BAE2-7AA1B3D6B59D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Views.Renderables.Gui", "Views.Renderables.Gui\Views.Renderables.Gui.csproj", "{A3B6711D-F4E1-4749-B598-E27DE2806D29}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{4AFA3865-7E06-4CB0-84BD-4B5E8B9BE9ED}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core.UnitTests", "Core.UnitTests\Core.UnitTests.csproj", "{DB4E3705-79B6-42D2-96B1-2A67FABA6EC7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
