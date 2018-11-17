@@ -21,7 +21,7 @@
         /// <summary>
         /// Draw with the active program.
         /// </summary>
-        /// <param name="count"></param>
+        /// <param name="count">The number of vertices to draw.</param>
         void Draw(int count);
     }
 }

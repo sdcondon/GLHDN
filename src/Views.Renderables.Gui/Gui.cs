@@ -21,7 +21,7 @@
         private GlProgramBuilder programBuilder;
         private GlProgram program;
         private ObservableCollection<Element> elements = new ObservableCollection<Element>();
-        private BoundBuffer<Element, GuiVertex> guiElementBuffer;
+        private CollectionBoundBuffer<Element, GuiVertex> guiElementBuffer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Gui"/> class, 
@@ -65,7 +65,7 @@
             this.program = this.programBuilder.Build();
             this.programBuilder = null;
 
-            this.guiElementBuffer = new BoundBuffer<Element, GuiVertex>(
+            this.guiElementBuffer = new CollectionBoundBuffer<Element, GuiVertex>(
                 elements,
                 PrimitiveType.Triangles,
                 1000,

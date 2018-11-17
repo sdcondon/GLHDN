@@ -10,7 +10,6 @@
     /// </summary>
     public sealed class GlVertexBufferObject : IVertexBufferObject
     {
-        private int count;
         private ConcurrentQueue<Action> actions = new ConcurrentQueue<Action>();
 
         /// <summary>
@@ -23,7 +22,7 @@
         {
             var elementType = vertexData.GetType().GetElementType();
             this.Attributes = GlVertexAttribInfo.ForType(elementType);
-            this.count = vertexData.Length;
+            this.Count = vertexData.Length;
 
             this.Id = Gl.GenBuffer();
             Gl.BindBuffer(target, this.Id); // NB: Side effect - leaves this buffer bound. 
@@ -32,7 +31,6 @@
 
         ~GlVertexBufferObject()
         {
-            // todo: throws..
             Gl.DeleteBuffers(this.Id);
         }
 
@@ -43,21 +41,7 @@
         public GlVertexAttribInfo[] Attributes { get; private set; }
 
         /// <inheritdoc />
-        public int Count
-        {
-            get
-            {
-                return count;
-            }
-            
-            //set
-            //{
-            //    var newId = Gl.GenBuffer();
-            //    Gl.NamedBufferData(newId, (uint)(Marshal.SizeOf(elementType) * value), null, usage);
-            //    Gl.CopyNamedBufferSubData(this.Id, newId, 0, 0, (uint)(Marshal.SizeOf(elementType) * count));
-            //    count = value;
-            //}
-        }
+        public int Count { get; private set; }
 
         /// <inheritdoc />
         public object this[int index]
@@ -81,6 +65,7 @@
             }
         }
 
+        /// <inheritdoc />
         public void Copy<T>(int readIndex, int writeIndex, int count)
         {
             var elementSize = Marshal.SizeOf(typeof(T));
@@ -93,6 +78,7 @@
                     size: (uint)(count * elementSize)));
         }
 
+        /// <inheritdoc />
         public T Get<T>(int index)
         {
             var elementSize = Marshal.SizeOf(typeof(T));
@@ -112,7 +98,7 @@
             }
         }
 
-        // TODO: this is hacky. look into streaming?
+        /// <inheritdoc />
         public void Flush()
         {
             // Only process the actions in the queue at the outset in case they are being continually added.

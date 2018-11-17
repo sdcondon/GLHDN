@@ -3,61 +3,66 @@
     using OpenGL;
     using System;
     using System.Collections.Generic;
-    using System.Collections.Specialized;
     using System.ComponentModel;
     using System.Linq;
 
     /// <summary>
-    /// Encapsulates an OpenGL buffer bound to a particular <see cref="INotifyCollectionChanged"/> object.
+    /// Encapsulates an OpenGL buffer bound to a set of <see cref="INotifyPropertyChanged"/> objects.
     /// </summary>
-    /// <typeparam name="TItem">The type of objects in the collection object.</typeparam>
-    /// <typeparam name="TVertex">The type of vertex data to e stored in the buffer.</typeparam>
+    /// <typeparam name="TItem">The type of objects.</typeparam>
+    /// <typeparam name="TVertex">The type of vertex data to be stored in the buffer.</typeparam>
     public sealed class BoundBuffer<TItem, TVertex> where TItem : INotifyPropertyChanged
     {
         private readonly int verticesPerAtom;
         private readonly Func<TItem, IList<TVertex>> attributeGetter;
         private readonly IList<int> indices;
         private readonly IVertexArrayObject vao;
-        private readonly List<Link> linksByCollectionIndex = new List<Link>();
         private readonly List<Link> linksByBufferIndex = new List<Link>();
 
-        private int objectCapacity;
+        private int atomCapacity;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BoundBuffer"/> class.
         /// </summary>
         /// <param name="collection">The collection to bind to.</param>
         /// <param name="primitiveType">The type of primitive to be drawn.</param>
-        /// <param name="objectCapacity">The capacity for the buffer, in objects.</param>
+        /// <param name="atomCapacity">The capacity for the buffer, in atoms.</param>
         /// <param name="vertexGetter">Delegate to transform source object into vertex data.</param>
         /// <param name="indices"></param>
         public BoundBuffer(
-            INotifyCollectionChanged collection,
             PrimitiveType primitiveType,
-            int objectCapacity,
+            int atomCapacity,
             Func<TItem, IList<TVertex>> vertexGetter,
             IList<int> indices)
-            : this(collection, primitiveType, objectCapacity, vertexGetter, indices, DefaultMakeVertexArrayObject)
+            : this(primitiveType, atomCapacity, vertexGetter, indices, GlVertexArrayObject.MakeVertexArrayObject)
         {
         }
 
         internal BoundBuffer(
-            INotifyCollectionChanged collection,
             PrimitiveType primitiveType,
             int atomCapacity,
             Func<TItem, IList<TVertex>> vertexGetter,
             IList<int> indices,
             Func<PrimitiveType, IList<Tuple<BufferUsage, Array>>, uint[], IVertexArrayObject> makeVertexArrayObject)
         {
-            this.verticesPerAtom = indices.Max() + 1;
+            this.verticesPerAtom = indices.Max() + 1; // TODO: throw if has unused indices?
             this.attributeGetter = vertexGetter;
             this.indices = indices;
-            this.objectCapacity = atomCapacity;
+            this.atomCapacity = atomCapacity;
             this.vao = makeVertexArrayObject(
                 primitiveType,
                 new[] { Tuple.Create(BufferUsage.DynamicDraw, Array.CreateInstance(typeof(TVertex), atomCapacity * verticesPerAtom)) },  // TODO: different VAO ctor to avoid needless large heap allocation 
                 new uint[atomCapacity * indices.Count]); // TODO: different VAO ctor to avoid needless large heap allocation
-            collection.CollectionChanged += Collection_CollectionChanged;
+        }
+        
+        /// <summary>
+        /// Adds an item to the buffer.
+        /// </summary>
+        /// <param name="item">The item to add.</param>
+        /// <returns>An object representing the appended buffer content.</returns>
+        public Link Add(TItem item)
+        {
+           return new Link(this, item);
         }
 
         /// <inheritdoc />
@@ -77,66 +82,13 @@
             this.vao.Draw(linksByBufferIndex.Count * indices.Count);
         }
 
-        private static IVertexArrayObject DefaultMakeVertexArrayObject(PrimitiveType primitiveType, IList<Tuple<BufferUsage, Array>> attributeBufferSpecs, uint[] indices)
-        {
-            return new GlVertexArrayObject(
-                primitiveType,
-                attributeBufferSpecs, // TODO: different VAO ctor to avoid needless large heap allocation 
-                indices); // TODO: different VAO ctor to avoid needless large heap allocation
-        }
-
-        private void Collection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            switch (e.Action)
-            {
-                case NotifyCollectionChangedAction.Add:
-                    if (linksByCollectionIndex.Count + e.NewItems.Count > objectCapacity)
-                    {
-                        // TODO: expand (i.e. recreate) buffer? ResizeBuffer method in GlVertexArrayObject:
-                        // Create new, glCopyBufferSubData, delete old, update buffer ID array. 
-                        throw new InvalidOperationException("Insufficient space left in buffer");
-                    }
-
-                    for (int i = 0; i < e.NewItems.Count; i++)
-                    {
-                        var link = new Link(this, (TItem)e.NewItems[i]);
-                        linksByCollectionIndex.Insert(e.NewStartingIndex + i, link);
-                    }
-                    break;
-                case NotifyCollectionChangedAction.Move:
-                    throw new NotSupportedException();
-                case NotifyCollectionChangedAction.Remove:
-                    for (int i = 0; i < e.OldItems.Count; i++)
-                    {
-                        linksByCollectionIndex[e.OldStartingIndex].Delete(); // not + i because we've already removed the preceding ones..
-                        linksByCollectionIndex.RemoveAt(e.OldStartingIndex); // PERF: Slow..
-                        // Don't need to do anything with indices because of their constant nature..
-                    }
-                    break;
-                case NotifyCollectionChangedAction.Replace:
-                    for (int i = 0; i < e.NewItems.Count; i++)
-                    {
-                        linksByCollectionIndex[e.NewStartingIndex + i].ReplaceItem((TItem)e.NewItems[i]);
-                    }
-                    break;
-                case NotifyCollectionChangedAction.Reset:
-                    // TODO (if/when resizing is supported): clear buffer data / shrink buffer?
-                    foreach (var link in linksByCollectionIndex)
-                    {
-                        link.Delete();
-                    }
-                    linksByCollectionIndex.Clear();
-                    break;
-            }
-        }
-
-        private class Link
+        public class Link
         {
             private readonly BoundBuffer<TItem, TVertex> parent;
             private SortedList<int, int> bufferIndices = new SortedList<int, int>();
-            private TItem item; // Wouldn't be needed if collection clear gave us the old items..
+            private TItem item; // Wouldn't be needed if Delete could accept item as a param (= if collection clear gave us the old items)..
 
-            public Link(BoundBuffer<TItem, TVertex> parent, TItem item)
+            internal Link(BoundBuffer<TItem, TVertex> parent, TItem item)
             {
                 this.parent = parent;
                 SetItem(item);
@@ -150,6 +102,7 @@
 
             public void Delete()
             {
+                // TODO (if/when resizing is supported): clear buffer data / shrink buffer?
                 this.item.PropertyChanged -= ItemPropertyChanged;
                 while (bufferIndices.Count > 0)
                 {
@@ -184,6 +137,11 @@
                     // Add a buffer index to the list if we need to
                     if (atomIndex >= bufferIndices.Count)
                     {
+                        if (this.parent.linksByBufferIndex.Count >= this.parent.atomCapacity)
+                        {
+                            throw new InvalidOperationException("Buffer is full");
+                        }
+
                         bufferIndices.Add(this.parent.linksByBufferIndex.Count, this.parent.linksByBufferIndex.Count);
                         this.parent.linksByBufferIndex.Add(this);
                     }
