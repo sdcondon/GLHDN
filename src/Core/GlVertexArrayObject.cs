@@ -108,6 +108,14 @@
             GC.SuppressFinalize(this);
         }
 
+        /*public void ResizeAttributeBuffer(int bufferIndex, int newSize)
+        {
+            //var newId = Gl.GenBuffer();
+            //Gl.NamedBufferData(newId, (uint)(Marshal.SizeOf(elementType) * value), null, usage);
+            //Gl.CopyNamedBufferSubData(this.Id, newId, 0, 0, (uint)(Marshal.SizeOf(elementType) * count));
+            //count = value;
+        }*/
+
         internal static IVertexArrayObject MakeVertexArrayObject(PrimitiveType primitiveType, IList<Tuple<BufferUsage, Array>> attributeBufferSpecs, uint[] indices)
         {
             return new GlVertexArrayObject(
