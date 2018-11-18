@@ -1,20 +1,15 @@
-﻿namespace GLHDN.Core
+﻿namespace GLHDN.ReactiveBuffers
 {
+    using GLHDN.Core;
     using OpenGL;
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel;
     using System.Linq;
 
-    /// <summary>
-    /// Encapsulates an OpenGL buffer bound to a set of <see cref="INotifyPropertyChanged"/> objects.
-    /// </summary>
-    /// <typeparam name="TItem">The type of objects.</typeparam>
-    /// <typeparam name="TVertex">The type of vertex data to be stored in the buffer.</typeparam>
-    public sealed class BoundBuffer<TItem, TVertex> where TItem : INotifyPropertyChanged
+    public class ReactiveBuffer<TVertex> // todo: refactor into an observer?
     {
+        private readonly IObservable<IObservable<IList<TVertex>>> vertexSource;
         private readonly int verticesPerAtom;
-        private readonly Func<TItem, IList<TVertex>> attributeGetter;
         private readonly IList<int> indices;
         private readonly IVertexArrayObject vao;
         private readonly List<Link> linksByBufferIndex = new List<Link>();
@@ -24,51 +19,35 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="BoundBuffer"/> class.
         /// </summary>
+        /// <param name="vertexSource">The source of vertex data.</param>
         /// <param name="primitiveType">The type of primitive to be drawn.</param>
         /// <param name="atomCapacity">The capacity for the buffer, in atoms.</param>
         /// <param name="vertexGetter">Delegate to transform source object into vertex data.</param>
         /// <param name="indices"></param>
-        public BoundBuffer(
+        public ReactiveBuffer(
+            IObservable<IObservable<IList<TVertex>>> vertexSource,
             PrimitiveType primitiveType,
             int atomCapacity,
-            Func<TItem, IList<TVertex>> vertexGetter,
-            IList<int> indices)
-            : this(primitiveType, atomCapacity, vertexGetter, indices, GlVertexArrayObject.MakeVertexArrayObject)
-        {
-        }
-
-        internal BoundBuffer(
-            PrimitiveType primitiveType,
-            int atomCapacity,
-            Func<TItem, IList<TVertex>> vertexGetter,
             IList<int> indices,
             Func<PrimitiveType, IList<Tuple<BufferUsage, Array>>, uint[], IVertexArrayObject> makeVertexArrayObject)
         {
+            this.vertexSource = vertexSource;
             this.verticesPerAtom = indices.Max() + 1; // TODO: throw if has unused indices?
-            this.attributeGetter = vertexGetter;
             this.indices = indices;
             this.atomCapacity = atomCapacity;
             this.vao = makeVertexArrayObject(
                 primitiveType,
                 new[] { Tuple.Create(BufferUsage.DynamicDraw, Array.CreateInstance(typeof(TVertex), atomCapacity * verticesPerAtom)) },  // TODO: different VAO ctor to avoid needless large heap allocation 
                 new uint[atomCapacity * indices.Count]); // TODO: different VAO ctor to avoid needless large heap allocation
-        }
-        
-        /// <summary>
-        /// Adds an item to the buffer.
-        /// </summary>
-        /// <param name="item">The item to add.</param>
-        /// <returns>An object representing the appended buffer content.</returns>
-        public Link Add(TItem item)
-        {
-           return new Link(this, item);
+
+            this.vertexSource.Subscribe(i => new Link(this, i));
         }
 
         /// <inheritdoc />
         public void Dispose()
         {
+            // todo: unsubscribe
             this.vao.Dispose();
-            // TODO: clear the links to remove event handlers
         }
 
         /// <summary>
@@ -81,50 +60,28 @@
             this.vao.Draw(linksByBufferIndex.Count * indices.Count);
         }
 
-        public class Link
+        private class Link
         {
-            private readonly BoundBuffer<TItem, TVertex> parent;
+            private readonly ReactiveBuffer<TVertex> parent;
             private SortedList<int, int> bufferIndices = new SortedList<int, int>();
-            private TItem item; // Wouldn't be needed if Delete could accept item as a param (= if collection clear gave us the old items)..
 
-            internal Link(BoundBuffer<TItem, TVertex> parent, TItem item)
+            internal Link(ReactiveBuffer<TVertex> parent, IObservable<IList<TVertex>> vertexData)
             {
                 this.parent = parent;
-                SetItem(item);
+                vertexData.Subscribe(OnNext, OnCompleted);
             }
 
-            public void ReplaceItem(TItem item)
-            {
-                this.item.PropertyChanged -= ItemPropertyChanged;
-                SetItem(item);
-            }
-
-            public void Delete()
+            private void OnCompleted()
             {
                 // TODO (if/when resizing is supported): clear buffer data / shrink buffer?
-                this.item.PropertyChanged -= ItemPropertyChanged;
                 while (bufferIndices.Count > 0)
                 {
                     DeleteAtom(0);
                 }
             }
 
-            private void SetItem(TItem item)
+            private void OnNext(IList<TVertex> vertices)
             {
-                this.item = item;
-                this.SetBufferContent();
-                item.PropertyChanged += ItemPropertyChanged;
-            }
-
-            private void ItemPropertyChanged(object sender, PropertyChangedEventArgs eventArgs)
-            {
-                this.item = (TItem)sender; // Needed if TItem is a value type
-                this.SetBufferContent();
-            }
-
-            private void SetBufferContent()
-            {
-                var vertices = parent.attributeGetter(item);
                 if (vertices.Count % parent.verticesPerAtom != 0)
                 {
                     throw new InvalidOperationException($"Attribute getter must return multiple of correct number of vertices ({parent.verticesPerAtom}), but actually returned {vertices.Count}.");
@@ -160,7 +117,7 @@
                         parent.vao.IndexBuffer[bufferIndex * parent.indices.Count + i] =
                             (uint)(bufferIndex * parent.verticesPerAtom + parent.indices[i]);
                     }
-                }               
+                }
                 while (atomIndex < bufferIndices.Count)
                 {
                     DeleteAtom(atomIndex);

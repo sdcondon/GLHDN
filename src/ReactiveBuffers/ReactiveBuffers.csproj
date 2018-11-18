@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>GLHDN.ReactiveBuffers</AssemblyName>
+    <RootNamespace>GLHDN.ReactiveBuffers</RootNamespace>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Simon Condon</Authors>
+    <Company>Simon Condon</Company>
+    <Version>0.1.0</Version>
+    <Product>Open GL Helpers for .NET</Product>
+    <Description>Open GL Helpers for .NET / reactive buffers: logic for managing Open GL buffers using Observables of vertex data</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Reactive" Version="4.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Core.csproj" />
+  </ItemGroup>
+
+</Project>
