@@ -26,16 +26,15 @@
                 for (var i = 0; i < e.NewItems.Count; i++)
                 {
                     var item = (TItem)e.NewItems[i];
-                    var completion = new Subject<PropertyChangedEventArgs>();
-                    removalCallbacks.Insert(e.NewStartingIndex + i, () => completion.OnNext(null));
+                    var removal = new Subject<object>(); // TODO: avoid using a Subject. FromAsync/TaskCompletionSource feels like it should work, why doesn't it? 
+                    removalCallbacks.Insert(e.NewStartingIndex + i, () => removal.OnNext(null)); // One of several aspects of this method that's not thread (re-entry) safe
                     yield return Observable
-                        .FromEvent<PropertyChangedEventHandler, PropertyChangedEventArgs>(
-                            handler => (sender, args) => handler(args),
+                        .FromEventPattern<PropertyChangedEventHandler, PropertyChangedEventArgs>(
                             handler => item.PropertyChanged += handler,
                             handler => item.PropertyChanged -= handler)
-                        .Select(a => valueSelector(item)) // should be valueSelector(sender of a).. okay as long as a reference type
+                        .Select(a => valueSelector((TItem)a.Sender))
                         .StartWith(valueSelector(item))
-                        .TakeUntil(completion);
+                        .TakeUntil(removal);
                 }
             };
 
