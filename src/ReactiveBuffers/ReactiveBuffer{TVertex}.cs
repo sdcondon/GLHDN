@@ -6,24 +6,24 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    public class ReactiveBuffer<TVertex> // todo: refactor into an observer?
+    public class ReactiveBuffer<TVertex> // todo: refactor into an IObserver?
     {
         private readonly IObservable<IObservable<IList<TVertex>>> vertexSource;
         private readonly int verticesPerAtom;
         private readonly IList<int> indices;
         private readonly IVertexArrayObject vao;
-        private readonly List<Link> linksByBufferIndex = new List<Link>();
+        private readonly List<ItemObserver> linksByBufferIndex = new List<ItemObserver>();
 
         private int atomCapacity;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BoundBuffer"/> class.
+        /// Initializes a new instance of the <see cref="ReactiveBuffer{TVertex}"/> class.
         /// </summary>
         /// <param name="vertexSource">The source of vertex data.</param>
         /// <param name="primitiveType">The type of primitive to be drawn.</param>
         /// <param name="atomCapacity">The capacity for the buffer, in atoms.</param>
-        /// <param name="vertexGetter">Delegate to transform source object into vertex data.</param>
         /// <param name="indices"></param>
+        /// <param name="makeVertexArrayObject"></param>
         public ReactiveBuffer(
             IObservable<IObservable<IList<TVertex>>> vertexSource,
             PrimitiveType primitiveType,
@@ -40,7 +40,8 @@
                 new[] { Tuple.Create(BufferUsage.DynamicDraw, Array.CreateInstance(typeof(TVertex), atomCapacity * verticesPerAtom)) },  // TODO: different VAO ctor to avoid needless large heap allocation 
                 new uint[atomCapacity * indices.Count]); // TODO: different VAO ctor to avoid needless large heap allocation
 
-            this.vertexSource.Subscribe(i => new Link(this, i));
+            // todo: store subscription to unsubscribe on dispose
+            this.vertexSource.Subscribe(i => i.Subscribe(new ItemObserver(this)));
         }
 
         /// <inheritdoc />
@@ -60,27 +61,17 @@
             this.vao.Draw(linksByBufferIndex.Count * indices.Count);
         }
 
-        private class Link
+        private class ItemObserver : IObserver<IList<TVertex>>
         {
             private readonly ReactiveBuffer<TVertex> parent;
             private SortedList<int, int> bufferIndices = new SortedList<int, int>();
 
-            internal Link(ReactiveBuffer<TVertex> parent, IObservable<IList<TVertex>> vertexData)
+            public ItemObserver(ReactiveBuffer<TVertex> parent)
             {
                 this.parent = parent;
-                vertexData.Subscribe(OnNext, OnCompleted);
             }
 
-            private void OnCompleted()
-            {
-                // TODO (if/when resizing is supported): clear buffer data / shrink buffer?
-                while (bufferIndices.Count > 0)
-                {
-                    DeleteAtom(0);
-                }
-            }
-
-            private void OnNext(IList<TVertex> vertices)
+            public void OnNext(IList<TVertex> vertices)
             {
                 if (vertices.Count % parent.verticesPerAtom != 0)
                 {
@@ -122,6 +113,20 @@
                 {
                     DeleteAtom(atomIndex);
                 }
+            }
+
+            public void OnCompleted()
+            {
+                // TODO (if/when resizing is supported): clear buffer data / shrink buffer?
+                while (bufferIndices.Count > 0)
+                {
+                    DeleteAtom(0);
+                }
+            }
+
+            public void OnError(Exception error)
+            {
+                throw new NotImplementedException();
             }
 
             private void DeleteAtom(int atomIndex)

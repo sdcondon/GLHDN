@@ -14,7 +14,7 @@
         /// Creates an observable from an <see cref="INotifyCollectionChanged"/> of <see cref="INotifyPropertyChanged"/> objects.
         /// </summary>
         /// <param name="collection">The collection to bind to.</param>
-        /// <param name="valueSelector">Delegate to transform source object into vertex data.</param>
+        /// <param name="valueSelector">Delegate to transform collection item into data to emit.</param>
         public static IObservable<IObservable<TResult>> FromObservableCollection<TItem, TResult>(
             INotifyCollectionChanged collection,
             Func<TItem, TResult> valueSelector) where TItem : INotifyPropertyChanged
