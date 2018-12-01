@@ -9,45 +9,51 @@
 
     public class ObservableExtensionsTests
     {
-        private ObservableCollection<In> collection;
-        private IObservable<IObservable<Out>> target;
-
-        public ObservableExtensionsTests()
+        public static IEnumerable<object[]> ObservableCollectionToObservableTestCases
         {
-            this.collection = new ObservableCollection<In>();
-            this.target = this.collection.ToObservable((In a) => new Out(a.value));
+            get
+            {
+                object[] makeTestCase(string description, Action<ObservableCollection<In>> action, ICollection<string> expectedObservations) =>
+                    new object[] { description, action, expectedObservations };
+
+                return new List<object[]>()
+                {
+                    makeTestCase("addition",
+                        a => { a.Add(new In(1)); a.Add(new In(2)); },
+                        new[] { "new:1", "val:1:1", "new:2", "val:2:2" }),
+
+                    makeTestCase("removal",
+                        a => { a.Add(new In(1)); a.Add(new In(2)); a.RemoveAt(0); },
+                        new[] { "new:1", "val:1:1", "new:2", "val:2:2", "del:1" }),
+
+                    makeTestCase("update",
+                        a => { var i = new In(1); a.Add(i); i.Value = 2; },
+                        new[] { "new:1", "val:1:1", "val:1:2" }),
+
+                    makeTestCase("removal",
+                        a => { a.Add(new In(1)); a.Add(new In(2)); a.RemoveAt(1); },
+                        new[] { "new:1", "val:1:1", "new:2", "val:2:2", "del:2" }),
+
+                    makeTestCase("replacement",
+                        a => { a.Add(new In(1)); a.Add(new In(2)); a[0] = new In(3); },
+                        new[] { "new:1", "val:1:1", "new:2", "val:2:2", "del:1", "new:3", "val:3:3" }),
+
+                    makeTestCase("clear",
+                        a => { a.Add(new In(1)); a.Add(new In(2)); a.Clear(); a.Add(new In(3)); },
+                        new[] { "new:1", "val:1:1", "new:2", "val:2:2", "del:1", "del:2", "new:3", "val:3:3" })
+                };
+            }
         }
 
-        public static IEnumerable<object[]> TestCases => new List<object[]>()
-        {
-            MakeTestCase( "addition",
-                a => { a.Add(new In(1)); a.Add(new In(2)); },
-                new[] { "new:1", "val:1:1", "new:2", "val:2:2" }),
-
-            MakeTestCase( "removal",
-                a => { a.Add(new In(1)); a.Add(new In(2)); a.RemoveAt(0); },
-                new[] { "new:1", "val:1:1", "new:2", "val:2:2", "del:1" }),
-
-            MakeTestCase( "removal from end",
-                a => { a.Add(new In(1)); a.Add(new In(2)); a.RemoveAt(1); },
-                new[] { "new:1", "val:1:1", "new:2", "val:2:2", "del:2" }),
-
-            MakeTestCase( "replacement",
-                a => { a.Add(new In(1)); a.Add(new In(2)); a[0] = new In(3); },
-                new[] { "new:1", "val:1:1", "new:2", "val:2:2", "del:1", "new:3", "val:3:3" }),
-
-            MakeTestCase( "clear",
-                a => { a.Add(new In(1)); a.Add(new In(2)); a.Clear(); a.Add(new In(3)); },
-                new[] { "new:1", "val:1:1", "new:2", "val:2:2", "del:1", "del:2", "new:3", "val:3:3" })
-        };
-
         [Theory]
-        [MemberData(nameof(TestCases))]
-        public void Test(string description, Action<ObservableCollection<In>> action, ICollection<string> expectedObservations)
+        [MemberData(nameof(ObservableCollectionToObservableTestCases))]
+        public void ObservableCollectionToObservableTest(string description, Action<ObservableCollection<In>> action, ICollection<string> expectedObservations)
         {
+            var collection = new ObservableCollection<In>();
+            var target = collection.ToObservable((In a) => new Out(a.Value));
             var observed = new StringBuilder();
             var itemCount = 0;
-            var subscription = this.target.Subscribe(
+            var subscription = target.Subscribe(
                 obs =>
                 {
                     var thisItem = ++itemCount;
@@ -61,7 +67,7 @@
                 () => observed.AppendLine("Complete"));
             try
             {
-                action(this.collection);
+                action(collection);
                 Assert.Equal(string.Join(Environment.NewLine, expectedObservations) + Environment.NewLine, observed.ToString());
             }
             finally
@@ -70,22 +76,24 @@
             }
         }
 
-        private static object[] MakeTestCase(
-            string description,
-            Action<ObservableCollection<In>> action,
-            ICollection<string> expectedObservations)
-        {
-            return new object[] { description, action, expectedObservations };
-        }
-
         public class In : INotifyPropertyChanged
         {
             private PropertyChangedEventHandler _pc;
-            public int value;
+            private int value;
 
             public In(int value)
             {
                 this.value = value;
+            }
+
+            public int Value
+            {
+                get => value;
+                set
+                {
+                    this.value = value;
+                    _pc?.Invoke(this, new PropertyChangedEventArgs(nameof(Value)));
+                }
             }
 
             public event PropertyChangedEventHandler PropertyChanged
