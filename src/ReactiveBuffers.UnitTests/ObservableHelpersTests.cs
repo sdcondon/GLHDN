@@ -21,44 +21,23 @@
         public static IEnumerable<object[]> TestCases => new List<object[]>()
         {
             MakeTestCase( "addition",
-                a =>
-                {
-                    a.Add(new In(1));
-                    a.Add(new In(2));
-                },
+                a => { a.Add(new In(1)); a.Add(new In(2)); },
                 new[] { "new:1", "val:1:1", "new:2", "val:2:2" }),
+
             MakeTestCase( "removal",
-                a =>
-                {
-                    a.Add(new In(1));
-                    a.Add(new In(2));
-                    a.RemoveAt(0);
-                },
+                a => { a.Add(new In(1)); a.Add(new In(2)); a.RemoveAt(0); },
                 new[] { "new:1", "val:1:1", "new:2", "val:2:2", "del:1" }),
+
             MakeTestCase( "removal from end",
-                a =>
-                {
-                    a.Add(new In(1));
-                    a.Add(new In(2));
-                    a.RemoveAt(1);
-                },
+                a => { a.Add(new In(1)); a.Add(new In(2)); a.RemoveAt(1); },
                 new[] { "new:1", "val:1:1", "new:2", "val:2:2", "del:2" }),
+
             MakeTestCase( "replacement",
-                a =>
-                {
-                    a.Add(new In(1));
-                    a.Add(new In(2));
-                    a[0] = new In(3);
-                },
+                a => { a.Add(new In(1)); a.Add(new In(2)); a[0] = new In(3); },
                 new[] { "new:1", "val:1:1", "new:2", "val:2:2", "del:1", "new:3", "val:3:3" }),
+
             MakeTestCase( "clear",
-                a =>
-                {
-                    a.Add(new In(1));
-                    a.Add(new In(2));
-                    a.Clear();
-                    a.Add(new In(3));
-                },
+                a => { a.Add(new In(1)); a.Add(new In(2)); a.Clear(); a.Add(new In(3)); },
                 new[] { "new:1", "val:1:1", "new:2", "val:2:2", "del:1", "del:2", "new:3", "val:3:3" })
         };
 
@@ -96,12 +75,7 @@
             Action<ObservableCollection<In>> action,
             ICollection<string> expectedObservations)
         {
-            return new object[]
-            {
-                description,
-                action,
-                expectedObservations
-            };
+            return new object[] { description, action, expectedObservations };
         }
 
         public class In : INotifyPropertyChanged

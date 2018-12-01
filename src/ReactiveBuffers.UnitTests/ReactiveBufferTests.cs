@@ -10,13 +10,13 @@
     using System.Linq;
     using Xunit;
 
-    public class CollectionBoundBufferTests
+    public class ReactiveBufferTests
     {
         private ObservableCollection<Element> collection;
         private ReactiveBuffer<Vertex> target;
         private MockVertexArrayObject vao;
 
-        public CollectionBoundBufferTests()
+        public ReactiveBufferTests()
         {
             this.collection = new ObservableCollection<Element>();
             this.target = new ReactiveBuffer<Vertex>(
