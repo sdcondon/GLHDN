@@ -6,6 +6,7 @@
     using System.Numerics;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
+    using GLHDN.ReactiveBuffers;
 
     /// <summary>
     /// Renderable class for 3D lines. For debug utilities.
@@ -19,7 +20,7 @@
 
         private GlProgramBuilder programBuilder;
         private GlProgram program;
-        private CollectionBoundBuffer<Line, Vertex> linesBuffer;
+        private ReactiveBuffer<Vertex> linesBuffer;
 
         public ColoredLines(IViewProjection viewProjection)
         {
@@ -48,12 +49,12 @@
         {
             this.program = this.programBuilder.Build();
             this.programBuilder = null;
-            this.linesBuffer = new CollectionBoundBuffer<Line, Vertex>(
-                lines,
+            this.linesBuffer = new ReactiveBuffer<Vertex>(
+                lines.ToObservable((Line a) => new[] { new Vertex(a.from, Vector3.One, a.from), new Vertex(a.to, Vector3.One, a.to) }),
                 PrimitiveType.Lines,
                 100,
-                a => new[] { new Vertex(a.from, Vector3.One, a.from), new Vertex(a.to, Vector3.One, a.to) },
-                new[] { 0, 1 }); // TODO: Change so not needed
+                new[] { 0, 1 }, // TODO: Change so not needed
+                GlVertexArrayObject.MakeVertexArrayObject); 
         }
 
         /// <inheritdoc />

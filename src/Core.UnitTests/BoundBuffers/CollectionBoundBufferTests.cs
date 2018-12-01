@@ -1,4 +1,4 @@
-﻿namespace GLHDN.Core.UnitTests.VaoWrappers
+﻿namespace GLHDN.Core.UnitTests
 {
     using FluentAssertions;
     using OpenGL;

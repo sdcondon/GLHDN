@@ -8,6 +8,7 @@
     using System.Collections;
     using System.Linq;
     using System;
+    using GLHDN.ReactiveBuffers;
 
     /// <summary>
     /// Renderable container for a set of graphical user interface elements.
@@ -21,7 +22,7 @@
         private GlProgramBuilder programBuilder;
         private GlProgram program;
         private ObservableCollection<Element> elements = new ObservableCollection<Element>();
-        private CollectionBoundBuffer<Element, GuiVertex> guiElementBuffer;
+        private ReactiveBuffer<GuiVertex> guiElementBuffer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Gui"/> class, 
@@ -65,12 +66,12 @@
             this.program = this.programBuilder.Build();
             this.programBuilder = null;
 
-            this.guiElementBuffer = new CollectionBoundBuffer<Element, GuiVertex>(
-                elements,
+            this.guiElementBuffer = new ReactiveBuffer<GuiVertex>(
+                elements.ToObservable((Element a) => a.Vertices),
                 PrimitiveType.Triangles,
                 1000,
-                a => a.Vertices,
-                new[] { 0, 2, 3, 0, 3, 1 });
+                new[] { 0, 2, 3, 0, 3, 1 },
+                GlVertexArrayObject.MakeVertexArrayObject);
 
             Initialized?.Invoke(this, EventArgs.Empty);
         }

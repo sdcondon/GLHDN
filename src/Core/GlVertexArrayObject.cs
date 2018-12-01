@@ -116,7 +116,7 @@
             //count = value;
         }*/
 
-        internal static IVertexArrayObject MakeVertexArrayObject(PrimitiveType primitiveType, IList<Tuple<BufferUsage, Array>> attributeBufferSpecs, uint[] indices)
+        public static IVertexArrayObject MakeVertexArrayObject(PrimitiveType primitiveType, IList<Tuple<BufferUsage, Array>> attributeBufferSpecs, uint[] indices)
         {
             return new GlVertexArrayObject(
                 primitiveType,

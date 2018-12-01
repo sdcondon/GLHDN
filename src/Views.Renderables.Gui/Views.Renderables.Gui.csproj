@@ -38,6 +38,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj" />
+    <ProjectReference Include="..\ReactiveBuffers\ReactiveBuffers.csproj" />
     <ProjectReference Include="..\Views\Views.csproj" />
   </ItemGroup>
 
