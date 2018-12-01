@@ -7,15 +7,15 @@
     using System.Text;
     using Xunit;
 
-    public class ObservableHelpersTests
+    public class ObservableExtensionsTests
     {
         private ObservableCollection<In> collection;
         private IObservable<IObservable<Out>> target;
 
-        public ObservableHelpersTests()
+        public ObservableExtensionsTests()
         {
             this.collection = new ObservableCollection<In>();
-            this.target = ObservableHelpers.FromObservableCollection(collection, (In a) => new Out(a.value));
+            this.target = this.collection.ToObservable((In a) => new Out(a.value));
         }
 
         public static IEnumerable<object[]> TestCases => new List<object[]>()

@@ -26,11 +26,11 @@
 
             var form = new GlForm()
             {
-                WindowState = FormWindowState.Normal,
-                FormBorderStyle = FormBorderStyle.Sizable
+                // WindowState = FormWindowState.Normal,
+                // FormBorderStyle = FormBorderStyle.Sizable
             };
 
-            view = new Views.View(form.ViewContext, ModelUpdate, false);
+            view = new Views.View(form.ViewContext, ModelUpdate, true);
 
             camera = new FirstPersonCamera();
 

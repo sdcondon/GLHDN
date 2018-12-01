@@ -8,15 +8,18 @@
     using System.Reactive.Linq;
     using System.Reactive.Subjects;
 
-    public static class ObservableHelpers
+    /// <summary>
+    /// Extension methods for creating observables.
+    /// </summary>
+    public static class ObservableExtensions
     {
         /// <summary>
         /// Creates an observable from an <see cref="INotifyCollectionChanged"/> of <see cref="INotifyPropertyChanged"/> objects.
         /// </summary>
         /// <param name="collection">The collection to bind to.</param>
         /// <param name="valueSelector">Delegate to transform collection item into data to emit.</param>
-        public static IObservable<IObservable<TResult>> FromObservableCollection<TItem, TResult>(
-            INotifyCollectionChanged collection,
+        public static IObservable<IObservable<TResult>> ToObservable<TItem, TResult>(
+            this INotifyCollectionChanged collection,
             Func<TItem, TResult> valueSelector) where TItem : INotifyPropertyChanged
         {
             var removalCallbacks = new List<Action>();
