@@ -51,27 +51,26 @@
             }
 
             return Observable
-                .FromEvent<NotifyCollectionChangedEventHandler, NotifyCollectionChangedEventArgs>(
-                    handler => (sender, args) => handler(args),
+                .FromEventPattern<NotifyCollectionChangedEventHandler, NotifyCollectionChangedEventArgs>(
                     handler => collection.CollectionChanged += handler,
                     handler => collection.CollectionChanged -= handler)
                 .SelectMany(e =>
                 {
-                    switch (e.Action)
+                    switch (e.EventArgs.Action)
                     {
                         case NotifyCollectionChangedAction.Add:
-                            return addItems(e);
+                            return addItems(e.EventArgs);
 
                         case NotifyCollectionChangedAction.Move:
                             throw new NotSupportedException();
 
                         case NotifyCollectionChangedAction.Remove:
-                            removeItems(e);
+                            removeItems(e.EventArgs);
                             return new IObservable<TResult>[0];
 
                         case NotifyCollectionChangedAction.Replace:
-                            removeItems(e);
-                            return addItems(e);
+                            removeItems(e.EventArgs);
+                            return addItems(e.EventArgs);
 
                         case NotifyCollectionChangedAction.Reset:
                             removalCallbacks.ForEach(c => c());
