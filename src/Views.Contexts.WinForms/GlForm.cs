@@ -9,6 +9,9 @@
     /// </summary>
     public sealed class GlForm : Form
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GlForm"/> class.
+        /// </summary>
         public GlForm()
         {
             this.SuspendLayout();
@@ -18,7 +21,6 @@
             //this.Size = new Size(1000, 600);
             this.Name = "OpenGl";
             this.Text = "OpenGl";
-
 
             var glControl = new GlControl()
             {
@@ -41,6 +43,9 @@
             this.ViewContext = new GlControlAdapter(glControl);
         }
 
+        /// <summary>
+        /// Gets the <see cref="IViewContext" /> of this form for <see cref="View"/> instances to use.
+        /// </summary>
         public GlControlAdapter ViewContext { get; private set; }
 
         /// <summary>

@@ -38,7 +38,7 @@
                 if (shaderInfoLogLength > 0)
                 {
                     var error = new StringBuilder(shaderInfoLogLength);
-                    Gl.GetShaderInfoLog(shaderId, shaderInfoLogLength, out int length, error);
+                    Gl.GetShaderInfoLog(shaderId, shaderInfoLogLength, out _, error);
                     Trace.WriteLine(error);
                 }
 
@@ -49,11 +49,11 @@
             // Link & check program
             Trace.WriteLine("Linking program", "OPENGL");
             Gl.LinkProgram(this.id);
-            Gl.GetProgram(this.id, ProgramProperty.InfoLogLength, out var infoLogLength);
-            if (infoLogLength > 0)
+            Gl.GetProgram(this.id, ProgramProperty.InfoLogLength, out var programInfoLogLength);
+            if (programInfoLogLength > 0)
             {
-                var error = new StringBuilder(infoLogLength);
-                Gl.GetProgramInfoLog(this.id, infoLogLength, out _, error);
+                var error = new StringBuilder(programInfoLogLength);
+                Gl.GetProgramInfoLog(this.id, programInfoLogLength, out _, error);
                 Trace.TraceError(error.ToString());
             }
 

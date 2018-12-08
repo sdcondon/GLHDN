@@ -1,6 +1,7 @@
 ﻿namespace GLHDN.Core.UnitTests
 {
     using FluentAssertions;
+    using OpenGL;
     using System;
     using System.Collections.Generic;
     using System.Numerics;
@@ -8,11 +9,13 @@
 
     public class GlVertexAttributeInfoTests
     {
-        public static IEnumerable<object[]> ForType_ValidInput
+        public static IEnumerable<object[]> ForType_ValidInput_TestCases
         {
             get
             {
-                object[] makeTestCase(Type type, params GlVertexAttributeInfo[] expectedAttributeinfo) => new object[] { type, expectedAttributeinfo };
+                object[] makeTestCase(Type type, params GlVertexAttributeInfo[] expectedAttributeinfo)
+                    => new object[] { type, expectedAttributeinfo };
+
                 return new[]
                 {
                     makeTestCase(
@@ -35,7 +38,7 @@
         }
 
         [Theory]
-        [MemberData(nameof(ForType_ValidInput))]
+        [MemberData(nameof(ForType_ValidInput_TestCases))]
         public void ForType_WithValidInput_ReturnsCorrectOutput(Type type, GlVertexAttributeInfo[] expectedAttributeinfo)
         {
             GlVertexAttributeInfo.ForType(type).Should().BeEquivalentTo(expectedAttributeinfo);

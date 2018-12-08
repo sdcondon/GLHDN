@@ -54,7 +54,7 @@
                 new uint[] { 0, 1, 2 },
                 "uvmap.DDS"));
 
-            view.Renderables.Add(lines = new ColoredLines(camera));
+            view.Renderables.Add(Program.lines = new ColoredLines(camera));
 
             gui = new Gui(view);
             gui.Initialized += (s, e) =>
