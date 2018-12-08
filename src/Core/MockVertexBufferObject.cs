@@ -57,7 +57,7 @@
         }
 
         /// <inheritdoc />
-        public GlVertexAttribInfo[] Attributes => throw new NotImplementedException();
+        public GlVertexAttributeInfo[] Attributes => throw new NotImplementedException();
 
         /// <inheritdoc />
         public int Count => Contents.Count;

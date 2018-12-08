@@ -27,7 +27,7 @@
         {
             //  Record primitive type for use in draw calls, create and bind the VAO
             this.primitiveType = primitiveType;
-            this.id = Gl.GenVertexArray(); // TODO: superbible uses CreateVertexArray?
+            this.id = Gl.GenVertexArray(); // superbible uses CreateVertexArray?
             Gl.BindVertexArray(id);
 
             // Set up the attribute buffers

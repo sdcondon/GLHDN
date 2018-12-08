@@ -15,6 +15,10 @@
         private GlControl glControl;
         private readonly Timer modelUpdateTimer; // TODO: this is the wrong timer type to use - it's tied to forms update
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GlControlAdapter"/> class.
+        /// </summary>
+        /// <param name="glControl">The <see cref="GlControl"/> to wrap.</param>
         public GlControlAdapter(GlControl glControl)
         {
             this.glControl = glControl;
@@ -34,22 +38,46 @@
             this.modelUpdateTimer.Start();
         }
 
+        /// <inheritdoc />
         public event EventHandler<DeviceContext> ContextCreated;
+
+        /// <inheritdoc />
         public event EventHandler<DeviceContext> Render;
+
+        /// <inheritdoc />
         public event EventHandler<DeviceContext> ContextUpdate;
+
+        /// <inheritdoc />
         public event EventHandler<DeviceContext> ContextDestroying;
+
+        /// <inheritdoc />
         public event EventHandler<char> KeyDown;
+
+        /// <inheritdoc />
         public event EventHandler<char> KeyUp;
+
+        /// <inheritdoc />
         public event EventHandler<int> MouseWheel;
+
+        /// <inheritdoc />
         public event EventHandler MouseUp;
+
+        /// <inheritdoc />
         public event EventHandler<Vector2> Resize;
+
+        /// <inheritdoc />
         public event EventHandler Update;
+
+        /// <inheritdoc />
         public event EventHandler GotFocus;
 
+        /// <inheritdoc />
         int IViewContext.Width => glControl.ClientSize.Width;
 
+        /// <inheritdoc />
         int IViewContext.Height => glControl.ClientSize.Height;
 
+        /// <inheritdoc />
         Vector2 IViewContext.CursorPosition
         {
             get
@@ -64,8 +92,10 @@
             }
         }
 
+        /// <inheritdoc />
         public bool IsFocused => glControl.Focused;
 
+        /// <inheritdoc />
         public void HideCursor()
         {
             Cursor.Hide();

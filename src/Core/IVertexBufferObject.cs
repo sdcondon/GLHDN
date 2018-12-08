@@ -12,7 +12,7 @@
         /// <summary>
         /// Gets the vertex attribute info for this buffer.
         /// </summary>
-        GlVertexAttribInfo[] Attributes { get; }
+        GlVertexAttributeInfo[] Attributes { get; }
 
         /// <summary>
         /// Gets the number of vertices that the buffer has the capacity for.
@@ -46,7 +46,7 @@
         /// Flush any changes to the underlying buffer.
         /// </summary>
         /// <remarks>
-        /// TODO: this is hacky. look into streaming?
+        /// TODO: this is a hacky, slow way to synchronise. look into streaming
         /// </remarks>
         void Flush();
     }

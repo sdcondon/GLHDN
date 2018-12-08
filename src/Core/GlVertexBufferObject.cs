@@ -8,7 +8,7 @@
     /// <summary>
     /// A OpenGL vertex buffer object. This class will map appropriately from .NET 
     /// </summary>
-    public sealed class GlVertexBufferObject : IVertexBufferObject
+    internal sealed class GlVertexBufferObject : IVertexBufferObject
     {
         private ConcurrentQueue<Action> actions = new ConcurrentQueue<Action>();
 
@@ -21,7 +21,7 @@
         public GlVertexBufferObject(BufferTarget target, BufferUsage usage, Array vertexData)
         {
             var elementType = vertexData.GetType().GetElementType();
-            this.Attributes = GlVertexAttribInfo.ForType(elementType);
+            this.Attributes = GlVertexAttributeInfo.ForType(elementType);
             this.Count = vertexData.Length;
 
             this.Id = Gl.GenBuffer();
@@ -38,7 +38,7 @@
         public uint Id { get; private set; }
 
         /// <inheritdoc />
-        public GlVertexAttribInfo[] Attributes { get; private set; }
+        public GlVertexAttributeInfo[] Attributes { get; private set; }
 
         /// <inheritdoc />
         public int Count { get; private set; }
