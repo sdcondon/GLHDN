@@ -20,7 +20,7 @@
             var ray_wor = Vector4.Transform(ray_eye, viewInverse);
             Direction = Vector3.Normalize(new Vector3(ray_wor.X, ray_wor.Y, ray_wor.Z));
 
-            Origin = camera.Position; // todo: do we need a position?
+            Origin = camera.Position; // todo: do we really need a position?
         }
 
         public Vector3 Origin { get; private set; }

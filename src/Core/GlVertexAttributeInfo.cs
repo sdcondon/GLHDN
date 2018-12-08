@@ -6,18 +6,18 @@
     using System.Numerics;
     using System.Runtime.InteropServices;
 
-    public struct GlVertexAttribInfo
+    public struct GlVertexAttributeInfo
     {
         /// <summary>
         /// A mapping of .NET types to equivalent primitive OpenGL attribute info for them.
         /// </summary>
-        private static readonly Dictionary<Type, Func<int, int, GlVertexAttribInfo>> KnownTypes = new Dictionary<Type, Func<int, int, GlVertexAttribInfo>>()
+        private static readonly Dictionary<Type, (VertexAttribType type, int count)> KnownTypes = new Dictionary<Type, (VertexAttribType, int)>()
         {
-            { typeof(Vector4), (offset, stride) => new GlVertexAttribInfo(VertexAttribType.Float, 4, offset, stride) },
-            { typeof(Vector3), (offset, stride) => new GlVertexAttribInfo(VertexAttribType.Float, 3, offset, stride) },
-            { typeof(Vector2), (offset, stride) => new GlVertexAttribInfo(VertexAttribType.Float, 2, offset, stride) },
-            { typeof(float), (offset, stride) => new GlVertexAttribInfo(VertexAttribType.Float, 1, offset, stride) },
-            { typeof(uint), (offset, stride) => new GlVertexAttribInfo(VertexAttribType.UnsignedInt, 1, offset, stride) }
+            { typeof(Vector4), (VertexAttribType.Float, 4) },
+            { typeof(Vector3), (VertexAttribType.Float, 3) },
+            { typeof(Vector2), (VertexAttribType.Float, 2) },
+            { typeof(float), (VertexAttribType.Float, 1) },
+            { typeof(uint), (VertexAttribType.UnsignedInt, 1) }
         };
 
         public readonly IntPtr offset;
@@ -25,7 +25,7 @@
         public readonly VertexAttribType type;
         public readonly int multiple;
 
-        private GlVertexAttribInfo(VertexAttribType type, int multiple, int offset, int stride)
+        internal GlVertexAttributeInfo(VertexAttribType type, int multiple, int offset, int stride)
         {
             this.offset = new IntPtr(offset);
             this.stride = stride;
@@ -38,18 +38,18 @@
         /// </summary>
         /// <param name="t">The type.</param>
         /// <returns>An array of attribute info.</returns>
-        internal static GlVertexAttribInfo[] ForType(Type t)
+        internal static GlVertexAttributeInfo[] ForType(Type t)
         {
-            var attributes = new List<GlVertexAttribInfo>();
+            var attributes = new List<GlVertexAttributeInfo>();
             ForType(t, attributes, 0, Marshal.SizeOf(t));
             return attributes.ToArray();
         }
 
-        private static void ForType(Type t, List<GlVertexAttribInfo> attributes, int offset, int stride)
+        private static void ForType(Type t, List<GlVertexAttributeInfo> attributes, int offset, int stride)
         {
-            if (KnownTypes.ContainsKey(t))
+            if (KnownTypes.TryGetValue(t, out var glInfo))
             {
-                attributes.Add(KnownTypes[t](offset, stride));
+                attributes.Add(new GlVertexAttributeInfo(glInfo.type, glInfo.count, offset, stride));
             }
             else if (!t.IsValueType || t.IsAutoLayout)
             {
