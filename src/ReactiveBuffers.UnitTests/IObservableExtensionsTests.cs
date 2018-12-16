@@ -53,10 +53,9 @@
         public void ObservableCollectionToObservableTests(string description, Action<ObservableCollection<In>> action, ICollection<string> expectedObservations)
         {
             var collection = new ObservableCollection<In>();
-            var target = collection.ToObservable((In a) => a.Value);
             var observed = new StringBuilder();
             var itemCount = 0;
-            var subscription = target.Subscribe(
+            var subscription = collection.ToObservable((In a) => a.Value).Subscribe(
                 obs =>
                 {
                     var thisItem = ++itemCount;
@@ -159,7 +158,7 @@
             var root = new Composite(0);
             var observed = new StringBuilder();
             var itemCount = 0;
-            var subscription = root.subject.FlattenComposite(c => c.Children, c => c.Value).Subscribe(
+            var subscription = root.Subject.FlattenComposite(c => c.Children, c => c.Value).Subscribe(
                 obs =>
                 {
                     var thisItem = ++itemCount;
@@ -186,7 +185,8 @@
 
         public class Composite
         {
-            public readonly BehaviorSubject<Composite> subject;
+            private BehaviorSubject<Composite> subject;
+            private Subject<BehaviorSubject<Composite>> children = new Subject<BehaviorSubject<Composite>>();
             private int value;
 
             public Composite(int value)
@@ -195,7 +195,9 @@
                 this.Value = value;
             }
 
-            public Subject<BehaviorSubject<Composite>> Children { get; } = new Subject<BehaviorSubject<Composite>>();
+            public IObservable<Composite> Subject => subject;
+
+            public IObservable<IObservable<Composite>> Children => children;
 
             public int Value
             {
@@ -210,7 +212,7 @@
             public Composite Add(int initialValue)
             {
                 var child = new Composite(initialValue);
-                Children.OnNext(child.subject);
+                children.OnNext(child.subject);
                 return child;
             }
 

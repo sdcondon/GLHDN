@@ -90,7 +90,7 @@
             void subscribeNode(IObservable<TIn> obs, Subject<IObservable<TLeaf>> rootSubject)
             {
                 rootSubject.OnNext(obs.Select(getLeafData));
-                obs.Subscribe(a => getChildren(a).Subscribe(b => subscribeNode(b.TakeUntil(obs.TakeLast(1)), rootSubject))); // another takeuntil needed? write a test..
+                obs.Subscribe(a => getChildren(a).Subscribe(b => subscribeNode(b.TakeUntil(obs.TakeLast(1)), rootSubject))); // todo: another takeuntil needed? write a test..
             }
 
             var subject = new Subject<IObservable<TLeaf>>();
