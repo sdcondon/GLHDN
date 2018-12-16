@@ -4,14 +4,10 @@
     using System.Collections.Generic;
     using System.Collections.Specialized;
     using System.ComponentModel;
-    using System.Linq;
     using System.Reactive.Linq;
     using System.Reactive.Subjects;
 
-    /// <summary>
-    /// Extension methods for creating observables.
-    /// </summary>
-    public static class ObservableExtensions
+    public static class IObservableExtensions
     {
         /// <summary>
         /// Creates an observable from an <see cref="INotifyCollectionChanged"/> of <see cref="INotifyPropertyChanged"/> objects.
@@ -29,7 +25,7 @@
                 for (var i = 0; i < e.NewItems.Count; i++)
                 {
                     var item = (TItem)e.NewItems[i];
-                    var removal = new Subject<object>(); // TODO: avoid using a Subject. FromAsync/TaskCompletionSource feels like it should work, why doesn't it? 
+                    var removal = new Subject<object>(); // TODO: avoid using a Subject. FromAsync/TaskCompletionSource seems like it should work, why doesn't it? 
                     removalCallbacks.Insert(e.NewStartingIndex + i, () => removal.OnNext(null)); // One of several aspects of this method that's not thread (re-entry) safe
                     yield return Observable
                         .FromEventPattern<PropertyChangedEventHandler, PropertyChangedEventArgs>(
@@ -81,6 +77,26 @@
                             return new IObservable<TResult>[0];
                     }
                 });
+        }
+
+        /// <summary>
+        /// Creates an flat observable of (observables of) leaves from a hierarchical structure.
+        /// </summary>
+        public static IObservable<IObservable<TLeaf>> FlattenComposite<TIn, TLeaf>(
+            this IObservable<TIn> root,
+            Func<TIn, IObservable<IObservable<TIn>>> getChildren,
+            Func<TIn, TLeaf> getLeafData)
+        {
+            void subscribeNode(IObservable<TIn> obs, Subject<IObservable<TLeaf>> rootSubject)
+            {
+                rootSubject.OnNext(obs.Select(getLeafData));
+                obs.Subscribe(a => getChildren(a).Subscribe(b => subscribeNode(b.TakeUntil(obs.TakeLast(1)), rootSubject))); // another takeuntil needed? write a test..
+            }
+
+            var subject = new Subject<IObservable<TLeaf>>();
+            subscribeNode(root, subject);
+            // todo end subject when root ends
+            return subject;
         }
     }
 }
