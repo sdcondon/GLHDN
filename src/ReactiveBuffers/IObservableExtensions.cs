@@ -87,15 +87,20 @@
             Func<TIn, IObservable<IObservable<TIn>>> getChildren,
             Func<TIn, TLeaf> getLeafData)
         {
-            void subscribeNode(IObservable<TIn> obs, Subject<IObservable<TLeaf>> rootSubject)
+            void subscribeToNode(IObservable<TIn> node, Subject<IObservable<TLeaf>> rootSubject)
             {
-                rootSubject.OnNext(obs.Select(getLeafData));
-                obs.Subscribe(a => getChildren(a).Subscribe(b => subscribeNode(b.TakeUntil(obs.TakeLast(1)), rootSubject))); // todo: another takeuntil needed? write a test..
+                rootSubject.OnNext(node.Select(getLeafData));
+                node.Select(getChildren)
+                    .Switch()
+                    .TakeUntil(node.TakeLast(1))
+                    .Subscribe(b => subscribeToNode(b.TakeUntil(node.TakeLast(1)), rootSubject));
+                //node.Subscribe(a => getChildren(a).Subscribe(b => subscribeToNode(b.TakeUntil(node.TakeLast(1)), rootSubject))); // todo: another takeuntil needed? write a test..
             }
 
             var subject = new Subject<IObservable<TLeaf>>();
-            subscribeNode(root, subject);
-            // todo end subject when root ends
+            subscribeToNode(root, subject);
+            root.Subscribe(_ => { }, _ => subject.OnCompleted());
+
             return subject;
         }
     }
