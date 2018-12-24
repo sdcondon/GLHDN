@@ -21,84 +21,54 @@
 
                 return new List<object[]>()
                 {
-                    makeTestCase( "addition, const size",
-                        a =>
-                        {
-                            a.Add(new In(1, 2));
-                            a.Add(new In(2, 2));
-                        },
+                    makeTestCase(
+                        "addition, const size",
+                        a => { a.Add(new In(1, 2)); a.Add(new In(2, 2)); },
                         new[] { new Vertex(1, 1), new Vertex(1, 2), new Vertex(2, 1), new Vertex(2, 2) }),
-                    makeTestCase( "removal from middle, const size",
-                        a =>
-                        {
-                            a.Add(new In(1, 2));
-                            a.Add(new In(2, 2));
-                            a.RemoveAt(0);
-                        },
+
+                    makeTestCase(
+                        "removal from middle, const size",
+                        a => { a.Add(new In(1, 2)); a.Add(new In(2, 2)); a.RemoveAt(0); },
                         new[] { new Vertex(2, 1), new Vertex(2, 2) }),
-                    makeTestCase( "removal from end, const size",
-                        a =>
-                        {
-                            a.Add(new In(1, 2));
-                            a.Add(new In(2, 2));
-                            a.RemoveAt(1);
-                        },
+
+                    makeTestCase(
+                        "removal from end, const size",
+                        a => { a.Add(new In(1, 2)); a.Add(new In(2, 2)); a.RemoveAt(1); },
                         new[] { new Vertex(1, 1), new Vertex(1, 2) }),
-                    makeTestCase( "replacement, const size",
-                        a =>
-                        {
-                            a.Add(new In(1, 2));
-                            a.Add(new In(2, 2));
-                            a[0] = new In(3, 2);
-                        },
+
+                    makeTestCase(
+                        "replacement, const size",
+                        a => { a.Add(new In(1, 2)); a.Add(new In(2, 2)); a[0] = new In(3, 2); },
                         new[] { new Vertex(3, 1), new Vertex(3, 2), new Vertex(2, 1), new Vertex(2, 2) }),
-                    makeTestCase( "clear",
-                        a =>
-                        {
-                            a.Add(new In(1, 2));
-                            a.Add(new In(2, 2));
-                            a.Clear();
-                            a.Add(new In(3, 2));
-                        },
+
+                    makeTestCase(
+                        "clear",
+                        a => { a.Add(new In(1, 2));  a.Add(new In(2, 2)); a.Clear(); a.Add(new In(3, 2)); },
                         new[] { new Vertex(3, 1), new Vertex(3, 2) }),
-                    makeTestCase( "addition, varying sizes",
-                        a =>
-                        {
-                            a.Add(new In(1, 4));
-                            a.Add(new In(2, 2));
-                        },
+
+                    makeTestCase(
+                        "addition, varying sizes",
+                        a => { a.Add(new In(1, 4)); a.Add(new In(2, 2)); },
                         new[] { new Vertex(1, 1), new Vertex(1, 2), new Vertex(1, 3), new Vertex(1, 4), new Vertex(2, 1), new Vertex(2, 2) }),
-                    makeTestCase( "removal, varying sizes",
-                        a =>
-                        {
-                            a.Add(new In(1, 2));
-                            a.Add(new In(2, 4));
-                            a.RemoveAt(0);
-                        },
+
+                    makeTestCase(
+                        "removal, varying sizes",
+                        a => { a.Add(new In(1, 2)); a.Add(new In(2, 4)); a.RemoveAt(0); },
                         new[] { new Vertex(2, 3), new Vertex(2, 4), new Vertex(2, 1), new Vertex(2, 2) }),
-                    makeTestCase( "replacement, varying sizes - bigger",
-                        a =>
-                        {
-                            a.Add(new In(1, 2));
-                            a.Add(new In(2, 2));
-                            a[0] = new In(3, 4);
-                        },
+
+                    makeTestCase(
+                        "replacement, varying sizes - bigger",
+                        a => { a.Add(new In(1, 2)); a.Add(new In(2, 2)); a[0] = new In(3, 4); },
                         new[] { new Vertex(3, 1), new Vertex(3, 2), new Vertex(2, 1), new Vertex(2, 2), new Vertex(3, 3), new Vertex(3, 4) }),
-                    makeTestCase( "replacement, varying sizes - smaller",
-                        a =>
-                        {
-                            a.Add(new In(1, 4));
-                            a.Add(new In(2, 2));
-                            a[0] = new In(3, 2);
-                        },
+
+                    makeTestCase(
+                        "replacement, varying sizes - smaller",
+                        a => { a.Add(new In(1, 4)); a.Add(new In(2, 2)); a[0] = new In(3, 2); },
                         new[] { new Vertex(3, 1), new Vertex(3, 2), new Vertex(2, 2), new Vertex(2, 1) }),
-                    makeTestCase( "replacement at end, varying sizes - smaller",
-                        a =>
-                        {
-                            a.Add(new In(1, 2));
-                            a.Add(new In(2, 4));
-                            a[1] = new In(3, 2);
-                        },
+
+                    makeTestCase(
+                        "replacement at end, varying sizes - smaller",
+                        a => { a.Add(new In(1, 2)); a.Add(new In(2, 4)); a[1] = new In(3, 2); },
                         new[] { new Vertex(1, 1), new Vertex(1, 2), new Vertex(3, 1), new Vertex(3, 2) })
                 };
             }
@@ -125,8 +95,6 @@
 
         public class In : INotifyPropertyChanged
         {
-            public PropertyChangedEventHandler _pc;
-
             public readonly int id;
             public readonly int vertexCount;
 
@@ -137,11 +105,7 @@
                 //this.PropertyChanged = null;
             }
 
-            public event PropertyChangedEventHandler PropertyChanged
-            {
-                add => _pc += value;
-                remove => _pc -= value;
-            }
+            public event PropertyChangedEventHandler PropertyChanged;
         }
 
         public struct Vertex

@@ -66,12 +66,12 @@
                     color: new Vector4(0.2f, 0.2f, 0.5f, 0.1f),
                     borderWidth: 0f);
                 gui.SubElements.Add(panel);
-                camText = new TextElement(
+
+                panel.SubElements.Add(camText = new TextElement(
                     parentOrigin: new Dimensions(-1f, 1f),
                     localOrigin: new Dimensions(-1f, 1f),
                     relativeSize: new Dimensions(1f, 0f),
-                    color: new Vector4(1f, 1f, 1f, 1f));
-                panel.SubElements.Add(camText);
+                    color: new Vector4(1f, 1f, 1f, 1f)));
             };
 
             Application.Run(form);

@@ -1,14 +1,14 @@
 ﻿namespace GLHDN.Views.Renderables.Gui
 {
-    using System.Numerics;
-    using OpenGL;
     using GLHDN.Core;
-    using System.Collections.ObjectModel;
-    using System.Collections.Generic;
-    using System.Collections;
-    using System.Linq;
-    using System;
     using GLHDN.ReactiveBuffers;
+    using OpenGL;
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Numerics;
+    using System.Reactive.Linq;
+    using System.Reactive.Subjects;
 
     /// <summary>
     /// Renderable container for a set of graphical user interface elements.
@@ -19,9 +19,10 @@
 
         private readonly View view;
 
+        private SubElementCollection subElements;
         private GlProgramBuilder programBuilder;
         private GlProgram program;
-        private ObservableCollection<Element> elements = new ObservableCollection<Element>();
+        private BehaviorSubject<IElementParent> subject; 
         private ReactiveBuffer<GuiVertex> guiElementBuffer;
 
         /// <summary>
@@ -40,7 +41,7 @@
                 }
             };
 
-            this.SubElements = new SubElementCollection(this);
+            subElements = new SubElementCollection(this);
 
             // TODO: allow program to be shared..
             this.programBuilder = new GlProgramBuilder()
@@ -51,8 +52,10 @@
 
         public event EventHandler Initialized;
 
+        public ICollection<Element> SubElements => subElements;
+
         /// <inheritdoc /> from IElementParent
-        public ICollection<Element> SubElements { get; }
+        IObservable<IObservable<Element>> IElementParent.SubElements => subElements.ToObservable<Element, Element>(a => a);
 
         /// <inheritdoc /> from IElementParent
         public Vector2 Center => Vector2.Zero;
@@ -66,8 +69,11 @@
             this.program = this.programBuilder.Build();
             this.programBuilder = null;
 
+            this.subject = new BehaviorSubject<IElementParent>(this);
             this.guiElementBuffer = new ReactiveBuffer<GuiVertex>(
-                elements.ToObservable((Element a) => a.Vertices),
+                this.subject.FlattenComposite<object, IList<GuiVertex>>(
+                    a => a is IElementParent p ? p.SubElements : Observable.Never<IObservable<Element>>(),
+                    a => a is Element e ? e.Vertices : null),
                 PrimitiveType.Triangles,
                 1000,
                 new[] { 0, 2, 3, 0, 3, 1 },
@@ -88,69 +94,9 @@
         /// <inheritdoc /> from IRenderable
         public void ContextDestroying(DeviceContext deviceContext)
         {
-            this.program.Dispose();
-            this.guiElementBuffer.Dispose();
-        }
-
-        /// <remarks>
-        /// Ultimately to work nicely with our BoundBuffer class, we need to flatten the elements in the single collection
-        /// in the <see cref="Gui"/> instance. So that collection ultimately backs this one, which just provides a view on
-        /// it consisting of all the elements with a particular parent element.
-        /// </remarks>
-        private class SubElementCollection : ICollection<Element>
-        {
-            private Gui owner;
-
-            public SubElementCollection(Gui owner)
-            {
-                this.owner = owner;
-            }
-
-            public int Count => throw new System.NotImplementedException();
-
-            public bool IsReadOnly => throw new System.NotImplementedException();
-
-            public void Add(Element element)
-            {
-                element.Parent = element.Parent ?? this.owner;
-                owner.elements.Add(element);
-            }
-
-            public bool Remove(Element element)
-            {
-                return owner.elements.Remove(element);
-            }
-
-            public void Clear()
-            {
-                owner.elements.Clear(); // todo only this
-            }
-
-            public bool Contains(Element item)
-            {
-                throw new System.NotImplementedException();
-            }
-
-            public void CopyTo(Element[] array, int arrayIndex)
-            {
-                throw new System.NotImplementedException();
-            }
-
-            /// <inheritdoc />
-            public IEnumerator<Element> GetEnumerator()
-            {
-                return owner.elements
-                    .Where(e => e.Parent == this.owner)
-                    .GetEnumerator();
-            }
-
-            /// <inheritdoc />)
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return ((IEnumerable)owner.elements
-                    .Where(e => e.Parent == this.owner))
-                    .GetEnumerator();
-            }
+            this.subject?.OnCompleted();
+            this.program?.Dispose();
+            this.guiElementBuffer?.Dispose();
         }
     }
 }
