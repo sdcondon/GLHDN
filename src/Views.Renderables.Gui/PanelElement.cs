@@ -1,8 +1,9 @@
 ﻿namespace GLHDN.Views.Renderables.Gui
 {
-    using System.Collections;
+    using GLHDN.ReactiveBuffers;
+    using System;
     using System.Collections.Generic;
-    using System.Linq;
+    using System.Collections.ObjectModel;
     using System.Numerics;
 
     /// <summary>
@@ -12,18 +13,18 @@
     {
         private Vector4 color;
         private float borderWidth;
+        private SubElementCollection subElements;
 
         public PanelElement(
             Dimensions parentOrigin,
             Dimensions localOrigin,
             Dimensions relativeSize,
             Vector4 color,
-            float borderWidth)
-            : base(parentOrigin, localOrigin, relativeSize)
+            float borderWidth): base(parentOrigin, localOrigin, relativeSize)
         {
             this.color = color;
             this.borderWidth = borderWidth;
-            SubElements = new SubElementCollection(this);
+            subElements = new SubElementCollection(this);
         }
 
         /// <summary>
@@ -63,7 +64,10 @@
 
         // TODO: handlers? - onclick, onmouseover, onmouseout etc
 
-        public ICollection<Element> SubElements { get; }
+        public ICollection<Element> SubElements => subElements;
+
+        /// <inheritdoc /> from IElementParent
+        IObservable<IObservable<Element>> IElementParent.SubElements => subElements.ToObservable<Element, Element>(a => a);
 
         /// <inheritdoc />
         public override void OnPropertyChanged(string propertyName)
@@ -73,70 +77,6 @@
                 subElement.OnPropertyChanged(nameof(Parent));
             }
             base.OnPropertyChanged(propertyName);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <remarks>
-        /// Ultimately to work nicely with our BoundBuffer class, we need to flatten the elements in the single collection
-        /// in the <see cref="Gui"/> instance. So that collection ultimately backs this one, which just provides a view on
-        /// it consisting of all the elements with a particular parent element.
-        /// </remarks>
-        private class SubElementCollection : ICollection<Element>
-        {
-            private PanelElement owner;
-
-            public SubElementCollection(PanelElement owner)
-            {
-                this.owner = owner;
-            }
-
-            public int Count => throw new System.NotImplementedException();
-
-            public bool IsReadOnly => throw new System.NotImplementedException();
-
-            public void Add(Element element)
-            {
-                element.Parent = element.Parent ?? this.owner;
-                owner.Parent.SubElements.Add(element);
-            }
-
-            public bool Remove(Element element)
-            {
-                return owner.Parent.SubElements.Remove(element);
-            }
-
-            public void Clear()
-            {
-                owner.Parent.SubElements.Clear(); // todo only this
-            }
-
-            public bool Contains(Element item)
-            {
-                throw new System.NotImplementedException();
-            }
-
-            public void CopyTo(Element[] array, int arrayIndex)
-            {
-                throw new System.NotImplementedException();
-            }
-
-            /// <inheritdoc />
-            public IEnumerator<Element> GetEnumerator()
-            {
-                return owner.Parent.SubElements
-                    .Where(e => e.Parent == this.owner)
-                    .GetEnumerator();
-            }
-
-            /// <inheritdoc />)
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return ((IEnumerable)owner.Parent.SubElements
-                    .Where(e => e.Parent == this.owner))
-                    .GetEnumerator();
-            }
         }
     }
 }

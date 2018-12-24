@@ -14,6 +14,12 @@
         private Dimensions localOrigin;
         private Dimensions relativeSize;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Element"/> class.
+        /// </summary>
+        /// <param name="parentOrigin"></param>
+        /// <param name="localOrigin"></param>
+        /// <param name="relativeSize"></param>
         public Element(Dimensions parentOrigin, Dimensions localOrigin, Dimensions relativeSize)
         {
             this.parentOrigin = parentOrigin;
@@ -91,7 +97,7 @@
         }
 
         /// <summary>
-        /// Gets the size of the element, in screen space (i.e. pixels).
+        /// Gets the size of the element, in screen space.
         /// </summary>
         public Vector2 Size
         {
@@ -103,18 +109,31 @@
             }
         }
 
+        /// <summary>
+        /// Gets the position of the bottom-left corner of the element, in screen space.
+        /// </summary>
         public Vector2 PosBL => this.Center - this.Size / 2;
 
+        /// <summary>
+        /// Gets the position of the bottom-right corner of the element, in screen space.
+        /// </summary>
         public Vector2 PosBR => new Vector2(this.Center.X + this.Size.X / 2, this.Center.Y - this.Size.Y / 2);
 
+        /// <summary>
+        /// Gets the position of the top-left corner of the element, in screen space.
+        /// </summary>
         public Vector2 PosTL => new Vector2(this.Center.X - this.Size.X / 2, this.Center.Y + this.Size.Y / 2);
 
+        /// <summary>
+        /// Gets the position of the top-right corner of the element, in screen space.
+        /// </summary>
         public Vector2 PosTR => this.Center + this.Size / 2;
 
         public abstract IList<GuiVertex> Vertices { get; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        // TODO: Instead of this being public, IElementParent should inherit INotifyPropertyChanged
         public virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

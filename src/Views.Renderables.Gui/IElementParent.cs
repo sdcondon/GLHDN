@@ -1,6 +1,6 @@
 ﻿namespace GLHDN.Views.Renderables.Gui
 {
-    using System.Collections.Generic;
+    using System;
     using System.Numerics;
 
     public interface IElementParent
@@ -8,7 +8,7 @@
         /// <summary>
         /// Gets the elements that this object contains.
         /// </summary>
-        ICollection<Element> SubElements { get; }
+        IObservable<IObservable<Element>> SubElements { get; }
 
         /// <summary>
         /// Gets the position of the center of the element, in screen space.
