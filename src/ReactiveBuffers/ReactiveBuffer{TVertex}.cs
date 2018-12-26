@@ -6,7 +6,7 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    public class ReactiveBuffer<TVertex> // todo: refactor into an IObserver?
+    public class ReactiveBuffer<TVertex> // todo: refactor into an IObserver<IObservable<IList<TVertex>>>?
     {
         private readonly IObservable<IObservable<IList<TVertex>>> vertexSource;
         private readonly int verticesPerAtom;

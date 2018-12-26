@@ -2,6 +2,9 @@
 {
     using System;
 
+    /// <summary>
+    /// Interface for types representing an OpenGL vertex buffer object.
+    /// </summary>
     public interface IVertexBufferObject : IDisposable
     {
         /// <summary>
@@ -46,7 +49,7 @@
         /// Flush any changes to the underlying buffer.
         /// </summary>
         /// <remarks>
-        /// TODO: this is a hacky, slow way to synchronise. look into streaming
+        /// TODO: this is a hacky, slow way to synchronise. Look into streaming.
         /// </remarks>
         void Flush();
     }

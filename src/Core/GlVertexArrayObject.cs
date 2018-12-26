@@ -57,9 +57,6 @@
             }
         }
 
-        /// <summary>
-        /// Finalizer. Releases any unmanaged resources used by an object as it is GC'd.
-        /// </summary>
         ~GlVertexArrayObject()
         {
             Dispose(false);
@@ -75,6 +72,14 @@
 
         /// <inheritdoc />
         public IReadOnlyList<IVertexBufferObject> AttributeBuffers => this.attributeBuffers;
+
+        public static IVertexArrayObject MakeVertexArrayObject(PrimitiveType primitiveType, IList<Tuple<BufferUsage, Array>> attributeBufferSpecs, uint[] indices)
+        {
+            return new GlVertexArrayObject(
+                primitiveType,
+                attributeBufferSpecs, // TODO: different VAO ctor to avoid needless large heap allocation 
+                indices); // TODO: different VAO ctor to avoid needless large heap allocation
+        }
 
         /// <inheritdoc />
         public void Draw(int count = -1)
@@ -115,14 +120,6 @@
             //Gl.CopyNamedBufferSubData(this.Id, newId, 0, 0, (uint)(Marshal.SizeOf(elementType) * count));
             //count = value;
         }*/
-
-        public static IVertexArrayObject MakeVertexArrayObject(PrimitiveType primitiveType, IList<Tuple<BufferUsage, Array>> attributeBufferSpecs, uint[] indices)
-        {
-            return new GlVertexArrayObject(
-                primitiveType,
-                attributeBufferSpecs, // TODO: different VAO ctor to avoid needless large heap allocation 
-                indices); // TODO: different VAO ctor to avoid needless large heap allocation
-        }
 
         private void Dispose(bool disposing)
         {

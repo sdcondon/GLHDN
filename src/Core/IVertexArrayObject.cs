@@ -3,9 +3,9 @@
     using System;
     using System.Collections.Generic;
 
-    /// <remarks>
-    /// For testability.
-    /// </remarks>
+    /// <summary>
+    /// Interface for types representing an OpenGL vertex array object.
+    /// </summary>
     public interface IVertexArrayObject : IDisposable
     {
         /// <summary>

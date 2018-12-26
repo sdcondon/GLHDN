@@ -16,6 +16,9 @@
             Id = (uint)Interlocked.Increment(ref nextId);
         }
 
+        /// <summary>
+        /// Gets the contents of the buffer.
+        /// </summary>
         public List<object> Contents { get; private set; } = new List<object>();
 
         /// <inheritdoc />

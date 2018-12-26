@@ -6,7 +6,7 @@
     using System.Runtime.InteropServices;
 
     /// <summary>
-    /// A OpenGL vertex buffer object. This class will map appropriately from .NET 
+    /// A OpenGL vertex buffer object.
     /// </summary>
     internal sealed class GlVertexBufferObject : IVertexBufferObject
     {

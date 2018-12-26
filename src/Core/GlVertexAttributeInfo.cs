@@ -6,6 +6,9 @@
     using System.Numerics;
     using System.Runtime.InteropServices;
 
+    /// <summary>
+    /// Container for information about an OpenGL vertex attribute.
+    /// </summary>
     public struct GlVertexAttributeInfo
     {
         /// <summary>

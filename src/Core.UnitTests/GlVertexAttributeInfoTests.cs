@@ -20,19 +20,19 @@
                 {
                     makeTestCase(
                         typeof(Vector4),
-                        new GlVertexAttributeInfo(OpenGL.VertexAttribType.Float, 4, 0, 16)),
+                        new GlVertexAttributeInfo(VertexAttribType.Float, 4, 0, 16)),
                     makeTestCase(
                         typeof(Vector3),
-                        new GlVertexAttributeInfo(OpenGL.VertexAttribType.Float, 3, 0, 12)),
+                        new GlVertexAttributeInfo(VertexAttribType.Float, 3, 0, 12)),
                     makeTestCase(
                         typeof(Vector2),
-                        new GlVertexAttributeInfo(OpenGL.VertexAttribType.Float, 2, 0, 8)),
+                        new GlVertexAttributeInfo(VertexAttribType.Float, 2, 0, 8)),
                     makeTestCase(
                         typeof(float),
-                        new GlVertexAttributeInfo(OpenGL.VertexAttribType.Float, 1, 0, 4)),
+                        new GlVertexAttributeInfo(VertexAttribType.Float, 1, 0, 4)),
                     makeTestCase(
                         typeof(uint),
-                        new GlVertexAttributeInfo(OpenGL.VertexAttribType.UnsignedInt, 1, 0, 4)),
+                        new GlVertexAttributeInfo(VertexAttribType.UnsignedInt, 1, 0, 4)),
                 };
             }
         }

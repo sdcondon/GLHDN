@@ -7,7 +7,7 @@
     using System.Numerics;
 
     /// <summary>
-    /// Very, VERY simple OBJ loader.
+    /// Very, VERY simple OBJ loader (nabbed from an OpenGL tutorial)
     /// Here is a short list of features a real function would provide : 
     /// - Binary files. Reading a model should be just a few memcpy's away, not parsing a file at runtime. In short : OBJ is not very great.
     /// - Animations & bones (includes bones weights)
