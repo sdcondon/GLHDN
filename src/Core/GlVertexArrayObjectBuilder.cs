@@ -13,7 +13,7 @@
     public sealed class GlVertexArrayObjectBuilder
     {
         private readonly PrimitiveType primitiveType;
-        private readonly List<Tuple<BufferUsage, Array>> bufferSpecs = new List<Tuple<BufferUsage, Array>>();
+        private readonly List<(BufferUsage, Array)> bufferSpecs = new List<(BufferUsage, Array)>();
         private uint[] indexData;
 
         /// <summary>
@@ -33,7 +33,7 @@
         /// <returns>The updated builder.</returns>
         public GlVertexArrayObjectBuilder WithAttributeBuffer(BufferUsage bufferUsage, Array data)
         {
-            this.bufferSpecs.Add(Tuple.Create(bufferUsage, data));
+            this.bufferSpecs.Add((bufferUsage, data));
             return this;
         }
 

@@ -65,7 +65,7 @@
         /// <param name="uniformNames">The names of the uniforms, in the order that they will be provided when calling <see cref="GlProgram.UseWithUniformValues(object[])"/>.</param>
         /// <returns>The updated builder.</returns>
         /// <remarks>
-        /// TODO: Perhaps better to use a generic type approach for compile-time safety - perhaps later.
+        /// TODO: Better to use a generic type approach for compile-time safety.
         /// </remarks>
         public GlProgramBuilder WithUniforms(params string[] uniformNames)
         {
