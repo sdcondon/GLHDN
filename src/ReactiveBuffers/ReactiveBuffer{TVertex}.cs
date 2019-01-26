@@ -29,7 +29,7 @@
             PrimitiveType primitiveType,
             int atomCapacity,
             IList<int> indices,
-            Func<PrimitiveType, IList<Tuple<BufferUsage, Array>>, uint[], IVertexArrayObject> makeVertexArrayObject)
+            Func<PrimitiveType, IList<(BufferUsage, Array)>, uint[], IVertexArrayObject> makeVertexArrayObject)
         {
             this.vertexSource = vertexSource;
             this.verticesPerAtom = indices.Max() + 1; // TODO: throw if has unused indices?
@@ -37,7 +37,7 @@
             this.atomCapacity = atomCapacity;
             this.vao = makeVertexArrayObject(
                 primitiveType,
-                new[] { Tuple.Create(BufferUsage.DynamicDraw, Array.CreateInstance(typeof(TVertex), atomCapacity * verticesPerAtom)) },  // TODO: different VAO ctor to avoid needless large heap allocation 
+                new[] { (BufferUsage.DynamicDraw, Array.CreateInstance(typeof(TVertex), atomCapacity * verticesPerAtom)) },  // TODO: different VAO ctor to avoid needless large heap allocation 
                 new uint[atomCapacity * indices.Count]); // TODO: different VAO ctor to avoid needless large heap allocation
 
             // todo: store subscription to unsubscribe on dispose

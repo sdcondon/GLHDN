@@ -12,7 +12,7 @@
     {
         public MemoryVertexArrayObject(
             PrimitiveType primitiveType,
-            IList<Tuple<BufferUsage, Array>> attributeBufferSpecs,
+            IList<(BufferUsage, Array)> attributeBufferSpecs,
             uint[] indexData)
         {
             AttributeBuffers = attributeBufferSpecs.Select(a => new MemoryVertexBufferObject()).ToArray();

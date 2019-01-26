@@ -13,7 +13,7 @@
         {
             Shim ctorShim = Shim
                 .Replace(() => new GlVertexArrayObject(Is.A<PrimitiveType>(), Is.A<IList<(BufferUsage, Array)>>(), Is.A<uint[]>()))
-                .With((PrimitiveType t, IList<Tuple<BufferUsage, Array>> b, uint[] i) => new MemoryVertexArrayObject(t, b, i));
+                .With((PrimitiveType t, IList<(BufferUsage, Array)> b, uint[] i) => new MemoryVertexArrayObject(t, b, i));
 
             PoseContext.Isolate(() =>
             {
