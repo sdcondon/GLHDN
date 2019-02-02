@@ -22,14 +22,43 @@
         public GlControlAdapter(GlControl glControl)
         {
             this.glControl = glControl;
-            this.glControl.ContextCreated += (s, a) => ContextCreated?.Invoke(this, a.DeviceContext);
-            this.glControl.Render += (s, a) => Render?.Invoke(this, a.DeviceContext);
-            this.glControl.ContextUpdate += (s, a) => ContextUpdate?.Invoke(this, a.DeviceContext);
-            this.glControl.ContextDestroying += (s, a) => ContextDestroying?.Invoke(this, a.DeviceContext);
+            this.glControl.ContextCreated += (s, a) => GlContextCreated?.Invoke(this, a.DeviceContext);
+            this.glControl.Render += (s, a) => GlRender?.Invoke(this, a.DeviceContext);
+            this.glControl.ContextUpdate += (s, a) => GlContextUpdate?.Invoke(this, a.DeviceContext);
+            this.glControl.ContextDestroying += (s, a) => GlContextDestroying?.Invoke(this, a.DeviceContext);
             this.glControl.KeyDown += (s, a) => KeyDown?.Invoke(this, (char)a.KeyValue);
             this.glControl.KeyUp += (s, a) => KeyUp?.Invoke(this, (char)a.KeyValue);
             this.glControl.MouseWheel += (s, a) => MouseWheel?.Invoke(this, a.Delta);
-            this.glControl.MouseUp += (s, a) => MouseUp?.Invoke(this, EventArgs.Empty);
+            this.glControl.MouseDown += (s, a) =>
+            {
+                switch (a.Button)
+                {
+                    case MouseButtons.Left:
+                        LeftMouseDown?.Invoke(this, EventArgs.Empty);
+                        break;
+                    case MouseButtons.Right:
+                        RightMouseDown?.Invoke(this, EventArgs.Empty);
+                        break;
+                    case MouseButtons.Middle:
+                        MiddleMouseDown?.Invoke(this, EventArgs.Empty);
+                        break;
+                }
+            };
+            this.glControl.MouseUp += (s, a) =>
+            {
+                switch (a.Button)
+                {
+                    case MouseButtons.Left:
+                        LeftMouseUp?.Invoke(this, EventArgs.Empty);
+                        break;
+                    case MouseButtons.Right:
+                        RightMouseUp?.Invoke(this, EventArgs.Empty);
+                        break;
+                    case MouseButtons.Middle:
+                        MiddleMouseUp?.Invoke(this, EventArgs.Empty);
+                        break;
+                }
+            };
             this.glControl.Resize += (s, a) => Resize?.Invoke(this, new Vector2(this.glControl.ClientSize.Width, this.glControl.ClientSize.Height));
             this.glControl.GotFocus += (s, a) => GotFocus?.Invoke(this, EventArgs.Empty);
 
@@ -39,16 +68,16 @@
         }
 
         /// <inheritdoc />
-        public event EventHandler<DeviceContext> ContextCreated;
+        public event EventHandler<DeviceContext> GlContextCreated;
 
         /// <inheritdoc />
-        public event EventHandler<DeviceContext> Render;
+        public event EventHandler<DeviceContext> GlRender;
 
         /// <inheritdoc />
-        public event EventHandler<DeviceContext> ContextUpdate;
+        public event EventHandler<DeviceContext> GlContextUpdate;
 
         /// <inheritdoc />
-        public event EventHandler<DeviceContext> ContextDestroying;
+        public event EventHandler<DeviceContext> GlContextDestroying;
 
         /// <inheritdoc />
         public event EventHandler<char> KeyDown;
@@ -60,7 +89,22 @@
         public event EventHandler<int> MouseWheel;
 
         /// <inheritdoc />
-        public event EventHandler MouseUp;
+        public event EventHandler LeftMouseDown;
+
+        /// <inheritdoc />
+        public event EventHandler LeftMouseUp;
+
+        /// <inheritdoc />
+        public event EventHandler RightMouseDown;
+
+        /// <inheritdoc />
+        public event EventHandler RightMouseUp;
+
+        /// <inheritdoc />
+        public event EventHandler MiddleMouseDown;
+
+        /// <inheritdoc />
+        public event EventHandler MiddleMouseUp;
 
         /// <inheritdoc />
         public event EventHandler<Vector2> Resize;

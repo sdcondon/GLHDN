@@ -8,8 +8,8 @@
         public Ray(ICamera camera, View uiContext)
         {
             // http://antongerdelan.net/opengl/raycasting.html
-            float x = - (2.0f * uiContext.CursorMovement.X) / uiContext.Width; // TODO: why did i have to negate this?
-            float y = (2.0f * uiContext.CursorMovement.Y) / uiContext.Height; // TODO: why did i have to negate this?
+            float x = - (2.0f * uiContext.CursorPosition.X) / uiContext.Width; // TODO: why did i have to negate this?
+            float y = (2.0f * uiContext.CursorPosition.Y) / uiContext.Height; // TODO: why did i have to negate this?
             var ray_clip = new Vector3(x, y, -1.0f);
 
             Matrix4x4.Invert(camera.Projection, out var projInverse);
@@ -48,6 +48,11 @@
             {
                 return new[] { ray.Origin + -b * ray.Direction };
             }
+        }
+
+        public static Vector3 GetIntersection(Ray ray, Plane plane)
+        {
+            Plane.
         }
     }
 }

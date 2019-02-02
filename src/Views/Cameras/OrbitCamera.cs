@@ -42,36 +42,36 @@
         public void Update(TimeSpan elapsed, View view)
         {
             // Pan up - rotate forward and up around their cross product
-            if (view.PressedKeys.Contains('W'))
+            if (view.KeysDown.Contains('W'))
             {
                 var t = Matrix4x4.CreateFromAxisAngle(Vector3.Cross(forward, up), -RotationSpeed);
                 forward = Vector3.Transform(forward, t);
                 up = Vector3.Transform(up, t);
             }
             // Pan down - rotate forward and up around their cross product
-            if (view.PressedKeys.Contains('S'))
+            if (view.KeysDown.Contains('S'))
             {
                 var t = Matrix4x4.CreateFromAxisAngle(Vector3.Cross(forward, up), RotationSpeed);
                 forward = Vector3.Normalize(Vector3.Transform(forward, t));
                 up = Vector3.Normalize(Vector3.Transform(up, t));
             }
             // Pan right - rotate forward around up
-            if (view.PressedKeys.Contains('D'))
+            if (view.KeysDown.Contains('D'))
             {
                 forward = Vector3.Normalize(Vector3.Transform(forward, Matrix4x4.CreateFromAxisAngle(up, RotationSpeed)));
             }
             // Pan left - rotate forward around up
-            if (view.PressedKeys.Contains('A'))
+            if (view.KeysDown.Contains('A'))
             {
                 forward = Vector3.Normalize(Vector3.Transform(forward, Matrix4x4.CreateFromAxisAngle(up, -RotationSpeed)));
             }
             // Roll right - rotate up around forward
-            if (view.PressedKeys.Contains('Q'))
+            if (view.KeysDown.Contains('Q'))
             {
                 up = Vector3.Normalize(Vector3.Transform(up, Matrix4x4.CreateFromAxisAngle(forward, -RollSpeed)));
             }
             // Roll left - rotate up around forward
-            if (view.PressedKeys.Contains('E'))
+            if (view.KeysDown.Contains('E'))
             {
                 up = Vector3.Normalize(Vector3.Transform(up, Matrix4x4.CreateFromAxisAngle(forward, RollSpeed)));
             }

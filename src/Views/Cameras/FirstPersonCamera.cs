@@ -70,11 +70,11 @@
         public void Update(TimeSpan elapsed, View view)
         {
             // Compute new orientation
-            var xDiff = view.CursorMovement.X;
+            var xDiff = view.CursorPosition.X;
             if (Math.Abs(xDiff) < 2) xDiff = 0;
             horizontalAngle += RotationSpeed * xDiff;
 
-            var yDiff = view.CursorMovement.Y;
+            var yDiff = view.CursorPosition.Y;
             if (Math.Abs(yDiff) < 2) yDiff = 0;
             verticalAngle += RotationSpeed * yDiff;
             verticalAngle = Math.Max(-(float)Math.PI / 2, Math.Min(verticalAngle, (float)Math.PI / 2));
@@ -95,22 +95,22 @@
             var up = Vector3.Cross(right, direction);
 
             // Move forward
-            if (view.PressedKeys.Contains('W'))
+            if (view.KeysDown.Contains('W'))
             {
                 Position += direction * (float)elapsed.TotalSeconds * MovementSpeed;
             }
             // Move backward
-            if (view.PressedKeys.Contains('S'))
+            if (view.KeysDown.Contains('S'))
             {
                 Position -= direction * (float)elapsed.TotalSeconds * MovementSpeed;
             }
             // Strafe right
-            if (view.PressedKeys.Contains('D'))
+            if (view.KeysDown.Contains('D'))
             {
                 Position += right * (float)elapsed.TotalSeconds * MovementSpeed;
             }
             // Strafe left
-            if (view.PressedKeys.Contains('A'))
+            if (view.KeysDown.Contains('A'))
             {
                 Position -= right * (float)elapsed.TotalSeconds * MovementSpeed;
             }
@@ -118,8 +118,8 @@
             Projection = Matrix4x4.CreatePerspectiveFieldOfView(
                 FieldOfViewRadians,
                 view.AspectRatio,
-                0.01f,
-                1000.0f);
+                NearPlaneDistance,
+                FarPlaneDistance);
 
             // Camera matrix
             View = Matrix4x4.CreateLookAt(

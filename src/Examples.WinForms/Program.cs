@@ -90,7 +90,7 @@
             camera.Update(elapsed, view);
             camText.Content = $"Cam: {camera.Position:F2}\n\nHello, world!";
 
-            if (view.MouseButtonReleased)
+            if (view.LeftMouseButtonReleased)
             {
                 var ray = new Ray(camera, view);
                 lines.AddLine(ray.Origin, ray.Origin + ray.Direction * 10);
