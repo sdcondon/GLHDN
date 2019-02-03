@@ -5,6 +5,9 @@
     using System.IO;
     using System.Text;
 
+    /// <summary>
+    /// Simple DDS loader nabbed from an OpenGL tutorial.
+    /// </summary>
     public static class TextureLoader
     {
         private const uint FOURCC_DXT1 = 0x31545844; // Equivalent to "DXT1" in ASCII
@@ -23,7 +26,6 @@
             {
                 /* verify the type of file */
                 var filecode = new byte[4];
-
                 file.Read(filecode, 0, 4);
                 if (Encoding.ASCII.GetString(filecode) != "DDS ")
                 {

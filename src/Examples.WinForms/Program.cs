@@ -30,9 +30,17 @@
                 // FormBorderStyle = FormBorderStyle.Sizable
             };
 
-            view = new Views.View(form.ViewContext, ModelUpdate, true);
+            view = new Views.View(form.ViewContext, ModelUpdate, true, Vector3.Zero);
 
-            camera = new FirstPersonCamera();
+            camera = new FirstPersonCamera(
+                movementSpeed: 3.0f,
+                rotationSpeed: 0.005f,
+                fieldOfViewRadians: (float)Math.PI / 4.0f,
+                nearPlaneDistance: 0.1f,
+                farPlaneDistance: 100f,
+                initialPosition: new Vector3(0f, 0f, 3f),
+                initialHorizontalAngleRadians: 0f,
+                initialVerticalAngleRadians: 0f);
 
             view.Renderables.Add(new StaticTexuredRenderer(
                 camera,
@@ -82,7 +90,7 @@
             camera.Update(elapsed, view);
             camText.Content = $"Cam: {camera.Position:F2}\n\nHello, world!";
 
-            if (view.MouseButtonReleased)
+            if (view.WasLeftMouseButtonReleased)
             {
                 var ray = new Ray(camera, view);
                 lines.AddLine(ray.Origin, ray.Origin + ray.Direction * 10);

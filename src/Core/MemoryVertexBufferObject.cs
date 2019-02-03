@@ -7,15 +7,18 @@
     /// <summary>
     /// Implementation of <see cref="IVertexBufferObject"/> that just stores buffer content in memory, for testing purposes.
     /// </summary>
-    public class MockVertexBufferObject : IVertexBufferObject
+    public class MemoryVertexBufferObject : IVertexBufferObject
     {
         private static int nextId = 0;
 
-        public MockVertexBufferObject()
+        public MemoryVertexBufferObject()
         {
             Id = (uint)Interlocked.Increment(ref nextId);
         }
 
+        /// <summary>
+        /// Gets the contents of the buffer.
+        /// </summary>
         public List<object> Contents { get; private set; } = new List<object>();
 
         /// <inheritdoc />

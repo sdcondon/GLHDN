@@ -53,6 +53,7 @@
         [MemberData(nameof(ObservableCollectionToObservableTestCases))]
         public void ObservableCollectionToObservableTests(string description, Action<ObservableCollection<In>> action, ICollection<string> expectedObservations)
         {
+            // Arrange
             var collection = new ObservableCollection<In>();
             var observed = new StringBuilder();
             var itemCount = 0;
@@ -70,7 +71,10 @@
                 () => observed.AppendLine("Complete"));
             try
             {
+                // Act
                 action(collection);
+
+                // Assert
                 Assert.Equal(string.Join(Environment.NewLine, expectedObservations) + Environment.NewLine, observed.ToString());
             }
             finally
@@ -146,6 +150,7 @@
         [MemberData(nameof(FlattenCompositeTestCases))]
         public void FlattenCompositeTests(string description, Action<Composite> action, ICollection<string> expectedObservations)
         {
+            // Arrange
             var subjectMonitor = new Dictionary<string, object>();
             var root = new Composite(0, subjectMonitor);
             var observed = new StringBuilder();
@@ -165,7 +170,10 @@
 
             try
             {
+                // Act
                 action(root);
+
+                // Assert - observationd
                 observed.ToString().Should().BeEquivalentTo(string.Join("; ", expectedObservations) + "; ");
             }
             finally
@@ -174,6 +182,7 @@
                 // subscription.Dispose(); // TODO: next challenge - this should work too. Will require different approach.
             }
 
+            // Assert - tidy-up
             subjectMonitor.Keys.Should().OnlyContain(
                 k => SubjectHasNoObservers(subjectMonitor[k]),
                 "No observers should be left at the end of the test");

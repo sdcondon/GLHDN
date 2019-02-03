@@ -5,48 +5,78 @@
 
     public class FirstPersonCamera : ICamera
     {
-        private const float speed = 3.0f; // 3 units / second
-        private const float mouseSpeed = 0.005f;
+        private float horizontalAngle;
+        private float verticalAngle;
 
-        // Initial position : on -Z
-        private Vector3 position = new Vector3(0, 0, -3);
-
-        // Initial horizontal angle : toward +Z
-        private float horizontalAngle = 0.0f;
-
-        // Initial vertical angle : none
-        private float verticalAngle = 0.0f;
-
-        // Initial Field of View in radians
-        private float initialFoV = (float)Math.PI / 4.0f;
-
-        /// <inheritdoc />
-        public Vector3 Position => position;
-
-        /// <inheritdoc />
-        public Matrix4x4 View
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FirstPersonCamera"/> class.
+        /// </summary>
+        public FirstPersonCamera(
+            float movementSpeed,
+            float rotationSpeed,
+            float fieldOfViewRadians,
+            float nearPlaneDistance,
+            float farPlaneDistance,
+            Vector3 initialPosition,
+            float initialHorizontalAngleRadians,
+            float initialVerticalAngleRadians)
         {
-            get;
-            private set;
+            this.MovementSpeed = movementSpeed;
+            this.RotationSpeed = rotationSpeed;
+            this.FieldOfViewRadians = fieldOfViewRadians;
+            this.NearPlaneDistance = nearPlaneDistance;
+            this.FarPlaneDistance = farPlaneDistance;
+            this.Position = initialPosition;
+            this.horizontalAngle = initialHorizontalAngleRadians;
+            this.verticalAngle = initialVerticalAngleRadians;
         }
 
-        /// <inheritdoc />
-        public Matrix4x4 Projection
-        {
-            get;
-            private set;
-        }
+        /// <summary>
+        /// Gets or sets the movement speed of the camera in units per second.
+        /// </summary>
+        public float MovementSpeed { get; set; } // = 3.0f;
 
+        /// <summary>
+        /// Gets or sets the "rotation speed" of the camera - the multiplicand of the mouse cursor offset to radians.
+        /// </summary>
+        public float RotationSpeed { get; set; } // = 0.005f;
+
+        /// <summary>
+        /// Gets or sets the field of view of the camera, in radians.
+        /// </summary>
+        public float FieldOfViewRadians { get; set; } // = (float)Math.PI / 4.0f;
+
+        /// <summary>
+        /// Gets or sets the distance of the near plane from the camera.
+        /// </summary>
+        private float NearPlaneDistance { get; set; } // = 0.1f;
+
+        /// <summary>
+        /// Gets or sets the distance of the far plane from the camera.
+        /// </summary>
+        private float FarPlaneDistance { get; set; } // = 100f;
+
+        /// <inheritdoc />
+        /// <remarks>Should be private, but used by Ray..</remarks>
+        public Vector3 Position { get; private set; } // = new Vector3(0, 0, -300);
+
+        /// <inheritdoc />
+        public Matrix4x4 View { get; private set; }
+
+        /// <inheritdoc />
+        public Matrix4x4 Projection { get; private set; }
+
+        /// <inheritdoc />
         public void Update(TimeSpan elapsed, View view)
         {
             // Compute new orientation
-            var xDiff = view.CursorMovement.X;
+            var xDiff = view.CursorPosition.X;
             if (Math.Abs(xDiff) < 2) xDiff = 0;
-            horizontalAngle += mouseSpeed * xDiff;
+            horizontalAngle += RotationSpeed * xDiff;
 
-            var yDiff = view.CursorMovement.Y;
+            var yDiff = view.CursorPosition.Y;
             if (Math.Abs(yDiff) < 2) yDiff = 0;
-            verticalAngle += mouseSpeed * yDiff;
+            verticalAngle += RotationSpeed * yDiff;
             verticalAngle = Math.Max(-(float)Math.PI / 2, Math.Min(verticalAngle, (float)Math.PI / 2));
 
             // Direction : Spherical coordinates to Cartesian coordinates conversion
@@ -65,39 +95,36 @@
             var up = Vector3.Cross(right, direction);
 
             // Move forward
-            if (view.PressedKeys.Contains('W'))
+            if (view.KeysDown.Contains('W'))
             {
-                position += direction * (float)elapsed.TotalSeconds * speed;
+                Position += direction * (float)elapsed.TotalSeconds * MovementSpeed;
             }
             // Move backward
-            if (view.PressedKeys.Contains('S'))
+            if (view.KeysDown.Contains('S'))
             {
-                position -= direction * (float)elapsed.TotalSeconds * speed;
+                Position -= direction * (float)elapsed.TotalSeconds * MovementSpeed;
             }
             // Strafe right
-            if (view.PressedKeys.Contains('D'))
+            if (view.KeysDown.Contains('D'))
             {
-                position += right * (float)elapsed.TotalSeconds * speed;
+                Position += right * (float)elapsed.TotalSeconds * MovementSpeed;
             }
             // Strafe left
-            if (view.PressedKeys.Contains('A'))
+            if (view.KeysDown.Contains('A'))
             {
-                position -= right * (float)elapsed.TotalSeconds * speed;
+                Position -= right * (float)elapsed.TotalSeconds * MovementSpeed;
             }
 
-            float FoV = initialFoV;
-
-            // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.01 unit <-> 100 units
             Projection = Matrix4x4.CreatePerspectiveFieldOfView(
-                FoV,
+                FieldOfViewRadians,
                 view.AspectRatio,
-                0.01f,
-                100.0f);
+                NearPlaneDistance,
+                FarPlaneDistance);
 
             // Camera matrix
             View = Matrix4x4.CreateLookAt(
-                position,             // Camera is here
-                position + direction, // and looks here : at the same position, plus "direction"
+                Position,             // Camera is here
+                Position + direction, // and looks here : at the same position, plus "direction"
                 up);                  // Head is up (set to 0,-1,0 to look upside-down)
         }
     }

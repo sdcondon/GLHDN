@@ -8,25 +8,25 @@
     /// <summary>
     /// Implementation of <see cref="IVertexArrayObject"/> that just stores buffer content in memory, for testing purposes.
     /// </summary>
-    public class MockVertexArrayObject : IVertexArrayObject
+    public class MemoryVertexArrayObject : IVertexArrayObject
     {
-        public MockVertexArrayObject(
+        public MemoryVertexArrayObject(
             PrimitiveType primitiveType,
-            IList<Tuple<BufferUsage, Array>> attributeBufferSpecs,
+            IList<(BufferUsage, Array)> attributeBufferSpecs,
             uint[] indexData)
         {
-            AttributeBuffers = attributeBufferSpecs.Select(a => new MockVertexBufferObject()).ToArray();
+            AttributeBuffers = attributeBufferSpecs.Select(a => new MemoryVertexBufferObject()).ToArray();
         }
 
         /// <inheritdoc />
         IVertexBufferObject IVertexArrayObject.IndexBuffer => IndexBuffer;
 
-        public MockVertexBufferObject IndexBuffer { get; private set; } = new MockVertexBufferObject();
+        public MemoryVertexBufferObject IndexBuffer { get; private set; } = new MemoryVertexBufferObject();
 
         /// <inheritdoc />
         IReadOnlyList<IVertexBufferObject> IVertexArrayObject.AttributeBuffers => AttributeBuffers;
 
-        public IReadOnlyList<MockVertexBufferObject> AttributeBuffers { get; private set; }
+        public IReadOnlyList<MemoryVertexBufferObject> AttributeBuffers { get; private set; }
 
         /// <inheritdoc />
         public void Draw(int count)

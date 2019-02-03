@@ -6,14 +6,19 @@
 
     public interface IViewContext
     {
-        event EventHandler<DeviceContext> ContextCreated;
-        event EventHandler<DeviceContext> Render;
-        event EventHandler<DeviceContext> ContextUpdate;
-        event EventHandler<DeviceContext> ContextDestroying;
+        event EventHandler<DeviceContext> GlContextCreated;
+        event EventHandler<DeviceContext> GlRender;
+        event EventHandler<DeviceContext> GlContextUpdate;
+        event EventHandler<DeviceContext> GlContextDestroying;
         event EventHandler<char> KeyDown;
         event EventHandler<char> KeyUp;
+        event EventHandler LeftMouseDown;
+        event EventHandler LeftMouseUp;
+        event EventHandler RightMouseDown;
+        event EventHandler RightMouseUp;
+        event EventHandler MiddleMouseDown;
+        event EventHandler MiddleMouseUp;
         event EventHandler<int> MouseWheel;
-        event EventHandler MouseUp;
         event EventHandler<Vector2> Resize;
         event EventHandler GotFocus;
         event EventHandler Update;

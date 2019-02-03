@@ -9,24 +9,37 @@
         private Vector3 up = new Vector3(0f, 1f, 0f);
         private int zoomLevel = 0;
 
-        public float RotationSpeedBase { get; set; } = 0.01f;
+        public OrbitCamera(
+            float rotationSpeedBase,
+            float rollSpeed,
+            float fieldOfViewRadians,
+            float nearPlaneDistance,
+            float farPlaneDistance)
+        {
+            RotationSpeedBase = rotationSpeedBase;
+            RollSpeed = rollSpeed;
+            FieldOfViewRadians = fieldOfViewRadians;
+            NearPlaneDistance = nearPlaneDistance;
+            FarPlaneDistance = farPlaneDistance;
+        }
+
+        public float RotationSpeedBase { get; set; } // = 0.01f;
 
         public float RotationSpeed => RotationSpeedBase * (Distance - ZoomMinDistance) / ZoomDefaultDistance;
 
-        public float RollSpeed => 0.01f;
+        public float RollSpeed { get; set; } // = 0.01f;
 
-        public float NearPlaneDistance { get; set; } = 0.01f;
+        public float FieldOfViewRadians { get; set; } // = (float)Math.PI / 4.0f;
 
-        public float FarPlaneDistance { get; set; } = 100f;
+        public float NearPlaneDistance { get; set; } // = 0.01f;
+
+        public float FarPlaneDistance { get; set; } // = 100f;
 
         private float ZoomDefaultDistance { get; set; } = 1.5f;
 
         private float ZoomBase { get; set; } = 0.999f;
 
         private float ZoomMinDistance => 1f + NearPlaneDistance;
-
-        // Field of View, in radians
-        public float FieldOfView { get; set; } = (float)Math.PI / 4.0f;
 
         public float Distance => (float)(ZoomMinDistance + ZoomDefaultDistance * Math.Pow(ZoomBase, zoomLevel));
 
@@ -42,36 +55,36 @@
         public void Update(TimeSpan elapsed, View view)
         {
             // Pan up - rotate forward and up around their cross product
-            if (view.PressedKeys.Contains('W'))
+            if (view.KeysDown.Contains('W'))
             {
                 var t = Matrix4x4.CreateFromAxisAngle(Vector3.Cross(forward, up), -RotationSpeed);
                 forward = Vector3.Transform(forward, t);
                 up = Vector3.Transform(up, t);
             }
             // Pan down - rotate forward and up around their cross product
-            if (view.PressedKeys.Contains('S'))
+            if (view.KeysDown.Contains('S'))
             {
                 var t = Matrix4x4.CreateFromAxisAngle(Vector3.Cross(forward, up), RotationSpeed);
                 forward = Vector3.Normalize(Vector3.Transform(forward, t));
                 up = Vector3.Normalize(Vector3.Transform(up, t));
             }
             // Pan right - rotate forward around up
-            if (view.PressedKeys.Contains('D'))
+            if (view.KeysDown.Contains('D'))
             {
                 forward = Vector3.Normalize(Vector3.Transform(forward, Matrix4x4.CreateFromAxisAngle(up, RotationSpeed)));
             }
             // Pan left - rotate forward around up
-            if (view.PressedKeys.Contains('A'))
+            if (view.KeysDown.Contains('A'))
             {
                 forward = Vector3.Normalize(Vector3.Transform(forward, Matrix4x4.CreateFromAxisAngle(up, -RotationSpeed)));
             }
             // Roll right - rotate up around forward
-            if (view.PressedKeys.Contains('Q'))
+            if (view.KeysDown.Contains('Q'))
             {
                 up = Vector3.Normalize(Vector3.Transform(up, Matrix4x4.CreateFromAxisAngle(forward, -RollSpeed)));
             }
             // Roll left - rotate up around forward
-            if (view.PressedKeys.Contains('E'))
+            if (view.KeysDown.Contains('E'))
             {
                 up = Vector3.Normalize(Vector3.Transform(up, Matrix4x4.CreateFromAxisAngle(forward, RollSpeed)));
             }
@@ -80,7 +93,7 @@
 
             // Projection matrix
             Projection = Matrix4x4.CreatePerspectiveFieldOfView(
-                FieldOfView,
+                FieldOfViewRadians,
                 view.AspectRatio,
                 NearPlaneDistance,
                 FarPlaneDistance);

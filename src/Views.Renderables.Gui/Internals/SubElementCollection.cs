@@ -21,30 +21,37 @@
             //this.elements.CollectionChanged += CollectionChanged;
         }
 
+        /// <inheritdoc />
         public int Count => elements.Count;
 
+        /// <inheritdoc />
         public bool IsReadOnly => false;
 
+        /// <inheritdoc />
         public void Add(Element element)
         {
             element.Parent = this.owner;
             elements.Add(element);
         }
 
+        /// <inheritdoc />
         public bool Remove(Element element)
         {
-            // todo: clear parents?
+            // TODO: element.Parent = null?
             return this.elements.Remove(element);
         }
 
+        /// <inheritdoc />
         public void Clear()
         {
-            // todo: clear parents?
+            // TODO: this.elements.ForEach(e => e.Parent = null);?
             this.elements.Clear();
         }
 
+        /// <inheritdoc />
         public bool Contains(Element item) => elements.Contains(item);
 
+        /// <inheritdoc />
         public void CopyTo(Element[] array, int arrayIndex) => elements.CopyTo(array, arrayIndex);
 
         /// <inheritdoc />

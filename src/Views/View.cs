@@ -15,25 +15,35 @@
         private readonly Stopwatch modelUpdateIntervalStopwatch = new Stopwatch();
         private readonly Action<TimeSpan> modelUpdateHandler;
         private readonly bool lockCursor;
+        private readonly Vector3 clearColor;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="View"/> class.
         /// </summary>
-        public View(IViewContext context, Action<TimeSpan> modelUpdateHandler, bool lockCursor)
+        public View(
+            IViewContext context,
+            Action<TimeSpan> modelUpdateHandler,
+            bool lockCursor,
+            Vector3 clearColor)
         {
-            Gl.DebugMessageCallback(HandleDebugMessage, null);
+            Gl.DebugMessageCallback(OnGlDebugMessage, null);
 
             this.context = context;
-            context.ContextCreated += ContextCreated;
-            context.Render += Render;
-            context.ContextUpdate += ContextUpdate;
-            context.ContextDestroying += ContextDestroying;
-            context.KeyDown += (s, a) => PressedKeys.Add(a);
-            context.KeyUp += (s, a) => PressedKeys.Remove(a);
+            context.GlContextCreated += OnContextCreated;
+            context.GlRender += OnRender;
+            context.GlContextUpdate += OnContextUpdate;
+            context.GlContextDestroying += OnContextDestroying;
+            context.KeyDown += (s, a) => { KeysPressed.Add(a); KeysDown.Add(a); };
+            context.KeyUp += (s, a) => { KeysReleased.Add(a); KeysDown.Remove(a); };
             context.MouseWheel += (s, a) => MouseWheelDelta = a; // SO much is wrong with this approach..;
-            context.MouseUp += (s, a) => MouseButtonReleased = true;
-            context.Resize += Resize;
-            context.Update += Update;
+            context.LeftMouseDown += (s, a) => { WasLeftMouseButtonPressed = true; IsLeftMouseButtonDown = true; };
+            context.LeftMouseUp += (s, a) => { WasLeftMouseButtonReleased = true; IsLeftMouseButtonDown = false; };
+            context.RightMouseDown += (s, a) => { WasRightMouseButtonPressed = true; IsRightMouseButtonDown = true; };
+            context.RightMouseUp += (s, a) => { WasRightMouseButtonReleased = true; IsRightMouseButtonDown = false; };
+            context.MiddleMouseDown += (s, a) => { WasMiddleMouseButtonPressed = true; IsMiddleMouseButtonDown = true; };
+            context.MiddleMouseUp += (s, a) => { WasMiddleMouseButtonReleased = true; IsMiddleMouseButtonDown = false; };
+            context.Resize += OnResize;
+            context.Update += OnUpdate;
 
             this.modelUpdateHandler = modelUpdateHandler;
 
@@ -42,29 +52,110 @@
                 context.GotFocus += (s, a) => context.CursorPosition = context.GetCenter();
                 context.HideCursor();
             }
+
+            this.clearColor = clearColor;
         }
 
+        /// <summary>
+        /// Gets the list of objects being rendered.
+        /// </summary>
         public List<IRenderable> Renderables { get; private set; } = new List<IRenderable>();
 
-        public HashSet<char> PressedKeys { get; private set; } = new HashSet<char>();
-        public Vector2 CursorMovement { get; private set; }
-        public int MouseWheelDelta { get; private set; }
-        public bool MouseButtonReleased { get; private set; }
+        /// <summary>
+        /// Gets the set of keys pressed since the last update. TODO: should be readonly
+        /// </summary>
+        public HashSet<char> KeysPressed { get; private set; } = new HashSet<char>();
 
+        /// <summary>
+        /// Gets the set of currently pressed keys. TODO: should be readonly
+        /// </summary>
+        public HashSet<char> KeysDown { get; private set; } = new HashSet<char>();
+
+        /// <summary>
+        /// Gets the set of keys released since the last update. TODO: should be readonly
+        /// </summary>
+        public HashSet<char> KeysReleased { get; private set; } = new HashSet<char>();
+
+        /// <summary>
+        /// Gets the cursor position, with the origin being at the centre of the view.
+        /// </summary>
+        public Vector2 CursorPosition { get; private set; }
+
+        /// <summary>
+        /// Gets the mouse wheel delta since the last update.
+        /// </summary>
+        public int MouseWheelDelta { get; private set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the left mouse button has been pressed since the last update.
+        /// </summary>
+        public bool WasLeftMouseButtonPressed { get; private set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the left mouse button is currently down.
+        /// </summary>
+        public bool IsLeftMouseButtonDown { get; private set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the left mouse button has been released since the last update.
+        /// </summary>
+        public bool WasLeftMouseButtonReleased { get; private set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the right mouse button has been pressed since the last update.
+        /// </summary>
+        public bool WasRightMouseButtonPressed { get; private set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the right mouse button is currently down.
+        /// </summary>
+        public bool IsRightMouseButtonDown { get; private set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the right mouse button has been released since the last update.
+        /// </summary>
+        public bool WasRightMouseButtonReleased { get; private set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the middle mouse button has been pressed since the last update.
+        /// </summary>
+        public bool WasMiddleMouseButtonPressed { get; private set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the middle mouse button is currently down.
+        /// </summary>
+        public bool IsMiddleMouseButtonDown { get; private set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the middle mouse button has been released since the last update.
+        /// </summary>
+        public bool WasMiddleMouseButtonReleased { get; private set; }
+
+        /// <summary>
+        /// Gets the width of the view.
+        /// </summary>
         public int Width => context.Width;
+
+        /// <summary>
+        /// Gets the height of the view.
+        /// </summary>
         public int Height => context.Height;
-        public float AspectRatio => (float)context.Width / (float)context.Height;
+
+        /// <summary>
+        /// Gets the aspect ratio of the view.
+        /// </summary>
+        public float AspectRatio => (float)context.Width / context.Height;
 
         public event EventHandler<Vector2> Resized;
 
-        private void ContextCreated(object sender, DeviceContext context)
+        private void OnContextCreated(object sender, DeviceContext context)
         {
-            Gl.ClearColor(0.0f, 0.0f, 0.1f, 0.0f); // Dark blue background
+            Gl.ClearColor(clearColor.X, clearColor.Y, clearColor.Z, 1f);
             Gl.Enable(EnableCap.DepthTest); // Enable depth test
             Gl.DepthFunc(DepthFunction.Lequal); // Accept fragment if it closer to the camera than the former one
-            Gl.Enable(EnableCap.CullFace); // Cull triangles which normal is not towards the camera
+            Gl.Enable(EnableCap.CullFace); // Cull triangles of which normal is not towards the camera
 
-            //transparency
+            // Transparency
             Gl.Enable(EnableCap.Blend);
             Gl.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
@@ -73,8 +164,8 @@
                 Renderables[i].ContextCreated(context);
             }
         }
-
-        private void Render(object sender, DeviceContext context)
+        
+        private void OnRender(object sender, DeviceContext context)
         {
             Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
@@ -86,11 +177,11 @@
             }
         }
 
-        private void ContextUpdate(object sender, DeviceContext context)
+        private void OnContextUpdate(object sender, DeviceContext context)
         {
         }
 
-        private void ContextDestroying(object sender, DeviceContext context)
+        private void OnContextDestroying(object sender, DeviceContext context)
         {
             for (int i = 0; i < Renderables.Count; i++)
             {
@@ -98,12 +189,12 @@
             }
         }
 
-        private void Update(object sender, EventArgs e)
+        private void OnUpdate(object sender, EventArgs e)
         {
             if (context.IsFocused)
             {
                 // Get mouse movement   
-                this.CursorMovement = context.GetCenter() - context.CursorPosition;
+                this.CursorPosition = context.GetCenter() - context.CursorPosition;
 
                 // Record update interval and restart stopwatch for it
                 // Cap the effective elapsed time so that at worst,
@@ -119,7 +210,14 @@
 
                 // Reset user input properties
                 this.MouseWheelDelta = 0;
-                this.MouseButtonReleased = false;
+                this.WasLeftMouseButtonPressed = false;
+                this.WasLeftMouseButtonReleased = false;
+                this.WasRightMouseButtonPressed = false;
+                this.WasRightMouseButtonReleased = false;
+                this.WasMiddleMouseButtonPressed = false;
+                this.WasMiddleMouseButtonReleased = false;
+                this.KeysPressed.Clear();
+                this.KeysReleased.Clear();
                 if (this.lockCursor)
                 {
                     context.CursorPosition = context.GetCenter();
@@ -127,13 +225,13 @@
             }
         }
 
-        private void Resize(object sender, Vector2 size)
+        private void OnResize(object sender, Vector2 size)
         {
             Gl.Viewport(0, 0, (int)size.X, (int)size.Y);
             Resized?.Invoke(this, size);
         }
 
-        private void HandleDebugMessage(
+        private void OnGlDebugMessage(
             Gl.DebugSource source,
             Gl.DebugType type,
             uint id,

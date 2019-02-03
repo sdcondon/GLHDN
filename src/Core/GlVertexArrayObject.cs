@@ -22,10 +22,10 @@
         /// <param name="indexData">The data to populate the index buffer with, or null if there should be no index.</param>
         internal GlVertexArrayObject(
             PrimitiveType primitiveType,
-            IList<Tuple<BufferUsage, Array>> attributeBufferSpecs,
+            IList<(BufferUsage usage, Array data)> attributeBufferSpecs,
             uint[] indexData)
         {
-            //  Record primitive type for use in draw calls, create and bind the VAO
+            // Record primitive type for use in draw calls, create and bind the VAO
             this.primitiveType = primitiveType;
             this.id = Gl.GenVertexArray(); // superbible uses CreateVertexArray?
             Gl.BindVertexArray(id);
@@ -35,7 +35,10 @@
             uint k = 0;
             for (int i = 0; i < attributeBuffers.Length; i++)
             {
-                var buffer = attributeBuffers[i] = new GlVertexBufferObject(BufferTarget.ArrayBuffer, attributeBufferSpecs[i].Item1, attributeBufferSpecs[i].Item2);
+                var buffer = attributeBuffers[i] = new GlVertexBufferObject(
+                    BufferTarget.ArrayBuffer,
+                    attributeBufferSpecs[i].usage,
+                    attributeBufferSpecs[i].data);
                 for (uint j = 0; j < buffer.Attributes.Length; j++, k++)
                 {
                     var attribute = buffer.Attributes[j];
@@ -57,9 +60,6 @@
             }
         }
 
-        /// <summary>
-        /// Finalizer. Releases any unmanaged resources used by an object as it is GC'd.
-        /// </summary>
         ~GlVertexArrayObject()
         {
             Dispose(false);
@@ -76,12 +76,20 @@
         /// <inheritdoc />
         public IReadOnlyList<IVertexBufferObject> AttributeBuffers => this.attributeBuffers;
 
+        public static IVertexArrayObject MakeVertexArrayObject(PrimitiveType primitiveType, IList<(BufferUsage, Array)> attributeBufferSpecs, uint[] indices)
+        {
+            return new GlVertexArrayObject(
+                primitiveType,
+                attributeBufferSpecs, // TODO: different VAO ctor to avoid needless large heap allocation 
+                indices); // TODO: different VAO ctor to avoid needless large heap allocation
+        }
+
         /// <inheritdoc />
         public void Draw(int count = -1)
         {
             Gl.BindVertexArray(this.id);
 
-            // TODO: delegate instead of 'if' every time?
+            // TODO: PERFORMANCE (this method will be called ALOT) - delegate instead of 'if' every time?
             if (indexBuffer != null)
             {
                 // There's an index buffer (which will be bound) - bind it and draw
@@ -115,14 +123,6 @@
             //Gl.CopyNamedBufferSubData(this.Id, newId, 0, 0, (uint)(Marshal.SizeOf(elementType) * count));
             //count = value;
         }*/
-
-        public static IVertexArrayObject MakeVertexArrayObject(PrimitiveType primitiveType, IList<Tuple<BufferUsage, Array>> attributeBufferSpecs, uint[] indices)
-        {
-            return new GlVertexArrayObject(
-                primitiveType,
-                attributeBufferSpecs, // TODO: different VAO ctor to avoid needless large heap allocation 
-                indices); // TODO: different VAO ctor to avoid needless large heap allocation
-        }
 
         private void Dispose(bool disposing)
         {

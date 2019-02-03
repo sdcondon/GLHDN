@@ -76,7 +76,7 @@
         /// <summary>
         /// Installs the program as part of the current rendering state and sets the current uniform values (using the default uniform block).
         /// </summary>
-        /// <param name="values">The uniform values (in the order in which they were created).</param>
+        /// <param name="values">The uniform values (in the order in which they were registered).</param>
         public void UseWithUniformValues(params object[] values)
         {
             Gl.UseProgram(this.id);
