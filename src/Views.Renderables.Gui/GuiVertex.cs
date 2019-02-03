@@ -11,7 +11,7 @@ namespace GLHDN.Views.Renderables.Gui
         public readonly Vector4 color;
         public readonly Vector2 elementPosition;
         public readonly Vector2 elementSize;
-        public readonly float borderWidth; // could be done with two quads instead? different levels of abstraction..
+        public readonly float borderWidth; // TODO: could be done with two quads instead? different levels of abstraction..
 
         public GuiVertex(Vector2 position, Vector4 color, Vector2 elementOrigin, Vector2 elementSize, float borderWidth)
         {

@@ -39,7 +39,7 @@
                 maxHeight = Math.Max(maxHeight, face.Glyph.Bitmap.Rows);
             }
 
-            // TODO: there should be no direct Gl usage other than in core. add this logic to it
+            // TODO: really, there should be no direct Gl usage other than in core. add this logic to it
             Gl.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
             this.TextureId = Gl.GenTexture();
             Gl.BindTexture(TextureTarget.Texture2dArray, this.TextureId);

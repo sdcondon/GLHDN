@@ -13,35 +13,35 @@
         {
             get
             {
-                object[] makeTestCase(Type type, params GlVertexAttributeInfo[] expectedAttributeinfo)
-                    => new object[] { type, expectedAttributeinfo };
+                object[] makeTestCase(Type type, params GlVertexAttributeInfo[] expectedAttributeInfo)
+                    => new object[] { type, expectedAttributeInfo };
 
                 return new[]
                 {
                     makeTestCase(
-                        typeof(Vector4),
-                        new GlVertexAttributeInfo(VertexAttribType.Float, 4, 0, 16)),
+                        type: typeof(Vector4),
+                        expectedAttributeInfo: new GlVertexAttributeInfo(VertexAttribType.Float, 4, 0, 16)),
                     makeTestCase(
-                        typeof(Vector3),
-                        new GlVertexAttributeInfo(VertexAttribType.Float, 3, 0, 12)),
+                        type: typeof(Vector3),
+                        expectedAttributeInfo: new GlVertexAttributeInfo(VertexAttribType.Float, 3, 0, 12)),
                     makeTestCase(
-                        typeof(Vector2),
-                        new GlVertexAttributeInfo(VertexAttribType.Float, 2, 0, 8)),
+                        type: typeof(Vector2),
+                        expectedAttributeInfo: new GlVertexAttributeInfo(VertexAttribType.Float, 2, 0, 8)),
                     makeTestCase(
-                        typeof(float),
-                        new GlVertexAttributeInfo(VertexAttribType.Float, 1, 0, 4)),
+                        type: typeof(float),
+                        expectedAttributeInfo: new GlVertexAttributeInfo(VertexAttribType.Float, 1, 0, 4)),
                     makeTestCase(
-                        typeof(uint),
-                        new GlVertexAttributeInfo(VertexAttribType.UnsignedInt, 1, 0, 4)),
+                        type: typeof(uint),
+                        expectedAttributeInfo: new GlVertexAttributeInfo(VertexAttribType.UnsignedInt, 1, 0, 4)),
                 };
             }
         }
 
         [Theory]
         [MemberData(nameof(ForType_ValidInput_TestCases))]
-        public void ForType_WithValidInput_ReturnsCorrectOutput(Type type, GlVertexAttributeInfo[] expectedAttributeinfo)
+        public void ForType_WithValidInput_ReturnsCorrectOutput(Type type, GlVertexAttributeInfo[] expectedAttributeInfo)
         {
-            GlVertexAttributeInfo.ForType(type).Should().BeEquivalentTo(expectedAttributeinfo);
+            GlVertexAttributeInfo.ForType(type).Should().BeEquivalentTo(expectedAttributeInfo);
         }
     }
 }

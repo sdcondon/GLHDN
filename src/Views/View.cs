@@ -62,17 +62,17 @@
         public List<IRenderable> Renderables { get; private set; } = new List<IRenderable>();
 
         /// <summary>
-        /// Gets the set of keys pressed since the last update.
+        /// Gets the set of keys pressed since the last update. TODO: should be readonly
         /// </summary>
         public HashSet<char> KeysPressed { get; private set; } = new HashSet<char>();
 
         /// <summary>
-        /// Gets the set of currently pressed keys.
+        /// Gets the set of currently pressed keys. TODO: should be readonly
         /// </summary>
         public HashSet<char> KeysDown { get; private set; } = new HashSet<char>();
 
         /// <summary>
-        /// Gets the set of keys released since the last update.
+        /// Gets the set of keys released since the last update. TODO: should be readonly
         /// </summary>
         public HashSet<char> KeysReleased { get; private set; } = new HashSet<char>();
 

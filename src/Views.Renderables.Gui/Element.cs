@@ -131,6 +131,7 @@
 
         public abstract IList<GuiVertex> Vertices { get; }
 
+        /// <inheritdoc />
         public event PropertyChangedEventHandler PropertyChanged;
 
         // TODO: Instead of this being public, IElementParent should inherit INotifyPropertyChanged

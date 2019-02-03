@@ -52,7 +52,7 @@
                 lines.ToObservable((Line a) => new[] { new Vertex(a.from, Vector3.One, a.from), new Vertex(a.to, Vector3.One, a.to) }),
                 PrimitiveType.Lines,
                 100,
-                new[] { 0, 1 }, // TODO: Change so not needed
+                new[] { 0, 1 }, // TODO: Change so not needed (i.e. allow index-less)
                 GlVertexArrayObject.MakeVertexArrayObject); 
         }
 
