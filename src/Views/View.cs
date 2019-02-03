@@ -15,11 +15,16 @@
         private readonly Stopwatch modelUpdateIntervalStopwatch = new Stopwatch();
         private readonly Action<TimeSpan> modelUpdateHandler;
         private readonly bool lockCursor;
+        private readonly Vector3 clearColor;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="View"/> class.
         /// </summary>
-        public View(IViewContext context, Action<TimeSpan> modelUpdateHandler, bool lockCursor)
+        public View(
+            IViewContext context,
+            Action<TimeSpan> modelUpdateHandler,
+            bool lockCursor,
+            Vector3 clearColor)
         {
             Gl.DebugMessageCallback(OnGlDebugMessage, null);
 
@@ -47,6 +52,8 @@
                 context.GotFocus += (s, a) => context.CursorPosition = context.GetCenter();
                 context.HideCursor();
             }
+
+            this.clearColor = clearColor;
         }
 
         /// <summary>
@@ -143,10 +150,10 @@
 
         private void OnContextCreated(object sender, DeviceContext context)
         {
-            Gl.ClearColor(0.0f, 0.0f, 0.1f, 0.0f); // Dark blue background
+            Gl.ClearColor(clearColor.X, clearColor.Y, clearColor.Z, 1f);
             Gl.Enable(EnableCap.DepthTest); // Enable depth test
             Gl.DepthFunc(DepthFunction.Lequal); // Accept fragment if it closer to the camera than the former one
-            Gl.Enable(EnableCap.CullFace); // Cull triangles which normal is not towards the camera
+            Gl.Enable(EnableCap.CullFace); // Cull triangles of which normal is not towards the camera
 
             // Transparency
             Gl.Enable(EnableCap.Blend);

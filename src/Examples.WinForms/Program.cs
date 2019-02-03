@@ -30,7 +30,7 @@
                 // FormBorderStyle = FormBorderStyle.Sizable
             };
 
-            view = new Views.View(form.ViewContext, ModelUpdate, true);
+            view = new Views.View(form.ViewContext, ModelUpdate, true, Vector3.Zero);
 
             camera = new FirstPersonCamera(
                 movementSpeed: 3.0f,
@@ -90,7 +90,7 @@
             camera.Update(elapsed, view);
             camText.Content = $"Cam: {camera.Position:F2}\n\nHello, world!";
 
-            if (view.LeftMouseButtonReleased)
+            if (view.WasLeftMouseButtonReleased)
             {
                 var ray = new Ray(camera, view);
                 lines.AddLine(ray.Origin, ray.Origin + ray.Direction * 10);
