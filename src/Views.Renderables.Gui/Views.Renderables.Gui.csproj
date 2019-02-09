@@ -11,6 +11,10 @@
     <Description>Open GL Helpers for .NET / view engine: GUI renderable implementation.</Description>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>GLHDN.Views.Renderables.Gui.xml</DocumentationFile>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Remove="_stb\stb_rect_pack.cs" />
     <Compile Remove="_stb\stb_truetype.cs" />
