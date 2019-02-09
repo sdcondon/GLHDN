@@ -15,11 +15,18 @@
     <Product>Open GL Helpers for .NET</Product>
     <RepositoryType>git</RepositoryType>
     <Description>Open GL Helpers for .NET / core: Low-level OO wrappers around Open GL concepts.</Description>
+    <RepositoryUrl>https://github.com/sdcondon/GLHDN</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/sdcondon/GLHDN</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/sdcondon/GLHDN/blob/master/LICENSE.txt</PackageLicenseUrl>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>GLHDN.Core.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="OpenGL.Net" Version="0.7.1" />
-    <PackageReference Include="System.Numerics.Vectors" Version="4.4.0" />
+    <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup>

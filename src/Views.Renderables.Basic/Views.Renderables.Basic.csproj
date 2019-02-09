@@ -12,6 +12,10 @@
     <Description>Open GL Helpers for .NET / view engine: Test renderable implementations.</Description>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>GLHDN.Views.Renderables.Basic.xml</DocumentationFile>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Remove="Colored.Fragment.glsl" />
     <None Remove="Colored.Vertex.glsl" />

@@ -12,6 +12,10 @@
     <Description>Open GL Helpers for .NET / reactive buffers: logic for managing Open GL buffers using Observables of vertex data</Description>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>GLHDN.ReactiveBuffers.xml</DocumentationFile>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="System.Reactive" Version="4.1.2" />
   </ItemGroup>
