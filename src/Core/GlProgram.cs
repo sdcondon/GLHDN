@@ -70,6 +70,9 @@
             this.uniformIds = uniforms.Select(x => Gl.GetUniformLocation(this.id, x)).ToArray();
         }
 
+        /// <summary>
+        /// Finalizer
+        /// </summary>
         ~GlProgram()
         {
             Dispose(false);

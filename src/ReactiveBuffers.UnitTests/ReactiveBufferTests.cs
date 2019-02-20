@@ -16,58 +16,48 @@
         {
             get
             {
-                object[] makeTestCase(string description, Action<ObservableCollection<In>> action, ICollection<(int, int)> expectedVertices) =>
-                    new object[] { description, action, expectedVertices, Enumerable.Range(0, expectedVertices.Count).ToArray() };
+                object[] makeTestCase(Action<ObservableCollection<In>> action, ICollection<(int, int)> expectedVertices) =>
+                    new object[] { action, expectedVertices, Enumerable.Range(0, expectedVertices.Count).ToArray() };
 
                 return new List<object[]>()
                 {
-                    makeTestCase(
-                        "addition, const size",
+                    makeTestCase( // addition, const size
                         a => { a.Add(1, 2); a.Add(2, 2); },
                         new[] { (1, 1), (1, 2), (2, 1), (2, 2) }),
 
-                    makeTestCase(
-                        "removal from middle, const size",
+                    makeTestCase( // removal from middle, const size
                         a => { a.Add(1, 2); a.Add(2, 2); a.RemoveAt(0); },
                         new[] { (2, 1), (2, 2) }),
 
-                    makeTestCase(
-                        "removal from end, const size",
+                    makeTestCase( // removal from end, const size
                         a => { a.Add(1, 2); a.Add(2, 2); a.RemoveAt(1); },
                         new[] { (1, 1), (1, 2) }),
 
-                    makeTestCase(
-                        "replacement, const size",
+                    makeTestCase( // replacement, const size
                         a => { a.Add(1, 2); a.Add(2, 2); a[0] = (3, 2); },
                         new[] { (3, 1), (3, 2), (2, 1), (2, 2) }),
 
-                    makeTestCase(
-                        "clear",
+                    makeTestCase( // clear
                         a => { a.Add(1, 2); a.Add(2, 2); a.Clear(); a.Add(3, 2); },
                         new[] { (3, 1), (3, 2) }),
 
-                    makeTestCase(
-                        "addition, varying sizes",
+                    makeTestCase( // addition, varying sizes
                         a => { a.Add(1, 4); a.Add(2, 2); },
                         new[] { (1, 1), (1, 2), (1, 3), (1, 4), (2, 1), (2, 2) }),
 
-                    makeTestCase(
-                        "removal, varying sizes",
+                    makeTestCase( // removal, varying sizes
                         a => { a.Add(1, 2); a.Add(2, 4); a.RemoveAt(0); },
                         new[] { (2, 3), (2, 4), (2, 1), (2, 2) }),
 
-                    makeTestCase(
-                        "replacement, varying sizes - bigger",
+                    makeTestCase( // replacement, varying sizes - bigger
                         a => { a.Add(1, 2); a.Add(2, 2); a[0] = (3, 4); },
                         new[] { (3, 1), (3, 2), (2, 1), (2, 2), (3, 3), (3, 4) }),
 
-                    makeTestCase(
-                        "replacement, varying sizes - smaller",
+                    makeTestCase( // replacement, varying sizes - smaller
                         a => { a.Add(1, 4); a.Add(2, 2); a[0] = (3, 2); },
                         new[] { (3, 1), (3, 2), (2, 2), (2, 1) }),
 
-                    makeTestCase(
-                        "replacement at end, varying sizes - smaller",
+                    makeTestCase( // replacement at end, varying sizes - smaller
                         a => { a.Add(1, 2); a.Add(2, 4); a[1] = (3, 2); },
                         new[] { (1, 1), (1, 2), (3, 1), (3, 2) })
                 };
@@ -77,7 +67,6 @@
         [Theory]
         [MemberData(nameof(TestCases))]
         public void Test(
-            string description,
             Action<ObservableCollection<In>> action,
             ICollection<(int, int)> expectedVertices,
             ICollection<int> expectedIndices)

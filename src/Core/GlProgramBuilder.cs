@@ -35,7 +35,7 @@
         /// Adds a shader to be included in the built program, reading the source from a file.
         /// </summary>
         /// <param name="shaderType">The type of shader to be added.</param>
-        /// <param name="sourceStream">The path of the file containing the source of the shader (in UTF-8).</param>
+        /// <param name="filePath">The path of the file containing the source of the shader (in UTF-8).</param>
         /// <returns>The updated builder.</returns>
         public GlProgramBuilder WithShaderFromFile(ShaderType shaderType, string filePath)
         {
@@ -49,7 +49,7 @@
         /// Adds a shader to be included in the built program, reading the source from a resource embedded in the calling assembly.
         /// </summary>
         /// <param name="shaderType">The type of shader to be added.</param>
-        /// <param name="sourceStream">The name of the resource containing the source of the shader (in UTF-8).</param>
+        /// <param name="resourceName">The name of the resource containing the source of the shader (in UTF-8).</param>
         /// <returns>The updated builder.</returns>
         public GlProgramBuilder WithShaderFromEmbeddedResource(ShaderType shaderType, string resourceName)
         {

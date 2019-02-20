@@ -17,32 +17,32 @@
         {
             get
             {
-                object[] makeTestCase(string description, Action<ObservableCollection<In>> action, ICollection<string> expectedObservations) =>
-                    new object[] { description, action, expectedObservations };
+                object[] makeTestCase(Action<ObservableCollection<In>> action, ICollection<string> expectedObservations) =>
+                    new object[] { action, expectedObservations };
 
                 return new List<object[]>()
                 {
-                    makeTestCase("addition",
+                    makeTestCase( // addition
                         a => { a.Add(new In(1)); a.Add(new In(2)); },
                         new[] { "new:1", "val:1:1", "new:2", "val:2:2" }),
 
-                    makeTestCase("update",
+                    makeTestCase( // update
                         a => { var i = new In(1); a.Add(i); i.Value = 2; },
                         new[] { "new:1", "val:1:1", "val:1:2" }),
 
-                    makeTestCase("removal at start",
+                    makeTestCase( // removal at start
                         a => { a.Add(new In(1)); a.Add(new In(2)); a.RemoveAt(0); },
                         new[] { "new:1", "val:1:1", "new:2", "val:2:2", "del:1" }),
 
-                    makeTestCase("removal at end",
+                    makeTestCase( // removal at end
                         a => { a.Add(new In(1)); a.Add(new In(2)); a.RemoveAt(1); },
                         new[] { "new:1", "val:1:1", "new:2", "val:2:2", "del:2" }),
 
-                    makeTestCase("replacement",
+                    makeTestCase( // replacement
                         a => { a.Add(new In(1)); a.Add(new In(2)); a[0] = new In(3); },
                         new[] { "new:1", "val:1:1", "new:2", "val:2:2", "del:1", "new:3", "val:3:3" }),
 
-                    makeTestCase("clear",
+                    makeTestCase( // clear
                         a => { a.Add(new In(1)); a.Add(new In(2)); a.Clear(); a.Add(new In(3)); },
                         new[] { "new:1", "val:1:1", "new:2", "val:2:2", "del:1", "del:2", "new:3", "val:3:3" })
                 };
@@ -51,7 +51,7 @@
 
         [Theory]
         [MemberData(nameof(ObservableCollectionToObservableTestCases))]
-        public void ObservableCollectionToObservableTests(string description, Action<ObservableCollection<In>> action, ICollection<string> expectedObservations)
+        public void ObservableCollectionToObservableTests(Action<ObservableCollection<In>> action, ICollection<string> expectedObservations)
         {
             // Arrange
             var collection = new ObservableCollection<In>();
@@ -113,33 +113,28 @@
         {
             get
             {
-                object[] makeTestCase(string description, Action<Composite> action, ICollection<string> expectedObservations) =>
-                    new object[] { description, action, expectedObservations };
+                object[] makeTestCase(Action<Composite> action, ICollection<string> expectedObservations) =>
+                    new object[] { action, expectedObservations };
 
                 return new List<object[]>()
                 {
-                    makeTestCase(
-                        "addition, update & removal",
+                    makeTestCase( // addition, update & removal
                         a => { var i = a.Add(1); i.Value = 2; i.Remove(); },
                         new[] { "1+", "1=1", "1=2", "1-" }),
 
-                    makeTestCase(
-                        "nested addition, update and removal",
+                    makeTestCase( // nested addition, update and removal
                         a => { var i = a.Add(1); var j = i.Add(2); j.Value = 3; j.Remove(); },
                         new[] { "1+", "1=1", "2+", "2=2", "2=3", "2-" }),
 
-                    makeTestCase(
-                        "parent removal",
+                    makeTestCase( // parent removal
                         a => { var i = a.Add(1); var j = i.Add(2); i.Remove(); },
                         new[] { "1+", "1=1", "2+", "2=2", "1-", "2-" }),
 
-                    makeTestCase(
-                        "grandparent removal",
+                    makeTestCase( // grandparent removal
                         a => { var i = a.Add(1); var j = i.Add(2); var k = j.Add(3); i.Value = 4; j.Value = 5; k.Value = 6; i.Remove(); },
                         new[] { "1+", "1=1", "2+", "2=2", "3+", "3=3", "1=4", "2=5", "3=6", "1-", "2-", "3-" }),
 
-                    makeTestCase(
-                        "sibling independence",
+                    makeTestCase( // sibling independence
                         a => { var s1 = a.Add(1); var s2 = a.Add(2); var s11 = s1.Add(11); var s21 = s2.Add(21); s1.Remove(); s21.Value = 22; },
                         new[] { "1+", "1=1", "2+", "2=2", "3+", "3=11", "4+", "4=21", "1-", "3-", "4=22" }),
                 };
@@ -148,7 +143,7 @@
 
         [Theory]
         [MemberData(nameof(FlattenCompositeTestCases))]
-        public void FlattenCompositeTests(string description, Action<Composite> action, ICollection<string> expectedObservations)
+        public void FlattenCompositeTests(Action<Composite> action, ICollection<string> expectedObservations)
         {
             // Arrange
             var subjectMonitor = new Dictionary<string, object>();
