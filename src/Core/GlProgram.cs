@@ -18,6 +18,8 @@
 
         internal GlProgram(IList<ShaderType> shaderTypes, IList<string> shaderSources, string[] uniforms)
         {
+            void DebugWriteLine(string msg) => Debug.WriteLine(msg, $"{this}::ctor");
+
             // Create program
             this.id = Gl.CreateProgram();
 
@@ -29,7 +31,7 @@
                 var shaderId = Gl.CreateShader(shaderTypes[i]);
 
                 // Compile shader
-                Trace.WriteLine($"Compiling shader", "OPENGL");
+                DebugWriteLine("Compiling shader");
                 Gl.ShaderSource(shaderId, new[] { shaderSources[i] });
                 Gl.CompileShader(shaderId);
 
@@ -47,7 +49,7 @@
             }
 
             // Link & check program
-            Trace.WriteLine("Linking program", "OPENGL");
+            DebugWriteLine("Linking program");
             Gl.LinkProgram(this.id);
             Gl.GetProgram(this.id, ProgramProperty.InfoLogLength, out var programInfoLogLength);
             if (programInfoLogLength > 0)

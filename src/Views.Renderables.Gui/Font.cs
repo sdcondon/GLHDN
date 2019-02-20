@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Numerics;
     using GLHDN.Core;
     using OpenGL;
@@ -25,6 +26,9 @@
         /// <param name="pixelSize"></param>
         public Font(string filePath, uint pixelSize = 16)
         {
+            void DebugWriteLine(string msg) => Debug.WriteLine(msg, $"{this}:{nameof(Font)}");
+
+            DebugWriteLine("Constructing new Font object");
             face = new Face(sharpFont, filePath);
             face.SetPixelSizes(0, pixelSize); 
             //face.SetCharSize(0, 16 * 64, 300, 300);

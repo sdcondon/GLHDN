@@ -38,7 +38,7 @@
                 fieldOfViewRadians: (float)Math.PI / 4.0f,
                 nearPlaneDistance: 0.1f,
                 farPlaneDistance: 100f,
-                initialPosition: new Vector3(0f, 0f, 3f),
+                initialPosition: new Vector3(0f, 0f, -3f),
                 initialHorizontalAngleRadians: 0f,
                 initialVerticalAngleRadians: 0f);
 
