@@ -1,19 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
-    <Version>0.1.0</Version>
     <AssemblyName>GLHDN.Views.Contexts.WinForms</AssemblyName>
     <RootNamespace>GLHDN.Views.Contexts.WinForms</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.1.0</Version>
-    <PackageId>GLHDN.Views.Contexts.WinForms</PackageId>
-    <Authors>Simon Condon</Authors>
-    <Company></Company>
-    <Product>Open GL Helpers for .NET</Product>
     <Description>Open GL Helpers for .NET / view engine: WinForms context implementation</Description>
   </PropertyGroup>
 

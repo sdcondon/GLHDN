@@ -2,11 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
-
     <IsPackable>false</IsPackable>
-
     <AssemblyName>GLHDN.Core.UnitTests</AssemblyName>
-
     <RootNamespace>GLHDN.Core.UnitTests</RootNamespace>
   </PropertyGroup>
 

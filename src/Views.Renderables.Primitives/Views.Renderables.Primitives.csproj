@@ -2,18 +2,16 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>GLHDN.Views.Renderables.BasicExamples</AssemblyName>
-    <RootNamespace>GLHDN.Views.Renderables.BasicExamples</RootNamespace>
+    <AssemblyName>GLHDN.Views.Renderables.Primitives</AssemblyName>
+    <RootNamespace>GLHDN.Views.Renderables.Primitives</RootNamespace>
     
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Description>Open GL Helpers for .NET / view engine: Test renderable implementations.</Description>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>GLHDN.Views.Renderables.Basic.xml</DocumentationFile>
+    <Description>Foo</Description>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="2d\Colored.Fragment.glsl" />
+    <None Remove="2d\Colored.Vertex.glsl" />
     <None Remove="Colored.Fragment.glsl" />
     <None Remove="Colored.Vertex.glsl" />
     <None Remove="Textured.Fragment.glsl" />
@@ -21,10 +19,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Colored.Fragment.glsl" />
-    <EmbeddedResource Include="Colored.Vertex.glsl" />
-    <EmbeddedResource Include="Textured.Fragment.glsl" />
-    <EmbeddedResource Include="Textured.Vertex.glsl" />
+    <EmbeddedResource Include="2d\Colored.Fragment.glsl" />
+    <EmbeddedResource Include="2d\Colored.Vertex.glsl" />
   </ItemGroup>
 
   <ItemGroup>
