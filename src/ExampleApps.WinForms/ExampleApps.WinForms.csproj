@@ -5,7 +5,7 @@
     <TargetFramework>net472</TargetFramework>
     <ApplicationIcon />
     <StartupObject />
-    <AssemblyName>GLHDN.Examples.WinForms</AssemblyName>
+    <AssemblyName>GLHDN.ExampleApps.WinForms</AssemblyName>
     <RootNamespace>GLHDN.Examples.WinForms</RootNamespace>
     <Platforms>AnyCPU;x86</Platforms>
   </PropertyGroup>
@@ -39,7 +39,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Views.Contexts.WinForms\Views.Contexts.WinForms.csproj" />
-    <ProjectReference Include="..\Views.Renderables.Basic\Views.Renderables.Basic.csproj" />
+    <ProjectReference Include="..\Views.Renderables.BasicExamples\Views.Renderables.BasicExamples.csproj" />
     <ProjectReference Include="..\Views.Renderables.Gui\Views.Renderables.Gui.csproj" />
     <ProjectReference Include="..\Views\Views.csproj" />
   </ItemGroup>

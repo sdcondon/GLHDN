@@ -1,4 +1,4 @@
-﻿namespace GLHDN.Views.Renderables.Basic
+﻿namespace GLHDN.Views.Renderables.BasicExamples
 {
     using OpenGL;
     using GLHDN.Core;
@@ -11,7 +11,7 @@
     /// </summary>
     public class ColoredStaticMesh : IRenderable
     {
-        private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.Basic";
+        private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.BasicExamples";
 
         private readonly IViewProjection viewProjection;
 
