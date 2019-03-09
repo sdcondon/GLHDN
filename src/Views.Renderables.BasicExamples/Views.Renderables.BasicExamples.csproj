@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>GLHDN.Views.Renderables.Basic</AssemblyName>
-    <RootNamespace>GLHDN.Views.Renderables.Basic</RootNamespace>
+    <AssemblyName>GLHDN.Views.Renderables.BasicExamples</AssemblyName>
+    <RootNamespace>GLHDN.Views.Renderables.BasicExamples</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>0.1.0</Version>
     <Authors>Simon Condon</Authors>

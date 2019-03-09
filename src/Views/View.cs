@@ -26,6 +26,7 @@
             bool lockCursor,
             Vector3 clearColor)
         {
+            Debug.WriteLine("Registering OpenGL debug handler");
             Gl.DebugMessageCallback(OnGlDebugMessage, null);
 
             this.context = context;
@@ -150,7 +151,7 @@
 
         private void OnContextCreated(object sender, DeviceContext context)
         {
-            Gl.ClearColor(clearColor.X, clearColor.Y, clearColor.Z, 1f);
+            Gl.ClearColor(clearColor.X, clearColor.Y, clearColor.Z, 0f);
             Gl.Enable(EnableCap.DepthTest); // Enable depth test
             Gl.DepthFunc(DepthFunction.Lequal); // Accept fragment if it closer to the camera than the former one
             Gl.Enable(EnableCap.CullFace); // Cull triangles of which normal is not towards the camera

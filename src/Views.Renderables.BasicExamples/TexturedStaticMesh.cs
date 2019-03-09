@@ -1,18 +1,17 @@
-﻿namespace GLHDN.Views.Renderables.Basic
+﻿namespace GLHDN.Views.Renderables.BasicExamples
 {
-    using OpenGL;
     using GLHDN.Core;
+    using OpenGL;
     using System.Collections.Generic;
     using System.Linq;
     using System.Numerics;
-    using System.Runtime.InteropServices;
 
     /// <summary>
     /// Renderable class for static 3D geometry.
     /// </summary>
     public class StaticTexuredRenderer : IRenderable
     {
-        private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.Basic";
+        private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.BasicExamples";
 
         private readonly IViewProjection viewProjection;
         private readonly string textureFilePath;

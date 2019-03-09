@@ -1,6 +1,8 @@
-﻿namespace GLHDN.Views.Contexts.WinForms.Test
+﻿namespace GLHDN.Examples.WinForms
 {
-    using GLHDN.Views.Renderables.Basic;
+    using GLHDN.Views;
+    using GLHDN.Views.Contexts.WinForms;
+    using GLHDN.Views.Renderables.BasicExamples;
     using GLHDN.Views.Renderables.Gui;
     using System;
     using System.Numerics;
@@ -38,7 +40,7 @@
                 fieldOfViewRadians: (float)Math.PI / 4.0f,
                 nearPlaneDistance: 0.1f,
                 farPlaneDistance: 100f,
-                initialPosition: new Vector3(0f, 0f, 3f),
+                initialPosition: new Vector3(0f, 0f, -3f),
                 initialHorizontalAngleRadians: 0f,
                 initialVerticalAngleRadians: 0f);
 
@@ -71,7 +73,7 @@
                     parentOrigin: new Dimensions(-1f, 0f),
                     localOrigin: new Dimensions(-1f, 0f),
                     relativeSize: new Dimensions(250, 1f),
-                    color: new Vector4(0.2f, 0.2f, 0.5f, 0.1f),
+                    color: new Vector4(1f, 1f, 1f, 0f),
                     borderWidth: 0f);
                 gui.SubElements.Add(panel);
 

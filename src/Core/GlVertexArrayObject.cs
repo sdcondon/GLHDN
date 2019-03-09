@@ -18,7 +18,7 @@
         /// Initializes a new instance of the <see cref="GlVertexArrayObject"/> class. SIDE EFFECT: new VAO will be bound.
         /// </summary>
         /// <param name="primitiveType">OpenGL primitive type.</param>
-        /// <param name="attributeBufferBuilders">Builder delegates for the buffers in this VAO.</param>
+        /// <param name="attributeBufferSpecs">Specs for the buffers in this VAO.</param>
         /// <param name="indexData">The data to populate the index buffer with, or null if there should be no index.</param>
         internal GlVertexArrayObject(
             PrimitiveType primitiveType,
@@ -60,6 +60,9 @@
             }
         }
 
+        /// <summary>
+        /// Finalizer
+        /// </summary>
         ~GlVertexArrayObject()
         {
             Dispose(false);

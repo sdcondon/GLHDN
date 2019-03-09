@@ -7,8 +7,8 @@
 
     internal class SubElementCollection : ICollection<Element>, INotifyCollectionChanged
     {
-        private IElementParent owner;
-        private ObservableCollection<Element> elements;
+        private readonly IElementParent owner;
+        private readonly ObservableCollection<Element> elements;
 
         /// <inheritdoc /> from INotifyCollectionChanged
         public event NotifyCollectionChangedEventHandler CollectionChanged;

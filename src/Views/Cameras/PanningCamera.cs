@@ -5,10 +5,11 @@
 
     public class PanningCamera : ICamera
     {
+        private readonly float movementSpeed;
+
         private Vector3 target;
         private int zoomLevel = 0;
-        private float movementSpeed;
-
+        
         public PanningCamera(
             float fieldOfViewRadians,
             float nearPlaneDistance,

@@ -3,25 +3,25 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27004.2009
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{4AFA3865-7E06-4CB0-84BD-4B5E8B9BE9ED}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Example Apps", "Example Apps", "{4AFA3865-7E06-4CB0-84BD-4B5E8B9BE9ED}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Examples.WinForms", "Examples.WinForms\Examples.WinForms.csproj", "{969ECA8B-E0DF-487C-A65E-AF08C5AB1064}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExampleApps.WinForms", "ExampleApps.WinForms\ExampleApps.WinForms.csproj", "{969ECA8B-E0DF-487C-A65E-AF08C5AB1064}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Core\Core.csproj", "{AF5DC9F2-FFF2-442B-9B2A-4B935CE4E4F2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core.UnitTests", "Core.UnitTests\Core.UnitTests.csproj", "{DB4E3705-79B6-42D2-96B1-2A67FABA6EC7}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactiveBuffers", "ReactiveBuffers\ReactiveBuffers.csproj", "{8AF535C2-F6EB-4446-BE51-AB07A08EFCCE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactiveBuffers.UnitTests", "ReactiveBuffers.UnitTests\ReactiveBuffers.UnitTests.csproj", "{E2937C17-CC25-4AA5-AB41-28F26E726A9F}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Views", "Views\Views.csproj", "{CD34FEE4-C4D8-4915-B150-722BB0C1BD2D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Views.Contexts.WinForms", "Views.Contexts.WinForms\Views.Contexts.WinForms.csproj", "{216FFA39-DBEB-4DE2-BC56-EB21185D14AC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Views.Renderables.Basic", "Views.Renderables.Basic\Views.Renderables.Basic.csproj", "{EB71ED01-30A1-4F29-BAE2-7AA1B3D6B59D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Views.Renderables.BasicExamples", "Views.Renderables.BasicExamples\Views.Renderables.BasicExamples.csproj", "{EB71ED01-30A1-4F29-BAE2-7AA1B3D6B59D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Views.Renderables.Gui", "Views.Renderables.Gui\Views.Renderables.Gui.csproj", "{A3B6711D-F4E1-4749-B598-E27DE2806D29}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactiveBuffers", "ReactiveBuffers\ReactiveBuffers.csproj", "{8AF535C2-F6EB-4446-BE51-AB07A08EFCCE}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactiveBuffers.UnitTests", "ReactiveBuffers.UnitTests\ReactiveBuffers.UnitTests.csproj", "{E2937C17-CC25-4AA5-AB41-28F26E726A9F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +41,14 @@ Global
 		{DB4E3705-79B6-42D2-96B1-2A67FABA6EC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DB4E3705-79B6-42D2-96B1-2A67FABA6EC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DB4E3705-79B6-42D2-96B1-2A67FABA6EC7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8AF535C2-F6EB-4446-BE51-AB07A08EFCCE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8AF535C2-F6EB-4446-BE51-AB07A08EFCCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8AF535C2-F6EB-4446-BE51-AB07A08EFCCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8AF535C2-F6EB-4446-BE51-AB07A08EFCCE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E2937C17-CC25-4AA5-AB41-28F26E726A9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2937C17-CC25-4AA5-AB41-28F26E726A9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2937C17-CC25-4AA5-AB41-28F26E726A9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2937C17-CC25-4AA5-AB41-28F26E726A9F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CD34FEE4-C4D8-4915-B150-722BB0C1BD2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CD34FEE4-C4D8-4915-B150-722BB0C1BD2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CD34FEE4-C4D8-4915-B150-722BB0C1BD2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -57,14 +65,6 @@ Global
 		{A3B6711D-F4E1-4749-B598-E27DE2806D29}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A3B6711D-F4E1-4749-B598-E27DE2806D29}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A3B6711D-F4E1-4749-B598-E27DE2806D29}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8AF535C2-F6EB-4446-BE51-AB07A08EFCCE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8AF535C2-F6EB-4446-BE51-AB07A08EFCCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8AF535C2-F6EB-4446-BE51-AB07A08EFCCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8AF535C2-F6EB-4446-BE51-AB07A08EFCCE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E2937C17-CC25-4AA5-AB41-28F26E726A9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E2937C17-CC25-4AA5-AB41-28F26E726A9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E2937C17-CC25-4AA5-AB41-28F26E726A9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E2937C17-CC25-4AA5-AB41-28F26E726A9F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

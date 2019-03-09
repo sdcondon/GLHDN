@@ -49,6 +49,9 @@
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the text of this element is right-aligned.
+        /// </summary>
         public bool RightAligned { get; set; }
 
         /// <inheritdoc />

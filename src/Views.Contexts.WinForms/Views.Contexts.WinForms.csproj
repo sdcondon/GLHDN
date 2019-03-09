@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net461</TargetFramework>
+    <TargetFramework>net472</TargetFramework>
     <Version>0.1.0</Version>
     <AssemblyName>GLHDN.Views.Contexts.WinForms</AssemblyName>
     <RootNamespace>GLHDN.Views.Contexts.WinForms</RootNamespace>
