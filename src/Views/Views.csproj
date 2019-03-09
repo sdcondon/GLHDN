@@ -4,15 +4,10 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>GLHDN.Views</AssemblyName>
     <RootNamespace>GLHDN.Views</RootNamespace>
-    <Version>0.1.0</Version>
   </PropertyGroup>
 
   <PropertyGroup>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageId>GLHDN.Views</PackageId>
-    <Authors>Simon Condon</Authors>
-    <Company></Company>
-    <Product>Open GL Helpers for .NET</Product>
     <Description>Open GL Helpers for .NET / view engine: core types and abstractions.</Description>
   </PropertyGroup>
 
