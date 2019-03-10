@@ -41,6 +41,7 @@
     <ProjectReference Include="..\Views.Contexts.WinForms\Views.Contexts.WinForms.csproj" />
     <ProjectReference Include="..\Views.Renderables.BasicExamples\Views.Renderables.BasicExamples.csproj" />
     <ProjectReference Include="..\Views.Renderables.Gui\Views.Renderables.Gui.csproj" />
+    <ProjectReference Include="..\Views.Renderables.Primitives\Views.Renderables.Primitives.csproj" />
     <ProjectReference Include="..\Views\Views.csproj" />
   </ItemGroup>
 

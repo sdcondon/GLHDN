@@ -12,6 +12,8 @@
   <ItemGroup>
     <None Remove="2d\Colored.Fragment.glsl" />
     <None Remove="2d\Colored.Vertex.glsl" />
+    <None Remove="3d\Colored.Fragment.glsl" />
+    <None Remove="3d\Colored.Vertex.glsl" />
     <None Remove="Colored.Fragment.glsl" />
     <None Remove="Colored.Vertex.glsl" />
     <None Remove="Textured.Fragment.glsl" />
@@ -21,6 +23,8 @@
   <ItemGroup>
     <EmbeddedResource Include="2d\Colored.Fragment.glsl" />
     <EmbeddedResource Include="2d\Colored.Vertex.glsl" />
+    <EmbeddedResource Include="3d\Colored.Fragment.glsl" />
+    <EmbeddedResource Include="3d\Colored.Vertex.glsl" />
   </ItemGroup>
 
   <ItemGroup>
