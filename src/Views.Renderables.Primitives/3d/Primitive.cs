@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Numerics;
 
     public sealed class Primitive
@@ -13,10 +12,21 @@
 
         // todo: sphere
 
-        //public static Primitive Cuboid(Vector3 size, Matrix4x4 worldTransform, Vector4 color)
-        //{
+        public static Primitive Cuboid(Vector3 size, Matrix4x4 worldTransform, Vector4 color)
+        {
+            var baseTranslation = Matrix4x4.CreateTranslation(new Vector3(0, 0, .5f));
 
-        //}
+            var primitive = new Primitive();
+            primitive.AddQuad(new Vector2(size.X, size.Y), baseTranslation * worldTransform, color);
+            primitive.AddQuad(new Vector2(size.X, size.Y), baseTranslation * Matrix4x4.CreateRotationX((float)Math.PI) * worldTransform, color);
+
+            primitive.AddQuad(new Vector2(size.X, size.Z), baseTranslation * Matrix4x4.CreateRotationX((float)-Math.PI / 2) * worldTransform, color);
+            primitive.AddQuad(new Vector2(size.X, size.Z), baseTranslation * Matrix4x4.CreateRotationX((float)Math.PI / 2) * worldTransform, color);
+
+            primitive.AddQuad(new Vector2(size.Z, size.Y), baseTranslation * Matrix4x4.CreateRotationY((float)-Math.PI / 2) * worldTransform, color);
+            primitive.AddQuad(new Vector2(size.Z, size.Y), baseTranslation * Matrix4x4.CreateRotationY((float)Math.PI / 2) * worldTransform, color);
+            return primitive;
+        }
 
         public static Primitive Quad(Vector2 size, Matrix4x4 worldTransform, Vector4 color)
         {

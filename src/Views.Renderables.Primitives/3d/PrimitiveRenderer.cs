@@ -71,7 +71,7 @@
                 new Vector3(4, 4, 4),
                 new Vector3(1, 1, 1),
                 30f,
-                new Vector3(0.3f, 0.3f, 0.3f));
+                new Vector3(0.2f, 0.2f, 0.2f));
             this.primitiveBuffer.Draw();
         }
     }

@@ -98,7 +98,7 @@
             camText.Content = $"Cam: {camera.Position:F2}\n\nHello, world!";
 
             cubeWorldMatrix *= Matrix4x4.CreateRotationZ((float)elapsed.TotalSeconds);
-            cubeSubject.OnNext(new[] { Primitive.Quad(Vector2.One, cubeWorldMatrix, Vector4.UnitX) });
+            cubeSubject.OnNext(new[] { Primitive.Cuboid(Vector3.One, cubeWorldMatrix, Vector4.UnitX) });
 
             if (view.WasLeftMouseButtonReleased)
             {
