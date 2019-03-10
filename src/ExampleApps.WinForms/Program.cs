@@ -10,11 +10,11 @@
 
     static class Program
     {
-        private static ICamera camera;
-        private static Gui gui;
         private static Views.View view;
+        private static ICamera camera;
 
         private static ColoredLines lines;
+        private static Gui gui;
         private static TextElement camText;
 
         /// <summary>

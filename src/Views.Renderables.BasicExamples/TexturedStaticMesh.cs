@@ -43,6 +43,9 @@
             this.textureFilePath = textureFilePath;
         }
 
+        /// <summary>
+        /// Gets or sets the model transform for this mesh.
+        /// </summary>
         public Matrix4x4 Model { get; set; } = Matrix4x4.Identity;
 
         /// <inheritdoc />
@@ -86,15 +89,15 @@
 
         public struct Vertex
         {
-            public Vector3 P;
-            public Vector2 UV;
-            public Vector3 N;
+            public readonly Vector3 Position;
+            public readonly Vector2 UV;
+            public readonly Vector3 Normal;
 
             public Vertex(Vector3 position, Vector2 uv, Vector3 normal)
             {
-                P = position;
+                Position = position;
                 UV = uv;
-                N = normal;
+                Normal = normal;
             }
         }
     }

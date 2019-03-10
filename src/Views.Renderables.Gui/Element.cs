@@ -129,6 +129,9 @@
         /// </summary>
         public Vector2 PosTR => this.Center + this.Size / 2;
 
+        /// <summary>
+        /// Gets the list of vertices to be rendered for this GUI element.
+        /// </summary>
         public abstract IList<GuiVertex> Vertices { get; }
 
         /// <inheritdoc />

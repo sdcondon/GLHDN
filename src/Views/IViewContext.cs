@@ -4,6 +4,9 @@
     using System;
     using System.Numerics;
 
+    /// <summary>
+    /// Interface for types that provide the mechanism for <see cref="View"/> instances to interact with the user and the Open GL device context.
+    /// </summary>
     public interface IViewContext
     {
         event EventHandler<DeviceContext> GlContextCreated;
@@ -34,15 +37,18 @@
         int Height { get; }
 
         /// <summary>
-        /// Gets the position of the cursor within the context.
-        /// </summary>
-        Vector2 CursorPosition { get; set; }
-
-        /// <summary>
         /// Gets a value indicating whether the context has input focus.
         /// </summary>
         bool IsFocused { get; }
 
+        /// <summary>
+        /// Gets or sets the position of the mouse cursor within the context.
+        /// </summary>
+        Vector2 CursorPosition { get; set; }
+
+        /// <summary>
+        /// Instructs the context to hide the mouse cursor.
+        /// </summary>
         void HideCursor();
     }
 }

@@ -11,6 +11,9 @@
     {
         private static int nextId = 0;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MemoryVertexBufferObject"/> class.
+        /// </summary>
         public MemoryVertexBufferObject()
         {
             Id = (uint)Interlocked.Increment(ref nextId);
@@ -56,7 +59,6 @@
         /// <inheritdoc />
         public void Flush()
         {
-
         }
 
         /// <inheritdoc />

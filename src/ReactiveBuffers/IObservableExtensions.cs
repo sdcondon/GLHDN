@@ -7,6 +7,9 @@
     using System.Reactive.Linq;
     using System.Reactive.Subjects;
 
+    /// <summary>
+    /// Extension methods for IObservable instances.
+    /// </summary>
     public static class IObservableExtensions
     {
         /// <summary>

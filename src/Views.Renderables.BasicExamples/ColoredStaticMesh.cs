@@ -7,7 +7,7 @@
     using System.Numerics;
 
     /// <summary>
-    /// Renderable class for static 3D geometry.
+    /// Simple renderable class for static 3D geometry.
     /// </summary>
     public class ColoredStaticMesh : IRenderable
     {
@@ -20,6 +20,14 @@
         private GlVertexArrayObjectBuilder vertexArrayObjectBuilder;
         private GlVertexArrayObject vertexArrayObject;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ColoredStaticMesh"/> class.
+        /// </summary>
+        /// <param name="viewProjection">The provider for the view and projection matrices to use when rendering.</param>
+        /// <param name="vertexPositions">The positions of the vertices of the mesh.</param>
+        /// <param name="vertexNormals">The normals of the vertices of the mesh.</param>
+        /// <param name="vertexColors">The color of the vertices of the mesh.</param>
+        /// <param name="indices">The indices (into the provided vertices) to use for actually rendering the mesh.</param>
         public ColoredStaticMesh(
             IViewProjection viewProjection,
             IList<Vector3> vertexPositions,

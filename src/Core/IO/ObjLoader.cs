@@ -19,11 +19,19 @@
     /// </summary>
     public static class ObjLoader
     {
+        /// <summary>
+        /// Loads data from an OBJ file.
+        /// </summary>
+        /// <param name="path">The path of the OBJ file.</param>
+        /// <param name="vertexPositions">The list to be populated with the position of each vertex.</param>
+        /// <param name="vertexUvs">The list to be populated with the texture co-ordinate of each vertex.</param>
+        /// <param name="vertexNormals">The list to be populated with the normal of each vertex.</param>
+        /// <returns>True if the OBJ file was successfully loaded, otherwise false.</returns>
         public static bool LoadObj(
             string path,
-            IList<Vector3> out_vertices,
-            IList<Vector2> out_uvs,
-            IList<Vector3> out_normals)
+            IList<Vector3> vertexPositions,
+            IList<Vector2> vertexUvs,
+            IList<Vector3> vertexNormals)
         {
             Trace.WriteLine($"Loading OBJ file {path}");
 
@@ -92,9 +100,9 @@
                     var normal = temp_normals[normalIndex - 1];
 
                     // Put the attributes in buffers
-                    out_vertices.Add(vertex);
-                    out_uvs.Add(uv);
-                    out_normals.Add(normal);
+                    vertexPositions.Add(vertex);
+                    vertexUvs.Add(uv);
+                    vertexNormals.Add(normal);
                 }
             }
 

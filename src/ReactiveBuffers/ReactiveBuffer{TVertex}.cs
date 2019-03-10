@@ -6,7 +6,15 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    public class ReactiveBuffer<TVertex> // todo: refactor into an IObserver<IObservable<IList<TVertex>>>?
+    /// <summary>
+    /// Logic for creating and managing an Open GL buffer for a (observable) set of (observable) items that change over time,
+    /// each of which provide a list of vertices to the buffer.
+    /// </summary>
+    /// <typeparam name="TVertex">The vertex data type.</typeparam>
+    /// <remarks>
+    /// TODO: probably best to remove the buffer creation stuff from here and turn this into an IObserver.
+    /// </remarks>
+    public class ReactiveBuffer<TVertex>
     {
         private readonly IObservable<IObservable<IList<TVertex>>> vertexSource;
         private readonly int verticesPerAtom;
@@ -19,7 +27,10 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="ReactiveBuffer{TVertex}"/> class.
         /// </summary>
-        /// <param name="vertexSource">The source of vertex data.</param>
+        /// <param name="vertexSource">
+        /// The outer observable should push a new inner observable whenever a new item is added.
+        /// The inner observables should push a new list of vertices whenever the item's state changes, and complete when they are removed.
+        /// </param>
         /// <param name="primitiveType">The type of primitive to be drawn.</param>
         /// <param name="atomCapacity">The capacity for the buffer, in atoms.</param>
         /// <param name="indices"></param>
