@@ -14,7 +14,7 @@ out vec3 color;
 //uniform mat4 MV;
 uniform vec3 LightPosition_worldspace;
 uniform vec3 LightColor;
-uniform vec3 LightPower;
+uniform float LightPower;
 uniform vec3 AmbientLightColor;
 
 void main(){
@@ -22,7 +22,7 @@ void main(){
 	// Material properties
 	vec3 MaterialDiffuseColor = matColor;
 	vec3 MaterialAmbientColor = AmbientLightColor * MaterialDiffuseColor;
-	vec3 MaterialSpecularColor = vec3(0.0,0.0,0.0);
+	vec3 MaterialSpecularColor = vec3(0.2,0.2,0.2);
 
 	// Distance to the light
 	float distance = length( LightPosition_worldspace - Position_worldspace );

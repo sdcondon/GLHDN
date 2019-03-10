@@ -14,7 +14,7 @@ out vec3 color;
 //uniform mat4 MV;
 uniform vec3 LightPosition_worldspace;
 uniform vec3 LightColor;
-uniform vec3 LightPower;
+uniform float LightPower;
 uniform vec3 AmbientLightColor;
 
 void main(){

@@ -14,17 +14,18 @@
 
         public static Primitive Cuboid(Vector3 size, Matrix4x4 worldTransform, Vector4 color)
         {
-            var baseTranslation = Matrix4x4.CreateTranslation(new Vector3(0, 0, .5f));
+            var xy = new Vector2(size.X, size.Y);
+            var xz = new Vector2(size.X, size.Z);
+            var zy = new Vector2(size.Z, size.Y);
+            var zOffset = Matrix4x4.CreateTranslation(new Vector3(0, 0, .5f));
 
             var primitive = new Primitive();
-            primitive.AddQuad(new Vector2(size.X, size.Y), baseTranslation * worldTransform, color);
-            primitive.AddQuad(new Vector2(size.X, size.Y), baseTranslation * Matrix4x4.CreateRotationX((float)Math.PI) * worldTransform, color);
-
-            primitive.AddQuad(new Vector2(size.X, size.Z), baseTranslation * Matrix4x4.CreateRotationX((float)-Math.PI / 2) * worldTransform, color);
-            primitive.AddQuad(new Vector2(size.X, size.Z), baseTranslation * Matrix4x4.CreateRotationX((float)Math.PI / 2) * worldTransform, color);
-
-            primitive.AddQuad(new Vector2(size.Z, size.Y), baseTranslation * Matrix4x4.CreateRotationY((float)-Math.PI / 2) * worldTransform, color);
-            primitive.AddQuad(new Vector2(size.Z, size.Y), baseTranslation * Matrix4x4.CreateRotationY((float)Math.PI / 2) * worldTransform, color);
+            primitive.AddQuad(xy, zOffset * worldTransform, color);
+            primitive.AddQuad(xy, zOffset * Matrix4x4.CreateRotationX((float)Math.PI) * worldTransform, color);
+            primitive.AddQuad(xz, zOffset * Matrix4x4.CreateRotationX((float)-Math.PI / 2) * worldTransform, color);
+            primitive.AddQuad(xz, zOffset * Matrix4x4.CreateRotationX((float)Math.PI / 2) * worldTransform, color);
+            primitive.AddQuad(zy, zOffset * Matrix4x4.CreateRotationY((float)-Math.PI / 2) * worldTransform, color);
+            primitive.AddQuad(zy, zOffset * Matrix4x4.CreateRotationY((float)Math.PI / 2) * worldTransform, color);
             return primitive;
         }
 
@@ -50,6 +51,7 @@
 
         private void AddQuad(Vector2 size, Matrix4x4 worldTransform, Vector4 color)
         {
+            var normal = Vector3.TransformNormal(Vector3.UnitZ, worldTransform);
             var vertexPositions = new[]
             {
                 new Vector3(-size.X / 2, -size.Y / 2, 0),
@@ -60,15 +62,10 @@
                 new Vector3(-size.X / 2, +size.Y / 2, 0),
                 new Vector3(+size.X / 2, -size.Y / 2, 0),
             };
-
-            var normal = Vector3.TransformNormal(Vector3.UnitZ, worldTransform);
-
+            
             for (int i = 0; i < vertexPositions.Length; i++)
             {
-                AddVertex(
-                    Vector3.Transform(vertexPositions[i], worldTransform),
-                    color,
-                    Vector3.TransformNormal(vertexPositions[i], worldTransform));
+                AddVertex(Vector3.Transform(vertexPositions[i], worldTransform), color, normal);
             }
         }
 
