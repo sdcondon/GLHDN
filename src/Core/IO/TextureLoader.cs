@@ -14,6 +14,11 @@
         private const uint FOURCC_DXT3 = 0x33545844; // Equivalent to "DXT3" in ASCII
         private const uint FOURCC_DXT5 = 0x35545844; // Equivalent to "DXT5" in ASCII
 
+        /// <summary>
+        /// Loads a DDS image from a given file path.
+        /// </summary>
+        /// <param name="imagepath">The file path to load the image from.</param>
+        /// <returns>The Open GL texture ID that the image has been loaded into.</returns>
         public static uint LoadDDS(string imagepath)
         {
             // Read the file

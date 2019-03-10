@@ -3,6 +3,9 @@
     using System;
     using System.Numerics;
 
+    /// <summary>
+    /// Represents a semi-infinite 3D ray, that has a start point and a direction.
+    /// </summary>
     public struct Ray
     {
         /// <summary>
@@ -29,10 +32,23 @@
             Origin = camera.Position; // todo: do we really need a position?
         }
 
+        /// <summary>
+        /// Gets the position of the origin of the ray.
+        /// </summary>
         public Vector3 Origin { get; private set; }
 
+        /// <summary>
+        /// Gets the direction vector of the ray.
+        /// </summary>
         public Vector3 Direction { get; private set; }
 
+        /// <summary>
+        /// Gets the positions of any intersections of a ray with a sphere.
+        /// </summary>
+        /// <param name="ray">The ray.</param>
+        /// <param name="sphereCentre">The position of the center of the sphere.</param>
+        /// <param name="sphereRadius">The radius of the sphere.</param>
+        /// <returns>The positions of any intersections.</returns>
         public static Vector3[] GetIntersections(Ray ray, Vector3 sphereCentre, float sphereRadius)
         {
             var offset = ray.Origin - sphereCentre;
@@ -56,6 +72,12 @@
             }
         }
 
+        /// <summary>
+        /// Gets the position of the intersection of a ray with a plane, or null if no such intersection exists.
+        /// </summary>
+        /// <param name="ray">The ray.</param>
+        /// <param name="plane">The plane.</param>
+        /// <returns>The position of the intersection of the ray with the plane, or null if no such intersection exists.</returns>
         public static Vector3? GetIntersection(Ray ray, Plane plane)
         {
             var numerator = Plane.DotNormal(plane, (plane.Normal * plane.D - ray.Origin));

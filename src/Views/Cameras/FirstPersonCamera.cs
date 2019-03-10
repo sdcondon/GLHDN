@@ -3,6 +3,9 @@
     using System;
     using System.Numerics;
 
+    /// <summary>
+    /// An <see cref="ICamera"/> implementation that uses an "FPS"-style control scheme.
+    /// </summary>
     public class FirstPersonCamera : ICamera
     {
         private float horizontalAngle;

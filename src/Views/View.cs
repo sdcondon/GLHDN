@@ -7,7 +7,7 @@
     using System.Numerics;
 
     /// <summary>
-    /// Top-level class in this library. Encapsulates a view rendered with OpenGl.
+    /// Encapsulates an interactive view rendered with OpenGl.
     /// </summary>
     public sealed class View
     {
@@ -20,6 +20,10 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="View"/> class.
         /// </summary>
+        /// <param name="context"></param>
+        /// <param name="modelUpdateHandler"></param>
+        /// <param name="lockCursor"></param>
+        /// <param name="clearColor"></param>
         public View(
             IViewContext context,
             Action<TimeSpan> modelUpdateHandler,
@@ -147,6 +151,9 @@
         /// </summary>
         public float AspectRatio => (float)context.Width / context.Height;
 
+        /// <summary>
+        /// An event that is fired when the size of the view changes.
+        /// </summary>
         public event EventHandler<Vector2> Resized;
 
         private void OnContextCreated(object sender, DeviceContext context)

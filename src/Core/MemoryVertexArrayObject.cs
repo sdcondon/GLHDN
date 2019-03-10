@@ -21,11 +21,17 @@
         /// <inheritdoc />
         IVertexBufferObject IVertexArrayObject.IndexBuffer => IndexBuffer;
 
+        /// <summary>
+        /// Gets the <see cref="MemoryVertexBufferObject"/> that serves as the index buffer for this VAO.
+        /// </summary>
         public MemoryVertexBufferObject IndexBuffer { get; private set; } = new MemoryVertexBufferObject();
 
         /// <inheritdoc />
         IReadOnlyList<IVertexBufferObject> IVertexArrayObject.AttributeBuffers => AttributeBuffers;
 
+        /// <summary>
+        ///  Gets the list of <see cref="MemoryVertexBufferObject"/> instances that serve as the attribute buffers for this VAO.
+        /// </summary>
         public IReadOnlyList<MemoryVertexBufferObject> AttributeBuffers { get; private set; }
 
         /// <inheritdoc />

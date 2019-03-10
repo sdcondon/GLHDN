@@ -21,6 +21,10 @@
         private GlProgram program;
         private ReactiveBuffer<Vertex> linesBuffer;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ColoredLines"/> class.
+        /// </summary>
+        /// <param name="viewProjection">The view and projection matrices to use when rendering.</param>
         public ColoredLines(IViewProjection viewProjection)
         {
             this.viewProjection = viewProjection;
@@ -33,11 +37,19 @@
                 .WithUniforms("MVP", "V", "M", "LightPosition_worldspace", "LightColor", "LightPower", "AmbientLightColor");
         }
 
+        /// <summary>
+        /// Adds a line to be rendered.
+        /// </summary>
+        /// <param name="start">The position of the start of the line.</param>
+        /// <param name="end">The position of the end of the line.</param>
         public void AddLine(Vector3 start, Vector3 end)
         {
             this.lines.Add(new Line(start, end));
         }
 
+        /// <summary>
+        /// Clears all of the lines.
+        /// </summary>
         public void ClearLines()
         {
             this.lines.Clear();

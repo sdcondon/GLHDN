@@ -3,6 +3,9 @@
     using System;
     using System.Numerics;
 
+    /// <summary>
+    /// Interface for types (parent elements of the root GUI itself) that contain GUI elements.
+    /// </summary>
     public interface IElementParent
     {
         /// <summary>
