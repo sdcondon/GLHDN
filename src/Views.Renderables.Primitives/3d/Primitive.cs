@@ -8,7 +8,14 @@
     {
         private List<PrimitiveVertex> vertices = new List<PrimitiveVertex>();
 
+        private Primitive(bool isTrianglePrimitive)
+        {
+            IsTrianglePrimitive = isTrianglePrimitive;
+        }
+
         public IReadOnlyList<PrimitiveVertex> Vertices => vertices;
+
+        public bool IsTrianglePrimitive { get; private set; }
 
         // todo: sphere
 
@@ -19,7 +26,7 @@
             var zy = new Vector2(size.Z, size.Y);
             var zOffset = Matrix4x4.CreateTranslation(new Vector3(0, 0, .5f));
 
-            var primitive = new Primitive();
+            var primitive = new Primitive(true);
             primitive.AddQuad(xy, zOffset * worldTransform, color);
             primitive.AddQuad(xy, zOffset * Matrix4x4.CreateRotationX((float)Math.PI) * worldTransform, color);
             primitive.AddQuad(xz, zOffset * Matrix4x4.CreateRotationX((float)-Math.PI / 2) * worldTransform, color);
@@ -31,23 +38,23 @@
 
         public static Primitive Quad(Vector2 size, Matrix4x4 worldTransform, Vector4 color)
         {
-            var primitive = new Primitive();
+            var primitive = new Primitive(true);
             primitive.AddQuad(size, worldTransform, color);
             return primitive;
         }
 
-        //public static Primitive Line(Vector2 from, Vector2 to, Vector4 color)
-        //{
-        //    return Line(from, to, color, color);
-        //}
+        public static Primitive Line(Vector3 from, Vector3 to, Vector4 color)
+        {
+            return Line(from, to, color, color);
+        }
 
-        //public static Primitive Line(Vector2 from, Vector2 to, Vector4 colorFrom, Vector4 colorTo)
-        //{
-        //    var primitive = new Primitive();
-        //    primitive.AddVertex(from, colorFrom);
-        //    primitive.AddVertex(to, colorTo);
-        //    return primitive;
-        //}
+        public static Primitive Line(Vector3 from, Vector3 to, Vector4 colorFrom, Vector4 colorTo)
+        {
+            var primitive = new Primitive(false);
+            primitive.AddVertex(from, colorFrom, Vector3.Zero);
+            primitive.AddVertex(to, colorTo, Vector3.Zero);
+            return primitive;
+        }
 
         private void AddQuad(Vector2 size, Matrix4x4 worldTransform, Vector4 color)
         {
