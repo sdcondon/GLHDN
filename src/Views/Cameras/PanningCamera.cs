@@ -15,13 +15,15 @@
             float nearPlaneDistance,
             float farPlaneDistance,
             Vector3 initialTarget,
-            float movementSpeed)
+            float movementSpeed,
+            float angle)
         {
             FieldOfViewRadians = fieldOfViewRadians;
             NearPlaneDistance = nearPlaneDistance;
             FarPlaneDistance = farPlaneDistance;
             target = initialTarget;
             this.movementSpeed = movementSpeed;
+            this.Angle = angle;
         }
 
         public float FieldOfViewRadians { get; set; } // = (float)Math.PI / 4.0f;
@@ -36,8 +38,10 @@
 
         public float Distance => (float)(ZoomDefaultDistance * Math.Pow(ZoomBase, zoomLevel));
 
+        public float Angle { get; set; }
+
         /// <inheritdoc />
-        public Vector3 Position => target + Vector3.UnitZ * Distance;
+        public Vector3 Position => target + Vector3.Transform(Vector3.UnitZ * Distance, Matrix4x4.CreateRotationX(Angle));
 
         /// <inheritdoc />
         public Matrix4x4 View { get; private set; }
