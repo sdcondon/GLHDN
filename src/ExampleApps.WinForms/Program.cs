@@ -4,7 +4,7 @@
     using GLHDN.Views.Contexts.WinForms;
     using GLHDN.Views.Renderables.BasicExamples;
     using GLHDN.Views.Renderables.Gui;
-    using GLHDN.Views.Renderables.Primitives._3d;
+    using GLHDN.Views.Renderables.Primitives;
     using System;
     using System.Collections.Generic;
     using System.Numerics;
