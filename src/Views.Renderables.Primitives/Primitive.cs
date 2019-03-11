@@ -1,4 +1,4 @@
-﻿namespace GLHDN.Views.Renderables.Primitives._3d
+﻿namespace GLHDN.Views.Renderables.Primitives
 {
     using System;
     using System.Collections.Generic;
@@ -53,6 +53,59 @@
             var primitive = new Primitive(false);
             primitive.AddVertex(from, colorFrom, Vector3.Zero);
             primitive.AddVertex(to, colorTo, Vector3.Zero);
+            return primitive;
+        }
+
+        public static Primitive LineCircle(float radius, Matrix4x4 worldTransform, Vector4 color)
+        {
+            return LineEllipse(radius, radius, worldTransform, color);
+        }
+
+        public static Primitive LineEllipse(float radiusX, float radiusY, Matrix4x4 worldTransform, Vector4 color)
+        {
+            var primitive = new Primitive(false);
+
+            var segments = 16;
+
+            Vector3 getPos(int i)
+            {
+                var rads = (i % segments) * 2 * Math.PI / segments;
+                return new Vector3((float)Math.Sin(rads) * radiusX, (float)Math.Cos(rads) * radiusY, 0);
+            }
+
+            for (var i = 0; i < segments; i++)
+            {
+                primitive.AddVertex(Vector3.Transform(getPos(i), worldTransform), color, Vector3.Zero);
+                primitive.AddVertex(Vector3.Transform(getPos(i + 1), worldTransform), color, Vector3.Zero);
+            }
+
+            return primitive;
+        }
+
+        public static Primitive LineSquare(float sideLength, Matrix4x4 worldTransform, Vector4 color)
+        {
+            var primitive = new Primitive(false);
+            primitive.AddVertex(Vector3.Transform(new Vector3(-sideLength/2, -sideLength/2, 0), worldTransform), color, Vector3.Zero);
+            primitive.AddVertex(Vector3.Transform(new Vector3(-sideLength/2, +sideLength/2, 0), worldTransform), color, Vector3.Zero);
+            primitive.AddVertex(Vector3.Transform(new Vector3(+sideLength/2, -sideLength/2, 0), worldTransform), color, Vector3.Zero);
+            primitive.AddVertex(Vector3.Transform(new Vector3(+sideLength/2, +sideLength/2, 0), worldTransform), color, Vector3.Zero);
+            primitive.AddVertex(Vector3.Transform(new Vector3(-sideLength/2, -sideLength/2, 0), worldTransform), color, Vector3.Zero);
+            primitive.AddVertex(Vector3.Transform(new Vector3(+sideLength/2, -sideLength/2, 0), worldTransform), color, Vector3.Zero);
+            primitive.AddVertex(Vector3.Transform(new Vector3(-sideLength/2, +sideLength/2, 0), worldTransform), color, Vector3.Zero);
+            primitive.AddVertex(Vector3.Transform(new Vector3(+sideLength/2, +sideLength/2, 0), worldTransform), color, Vector3.Zero);
+            return primitive;
+        }
+
+        public static Primitive LinePolygon(Vector2[] positions, Matrix4x4 worldTransform, Vector4 color)
+        {
+            var primitive = new Primitive(false);
+
+            for (int i = 0; i < positions.Length; i++)
+            {
+                primitive.AddVertex(Vector3.Transform(new Vector3(positions[i], 0), worldTransform), color, Vector3.Zero);
+                primitive.AddVertex(Vector3.Transform(new Vector3(positions[(i + 1) % positions.Length], 0), worldTransform), color, Vector3.Zero);
+            }
+
             return primitive;
         }
 
