@@ -22,13 +22,17 @@
         private ReactiveBuffer<PrimitiveVertex> triangleBuffer;
         private ReactiveBuffer<PrimitiveVertex> lineBuffer;
 
-        public Vector3 LightPosition { get; set; } = Vector3.Zero;
-
-        public Vector3 LightColor { get; set; } = Vector3.Zero;
-
-        public float LightPower { get; set; } = 0f;
-
         public Vector3 AmbientLightColor { get; set; } = Vector3.Zero;
+
+        public Vector3 DirectedLightDirection { get; set; } = Vector3.Zero;
+
+        public Vector3 DirectedLightColor { get; set; } = Vector3.Zero;
+
+        public Vector3 PointLightPosition { get; set; } = Vector3.Zero;
+
+        public Vector3 PointLightColor { get; set; } = Vector3.Zero;
+
+        public float PointLightPower { get; set; } = 0f;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PrimitiveRenderer"/> class.
@@ -46,7 +50,7 @@
             this.programBuilder = new GlProgramBuilder()
                 .WithShaderFromEmbeddedResource(ShaderType.VertexShader, $"{ShaderResourceNamePrefix}.Colored.Vertex.glsl")
                 .WithShaderFromEmbeddedResource(ShaderType.FragmentShader, $"{ShaderResourceNamePrefix}.Colored.Fragment.glsl")
-                .WithUniforms("MVP", "V", "M", "LightPosition_worldspace", "LightColor", "LightPower", "AmbientLightColor");
+                .WithUniforms("MVP", "V", "M", "AmbientLightColor", "DirectedLightDirection", "DirectedLightColor", "LightPosition_worldspace", "LightColor", "LightPower");
         }
 
         /// <inheritdoc />
@@ -89,10 +93,12 @@
                 Matrix4x4.Transpose(this.camera.View * this.camera.Projection),
                 Matrix4x4.Transpose(this.camera.View),
                 Matrix4x4.Transpose(Matrix4x4.Identity),
-                LightPosition,
-                LightColor,
-                LightPower,
-                AmbientLightColor);
+                AmbientLightColor,
+                DirectedLightDirection,
+                DirectedLightColor,
+                PointLightPosition,
+                PointLightColor,
+                PointLightPower);
             this.triangleBuffer.Draw();
             this.lineBuffer.Draw();
         }

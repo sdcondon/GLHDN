@@ -52,22 +52,27 @@
                 new[]
                 {
                     new StaticTexuredRenderer.Vertex(
-                        new Vector3(-1f, -1f, 0f),
+                        new Vector3(-1f, -1f, -2f),
                         new Vector2(0f, 0f),
                         new Vector3(0f, 0f, 1f)),
                     new StaticTexuredRenderer.Vertex(
-                        new Vector3(1f, -1f, 0f),
+                        new Vector3(1f, -1f, -2f),
                         new Vector2(1f, 0f),
                         new Vector3(0f, 0f, 1f)),
                     new StaticTexuredRenderer.Vertex(
-                        new Vector3(0f, 1f, 0f),
+                        new Vector3(0f, 1f, -2f),
                         new Vector2(0.5f, 1f),
                         new Vector3(0f, 0f, 1f)),
                 },
                 new uint[] { 0, 1, 2 },
                 "uvmap.DDS"));
 
-            view.Renderables.Add(new PrimitiveRenderer(camera, Observable.Return(cubeSubject)));
+            view.Renderables.Add(new PrimitiveRenderer(camera, Observable.Return(cubeSubject))
+            {
+                AmbientLightColor = new Vector3(0.1f, 0.1f, 0.1f),
+                DirectedLightDirection  = new Vector3(0, 1f, 0f),
+                DirectedLightColor = new Vector3(.5f, .5f, .5f)
+            });
 
             view.Renderables.Add(Program.lines = new ColoredLines(camera));
 
@@ -98,7 +103,8 @@
             camText.Content = $"Cam: {camera.Position:F2}\n\nHello, world!";
 
             cubeWorldMatrix *= Matrix4x4.CreateRotationZ((float)elapsed.TotalSeconds);
-            cubeSubject.OnNext(new[] { Primitive.Cuboid(Vector3.One, cubeWorldMatrix, Vector4.UnitX) });
+            cubeWorldMatrix *= Matrix4x4.CreateRotationY((float)elapsed.TotalSeconds / 2);
+            cubeSubject.OnNext(new[] { Primitive.Cuboid(new Vector3(.5f, 1f, 0.75f), cubeWorldMatrix, Vector4.UnitX) });
 
             if (view.WasLeftMouseButtonReleased)
             {

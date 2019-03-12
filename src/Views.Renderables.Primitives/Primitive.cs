@@ -24,15 +24,17 @@
             var xy = new Vector2(size.X, size.Y);
             var xz = new Vector2(size.X, size.Z);
             var zy = new Vector2(size.Z, size.Y);
-            var zOffset = Matrix4x4.CreateTranslation(new Vector3(0, 0, .5f));
+            var xOffset = Matrix4x4.CreateTranslation(0, 0, size.X/2);
+            var yOffset = Matrix4x4.CreateTranslation(0, 0, size.Y/2);
+            var zOffset = Matrix4x4.CreateTranslation(0, 0, size.Z/2);
 
             var primitive = new Primitive(true);
             primitive.AddQuad(xy, zOffset * worldTransform, color);
             primitive.AddQuad(xy, zOffset * Matrix4x4.CreateRotationX((float)Math.PI) * worldTransform, color);
-            primitive.AddQuad(xz, zOffset * Matrix4x4.CreateRotationX((float)-Math.PI / 2) * worldTransform, color);
-            primitive.AddQuad(xz, zOffset * Matrix4x4.CreateRotationX((float)Math.PI / 2) * worldTransform, color);
-            primitive.AddQuad(zy, zOffset * Matrix4x4.CreateRotationY((float)-Math.PI / 2) * worldTransform, color);
-            primitive.AddQuad(zy, zOffset * Matrix4x4.CreateRotationY((float)Math.PI / 2) * worldTransform, color);
+            primitive.AddQuad(xz, yOffset * Matrix4x4.CreateRotationX((float)-Math.PI / 2) * worldTransform, color);
+            primitive.AddQuad(xz, yOffset * Matrix4x4.CreateRotationX((float)Math.PI / 2) * worldTransform, color);
+            primitive.AddQuad(zy, xOffset * Matrix4x4.CreateRotationY((float)-Math.PI / 2) * worldTransform, color);
+            primitive.AddQuad(zy, xOffset * Matrix4x4.CreateRotationY((float)Math.PI / 2) * worldTransform, color);
             return primitive;
         }
 

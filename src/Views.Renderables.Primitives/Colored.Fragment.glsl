@@ -3,34 +3,38 @@
 // Interpolated values from the vertex shaders
 in vec3 matColor;
 in vec3 Position_worldspace;
+in vec3 Normal_worldspace;
 in vec3 Normal_cameraspace;
 in vec3 EyeDirection_cameraspace;
-in vec3 LightDirection_cameraspace;
+in vec3 PointLightDirection_cameraspace;
 
 // Ouput data
 out vec3 color;
 
 // Values that stay constant for the whole mesh.
 //uniform mat4 MV;
-uniform vec3 LightPosition_worldspace;
-uniform vec3 LightColor;
-uniform float LightPower;
 uniform vec3 AmbientLightColor;
+uniform vec3 DirectedLightDirection;
+uniform vec3 DirectedLightColor;
+uniform vec3 PointLightPosition_worldspace;
+uniform vec3 PointLightColor;
+uniform float PointLightPower;
 
 void main(){
 
 	// Material properties
 	vec3 MaterialDiffuseColor = matColor;
-	vec3 MaterialAmbientColor = AmbientLightColor * MaterialDiffuseColor;
 	vec3 MaterialSpecularColor = matColor * vec3(0.1, 0.1, 0.1);
 
-	// Distance to the light
-	float distance = length(LightPosition_worldspace - Position_worldspace);
+	float directedLightCosTheta = clamp(dot(normalize(Normal_worldspace), normalize(-DirectedLightDirection)), 0, 1);
+
+	// Distance to the point light
+	float distance = length(PointLightPosition_worldspace - Position_worldspace);
 
 	// Normal of the computed fragment, in camera space
 	vec3 n = normalize(Normal_cameraspace);
 	// Direction of the light (from the fragment to the light)
-	vec3 l = normalize(LightDirection_cameraspace);
+	vec3 l = normalize(PointLightDirection_cameraspace);
 	// Cosine of the angle between the normal and the light direction, 
 	// clamped above 0
 	//  - light is at the vertical of the triangle -> 1
@@ -50,9 +54,11 @@ void main(){
 	
 	color = 
 		// Ambient : simulates indirect lighting
-		MaterialAmbientColor +
+		MaterialDiffuseColor * AmbientLightColor
+		// Directed
+		+ MaterialDiffuseColor * DirectedLightColor * directedLightCosTheta
 		// Diffuse : "color" of the object
-		MaterialDiffuseColor * LightColor * LightPower * cosTheta / (distance * distance) +
+		+ MaterialDiffuseColor * PointLightColor * PointLightPower * cosTheta / (distance * distance)
 		// Specular : reflective highlight, like a mirror
-		MaterialSpecularColor * LightColor * LightPower * pow(cosAlpha, 5) / (distance * distance);
+		+ MaterialSpecularColor * PointLightColor * PointLightPower * pow(cosAlpha, 5) / (distance * distance);
 }
