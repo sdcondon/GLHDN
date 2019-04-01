@@ -9,6 +9,10 @@
     <Description>Foo</Description>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>GLHDN.Views.Renderables.Primitives.xml</DocumentationFile>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Remove="Colored.Fragment.glsl" />
     <None Remove="Colored.Vertex.glsl" />

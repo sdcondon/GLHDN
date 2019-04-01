@@ -10,6 +10,15 @@
         private Vector3 target;
         private int zoomLevel = 0;
         
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PanningCamera"/> class.
+        /// </summary>
+        /// <param name="fieldOfViewRadians">The camera's field of view, in radians.</param>
+        /// <param name="nearPlaneDistance">The distance of the near plane from the camera.</param>
+        /// <param name="farPlaneDistance">The ditance of the far plane from the camera.</param>
+        /// <param name="initialTarget">The initial position at which the camera should point.</param>
+        /// <param name="movementSpeed">The movement speed of the camera, in units per update.</param>
+        /// <param name="angle">The angle between the camera's view direction and the Z-axis.</param>
         public PanningCamera(
             float fieldOfViewRadians,
             float nearPlaneDistance,
@@ -49,6 +58,7 @@
         /// <inheritdoc />
         public Matrix4x4 Projection { get; private set; }
 
+        /// <inheritdoc />
         public void Update(TimeSpan elapsed, View view)
         {
             if (view.KeysDown.Contains('W'))
