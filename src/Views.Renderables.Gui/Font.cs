@@ -50,14 +50,14 @@
             Gl.TexStorage3D(
                 target: TextureTarget.Texture2dArray,
                 levels: 1,
-                internalformat: InternalFormat.Red,
+                internalformat: InternalFormat.Alpha8,
                 width: maxWidth,
                 height: maxHeight,
                 depth: maxChar);
-           // Gl.TexParameter(TextureTarget.Texture2dArray, TextureParameterName.TextureWrapS, Gl.CLAMP_TO_EDGE);
-           // Gl.TexParameter(TextureTarget.Texture2dArray, TextureParameterName.TextureWrapT, Gl.CLAMP_TO_EDGE);
-           // Gl.TexParameter(TextureTarget.Texture2dArray, TextureParameterName.TextureMinFilter, Gl.LINEAR);
-           // Gl.TexParameter(TextureTarget.Texture2dArray, TextureParameterName.TextureMagFilter, Gl.LINEAR);
+            Gl.TexParameter(TextureTarget.Texture2dArray, TextureParameterName.TextureWrapS, Gl.CLAMP_TO_EDGE);
+            Gl.TexParameter(TextureTarget.Texture2dArray, TextureParameterName.TextureWrapT, Gl.CLAMP_TO_EDGE);
+            Gl.TexParameter(TextureTarget.Texture2dArray, TextureParameterName.TextureMinFilter, Gl.LINEAR);
+            Gl.TexParameter(TextureTarget.Texture2dArray, TextureParameterName.TextureMagFilter, Gl.LINEAR);
 
             // Loop glyphs and pack them
             for (char c = (char)0; c < maxChar; c++)
@@ -76,9 +76,9 @@
                         width: face.Glyph.Bitmap.Width,
                         height: face.Glyph.Bitmap.Rows,
                         depth: 1,
-                        format: PixelFormat.Red,
+                        format: PixelFormat.Alpha,
                         type: PixelType.UnsignedByte,
-                        pixels: face.Glyph.Bitmap.Buffer);
+                        pixels: face.Glyph.Bitmap.BufferData);
                 }
 
                 this.glyphs[c] = new GlyphInfo(

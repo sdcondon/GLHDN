@@ -83,7 +83,7 @@
                     parentOrigin: new Dimensions(-1f, 0f),
                     localOrigin: new Dimensions(-1f, 0f),
                     relativeSize: new Dimensions(250, 1f),
-                    color: new Vector4(1f, 1f, 1f, 0f),
+                    color: new Vector4(1f, 1f, 1f, 0.05f),
                     borderWidth: 0f);
                 gui.SubElements.Add(panel);
 
