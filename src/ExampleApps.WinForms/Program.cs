@@ -70,8 +70,8 @@
             view.Renderables.Add(new PrimitiveRenderer(camera, Observable.Return(cubeSubject))
             {
                 AmbientLightColor = new Vector3(0.1f, 0.1f, 0.1f),
-                DirectedLightDirection  = new Vector3(0, 1f, 0f),
-                DirectedLightColor = new Vector3(.5f, .5f, .5f)
+                DirectedLightDirection = new Vector3(0, 1f, 0f),
+                DirectedLightColor = Color.Grey()
             });
 
             view.Renderables.Add(Program.lines = new ColoredLines(camera));
@@ -83,7 +83,7 @@
                     parentOrigin: new Dimensions(-1f, 0f),
                     localOrigin: new Dimensions(-1f, 0f),
                     relativeSize: new Dimensions(250, 1f),
-                    color: new Vector4(1f, 1f, 1f, 0.05f),
+                    color: Color.White(0.05f),
                     borderWidth: 0f);
                 gui.SubElements.Add(panel);
 
@@ -91,7 +91,7 @@
                     parentOrigin: new Dimensions(-1f, 1f),
                     localOrigin: new Dimensions(-1f, 1f),
                     relativeSize: new Dimensions(1f, 0f),
-                    color: new Vector4(1f, 1f, 1f, 1f)));
+                    color: Color.White()));
             };
 
             Application.Run(form);
@@ -104,7 +104,7 @@
 
             cubeWorldMatrix *= Matrix4x4.CreateRotationZ((float)elapsed.TotalSeconds);
             cubeWorldMatrix *= Matrix4x4.CreateRotationY((float)elapsed.TotalSeconds / 2);
-            cubeSubject.OnNext(new[] { Primitive.Cuboid(new Vector3(.5f, 1f, 0.75f), cubeWorldMatrix, Vector4.UnitX) });
+            cubeSubject.OnNext(new[] { Primitive.Cuboid(new Vector3(.5f, 1f, 0.75f), cubeWorldMatrix, Color.Red()) });
 
             if (view.WasLeftMouseButtonReleased)
             {

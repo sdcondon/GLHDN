@@ -5,7 +5,6 @@
     using OpenGL;
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.Numerics;
     using System.Reactive.Linq;
     using System.Reactive.Subjects;
