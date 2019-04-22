@@ -17,24 +17,24 @@ namespace GLHDN.Views
         public Color(float r, float g, float b, float a) => (R, G, B, A) = (r, g, b, a);
 
         /// <summary>
-        /// Gets or sets the red component of the color.
+        /// Gets the red component of the color.
         /// </summary>
-        public float R { get; set; }
+        public float R { get; }
 
         /// <summary>
-        /// Gets or sets the green component of the color.
+        /// Gets the green component of the color.
         /// </summary>
-        public float G { get; set; }
+        public float G { get; }
 
         /// <summary>
-        /// Gets or sets the blue component of the color.
+        /// Gets the blue component of the color.
         /// </summary>
-        public float B { get; set; }
+        public float B { get; }
 
         /// <summary>
-        /// Gets or sets the alpha component of the color.
+        /// Gets the alpha component of the color.
         /// </summary>
-        public float A { get; set; }
+        public float A { get; }
 
         /// <summary>
         /// Gets a completely transparent 'color'.

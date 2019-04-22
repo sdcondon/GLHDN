@@ -35,7 +35,7 @@
 
             var form = new GlForm();
 
-            view = new Views.View(form.ViewContext, ModelUpdate, true, Vector3.Zero);
+            view = new Views.View(form.ViewContext, ModelUpdate, false, Vector3.Zero);
 
             camera = new FirstPersonCamera(
                 movementSpeed: 3.0f,
@@ -85,6 +85,7 @@
                     relativeSize: new Dimensions(250, 1f),
                     color: Color.White(0.05f),
                     borderWidth: 0f);
+                panel.Clicked += Panel_Clicked;
                 gui.SubElements.Add(panel);
 
                 panel.SubElements.Add(camText = new TextElement(
@@ -97,9 +98,14 @@
             Application.Run(form);
         }
 
+        private static void Panel_Clicked(object sender, Vector2 e)
+        {
+        }
+
         private static void ModelUpdate(TimeSpan elapsed)
         {
             camera.Update(elapsed, view);
+            gui.Update();
             camText.Content = $"Cam: {camera.Position:F2}\n\nHello, world!";
 
             cubeWorldMatrix *= Matrix4x4.CreateRotationZ((float)elapsed.TotalSeconds);

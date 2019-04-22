@@ -82,7 +82,7 @@
         public HashSet<char> KeysReleased { get; private set; } = new HashSet<char>();
 
         /// <summary>
-        /// Gets the cursor position, with the origin being at the centre of the view.
+        /// Gets the cursor position, with the origin being at the centre of the view, X increasing from left to right and Y increasing from top to bottom.
         /// </summary>
         public Vector2 CursorPosition { get; private set; }
 
@@ -198,9 +198,8 @@
         {
             if (context.IsFocused)
             {
-                // Get mouse movement  
-                // TODO: Err, this looks the wrong way around..
-                this.CursorPosition = context.GetCenter() - context.CursorPosition;
+                // Get mouse movement
+                this.CursorPosition = context.CursorPosition - context.GetCenter();
 
                 // Record update interval and restart stopwatch for it
                 // Cap the effective elapsed time so that at worst,

@@ -1,7 +1,7 @@
 #version 330
 
 // Interpolated values from the vertex shaders
-in vec3 matColor;
+in vec4 matColor;
 in vec3 Position_worldspace;
 in vec3 Normal_worldspace;
 in vec3 Normal_cameraspace;
@@ -9,7 +9,7 @@ in vec3 EyeDirection_cameraspace;
 in vec3 PointLightDirection_cameraspace;
 
 // Ouput data
-out vec3 color;
+out vec4 color;
 
 // Values that stay constant for the whole mesh.
 //uniform mat4 MV;
@@ -23,8 +23,8 @@ uniform float PointLightPower;
 void main(){
 
 	// Material properties
-	vec3 MaterialDiffuseColor = matColor;
-	vec3 MaterialSpecularColor = matColor * vec3(0.1, 0.1, 0.1);
+	vec4 MaterialDiffuseColor = matColor;
+	vec4 MaterialSpecularColor = matColor * vec4(0.1, 0.1, 0.1, 1);
 
 	// Distance to the point light
 	float distance = length(PointLightPosition_worldspace - Position_worldspace);
@@ -67,11 +67,11 @@ void main(){
 	
 	color = 
 		// Ambient : simulates indirect lighting
-		MaterialDiffuseColor * AmbientLightColor
+		MaterialDiffuseColor * vec4(AmbientLightColor, 1)
 		// Directed
-		+ MaterialDiffuseColor * DirectedLightColor * directedLightCosTheta
+		+ MaterialDiffuseColor * vec4(DirectedLightColor, 1) * directedLightCosTheta
 		// Diffuse : "color" of the object
-		+ MaterialDiffuseColor * PointLightColor * PointLightPower * cosTheta / (distance * distance)
+		+ MaterialDiffuseColor * vec4(PointLightColor, 1) * PointLightPower * cosTheta / (distance * distance)
 		// Specular : reflective highlight, like a mirror
-		+ MaterialSpecularColor * PointLightColor * PointLightPower * pow(cosAlpha, 5) / (distance * distance);
+		+ MaterialSpecularColor * vec4(PointLightColor, 1) * PointLightPower * pow(cosAlpha, 5) / (distance * distance);
 }

@@ -4,7 +4,7 @@
     using System.Numerics;
 
     /// <summary>
-    /// Interface for types (parent elements of the root GUI itself) that contain GUI elements.
+    /// Interface for types that contain GUI elements. This includes parent elements and the root GUI object.
     /// </summary>
     public interface IElementParent
     {
