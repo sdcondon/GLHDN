@@ -17,8 +17,8 @@
         public Ray(ICamera camera, View view)
         {
             // http://antongerdelan.net/opengl/raycasting.html
-            float x = - (2.0f * view.CursorPosition.X) / view.Width; // TODO: why did i have to negate this?
-            float y = (2.0f * view.CursorPosition.Y) / view.Height; // TODO: why did i have to negate this?
+            float x = (2.0f * view.CursorPosition.X) / view.Width;
+            float y = - (2.0f * view.CursorPosition.Y) / view.Height;
             var ray_clip = new Vector3(x, y, -1.0f);
 
             Matrix4x4.Invert(camera.Projection, out var projInverse);

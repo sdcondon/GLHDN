@@ -1,5 +1,6 @@
 ﻿namespace GLHDN.Views.Renderables.Gui
 {
+    using System;
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Numerics;
@@ -137,10 +138,17 @@
         /// <inheritdoc />
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public event EventHandler<Vector2> Clicked; 
+
         // TODO: Instead of this being public, IElementParent should inherit INotifyPropertyChanged
         public virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        internal void OnClicked(Vector2 position)
+        {
+            Clicked?.Invoke(this, position);
         }
     }
 }

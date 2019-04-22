@@ -17,12 +17,12 @@
         private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.Gui";
 
         private readonly View view;
+        private readonly SubElementCollection subElements;
 
-        private SubElementCollection subElements;
         private GlProgramBuilder programBuilder;
         private GlProgram program;
         private BehaviorSubject<IElementParent> subject; 
-        private ReactiveBuffer<GuiVertex> guiElementBuffer;
+        private ReactiveBuffer<GuiVertex> vertexBuffer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Gui"/> class, 
@@ -69,7 +69,7 @@
             this.programBuilder = null;
 
             this.subject = new BehaviorSubject<IElementParent>(this);
-            this.guiElementBuffer = new ReactiveBuffer<GuiVertex>(
+            this.vertexBuffer = new ReactiveBuffer<GuiVertex>(
                 this.subject.FlattenComposite<object, IList<GuiVertex>>(
                     a => a is IElementParent p ? p.SubElements : Observable.Never<IObservable<Element>>(),
                     a => a is Element e ? e.Vertices : null),
@@ -90,7 +90,7 @@
             this.program.UseWithUniformValues(Matrix4x4.Transpose(Matrix4x4.CreateOrthographic(Size.X, Size.Y, 1f, -1f)), 0);
             Gl.ActiveTexture(TextureUnit.Texture0);
             Gl.BindTexture(TextureTarget.Texture2dArray, TextElement.font.TextureId);
-            this.guiElementBuffer.Draw();
+            this.vertexBuffer.Draw();
         }
 
         /// <inheritdoc /> from IRenderable
@@ -98,7 +98,34 @@
         {
             this.subject?.OnCompleted();
             this.program?.Dispose();
-            this.guiElementBuffer?.Dispose();
+            this.vertexBuffer?.Dispose();
+        }
+
+        public void Update()
+        {
+            void visitElement(Element element)
+            {
+                if (view.CursorPosition.X > element.PosTL.X
+                    && view.CursorPosition.X < element.PosTR.X
+                    && view.CursorPosition.Y < element.PosTL.Y
+                    && view.CursorPosition.Y > element.PosBL.Y)
+                {
+                    element.OnClicked(view.CursorPosition);
+
+                    foreach (var subElement in this.subElements)
+                    {
+                        visitElement(subElement);
+                    }
+                }
+            }
+
+            if (view.WasLeftMouseButtonReleased)
+            {
+                foreach (var element in this.subElements)
+                {
+                    visitElement(element);
+                }
+            }
         }
     }
 }
