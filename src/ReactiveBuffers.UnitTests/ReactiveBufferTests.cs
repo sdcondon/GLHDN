@@ -55,7 +55,7 @@
 
                     makeTestCase( // replacement, varying sizes - smaller
                         a => { a.Add(1, 4); a.Add(2, 2); a[0] = (3, 2); },
-                        new[] { (3, 1), (3, 2), (2, 2), (2, 1) }),
+                        new[] { (3, 1), (3, 2), (2, 1), (2, 2) }),
 
                     makeTestCase( // replacement at end, varying sizes - smaller
                         a => { a.Add(1, 2); a.Add(2, 4); a[1] = (3, 2); },
@@ -85,8 +85,8 @@
             action(source);
 
             // Assert
-            target.AttributeBuffers[0].Contents.Take(expectedVertices.Count).Should().BeEquivalentTo(expectedVertices);
-            target.IndexBuffer.Contents.Take(expectedIndices.Count).Should().BeEquivalentTo(expectedIndices);
+            target.AttributeBuffers[0].Contents.Take(expectedVertices.Count).Should().BeEquivalentTo(expectedVertices, opts => opts.WithStrictOrdering());
+            target.IndexBuffer.Contents.Take(expectedIndices.Count).Should().BeEquivalentTo(expectedIndices, opts => opts.WithStrictOrdering());
         }
 
         public class In : INotifyPropertyChanged

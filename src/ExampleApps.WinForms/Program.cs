@@ -35,7 +35,7 @@
 
             var form = new GlForm();
 
-            view = new Views.View(form.ViewContext, ModelUpdate, false, Vector3.Zero);
+            view = new Views.View(form.ViewContext, ModelUpdate, true, Vector3.Zero);
 
             camera = new FirstPersonCamera(
                 movementSpeed: 3.0f,
@@ -77,8 +77,8 @@
             view.Renderables.Add(Program.lines = new ColoredLines(camera));
 
             gui = new Gui(view);
-            gui.Initialized += (s, e) =>
-            {
+            //gui.Initialized += (s, e) =>
+            //{
                 var panel = new PanelElement(
                     parentOrigin: new Dimensions(-1f, 0f),
                     localOrigin: new Dimensions(-1f, 0f),
@@ -93,7 +93,7 @@
                     localOrigin: new Dimensions(-1f, 1f),
                     relativeSize: new Dimensions(1f, 0f),
                     color: Color.White()));
-            };
+            //};
 
             Application.Run(form);
         }
