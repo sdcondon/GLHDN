@@ -77,23 +77,20 @@
             view.Renderables.Add(Program.lines = new ColoredLines(camera));
 
             gui = new Gui(view);
-            //gui.Initialized += (s, e) =>
-            //{
-                var panel = new PanelElement(
-                    parentOrigin: new Dimensions(-1f, 0f),
-                    localOrigin: new Dimensions(-1f, 0f),
-                    relativeSize: new Dimensions(250, 1f),
-                    color: Color.White(0.05f),
-                    borderWidth: 0f);
-                panel.Clicked += Panel_Clicked;
-                gui.SubElements.Add(panel);
+            var panel = new PanelElement(
+                parentOrigin: new Dimensions(-1f, 0f),
+                localOrigin: new Dimensions(-1f, 0f),
+                relativeSize: new Dimensions(250, 1f),
+                color: Color.White(0.05f),
+                borderWidth: 0f);
+            panel.Clicked += Panel_Clicked;
+            gui.SubElements.Add(panel);
 
-                panel.SubElements.Add(camText = new TextElement(
-                    parentOrigin: new Dimensions(-1f, 1f),
-                    localOrigin: new Dimensions(-1f, 1f),
-                    relativeSize: new Dimensions(1f, 0f),
-                    color: Color.White()));
-            //};
+            panel.SubElements.Add(camText = new TextElement(
+                parentOrigin: new Dimensions(-1f, 1f),
+                localOrigin: new Dimensions(-1f, 1f),
+                relativeSize: new Dimensions(1f, 0f),
+                color: Color.White()));
 
             Application.Run(form);
         }

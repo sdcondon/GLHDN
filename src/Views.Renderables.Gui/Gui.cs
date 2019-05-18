@@ -17,7 +17,6 @@
         private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.Gui";
 
         private readonly View view;
-        private readonly SubElementCollection subElements;
 
         private GlProgramBuilder programBuilder;
         private GlProgram program;
@@ -40,7 +39,7 @@
                 }
             };
 
-            subElements = new SubElementCollection(this);
+            SubElements = new ElementCollection(this);
 
             // TODO: allow program to be shared..
             this.programBuilder = new GlProgramBuilder()
@@ -49,12 +48,8 @@
                 .WithUniforms("P", "text");
         }
 
-        public event EventHandler Initialized;
-
-        public ICollection<Element> SubElements => subElements;
-
         /// <inheritdoc /> from IElementParent
-        IObservable<IObservable<Element>> IElementParent.SubElements => subElements.ToObservable<Element, Element>(a => a);
+        public ElementCollection SubElements { get; }
 
         /// <inheritdoc /> from IElementParent
         public Vector2 Center => Vector2.Zero;
@@ -72,13 +67,11 @@
             this.vertexBuffer = new ReactiveBuffer<GuiVertex>(
                 this.subject.FlattenComposite<object, IList<GuiVertex>>(
                     a => a is IElementParent p ? p.SubElements : Observable.Never<IObservable<Element>>(),
-                    a => a is Element e ? e.Vertices : null),
+                    a => a is Element e ? e.Vertices : new GuiVertex[0]),
                 PrimitiveType.Triangles,
                 1000,
                 new[] { 0, 2, 3, 0, 3, 1 },
                 GlVertexArrayObject.MakeVertexArrayObject);
-
-            Initialized?.Invoke(this, EventArgs.Empty);
         }
 
         /// <inheritdoc /> from IRenderable
@@ -112,7 +105,7 @@
                 {
                     element.OnClicked(view.CursorPosition);
 
-                    foreach (var subElement in this.subElements)
+                    foreach (var subElement in this.SubElements)
                     {
                         visitElement(subElement);
                     }
@@ -121,7 +114,7 @@
 
             if (view.WasLeftMouseButtonReleased)
             {
-                foreach (var element in this.subElements)
+                foreach (var element in this.SubElements)
                 {
                     visitElement(element);
                 }

@@ -120,23 +120,23 @@
                 {
                     makeTestCase( // addition, update & removal
                         a => { var i = a.Add(1); i.Value = 2; i.Remove(); },
-                        new[] { "1+", "1=1", "1=2", "1-" }),
+                        new[] { "0+", "0=0", "1+", "1=1", "1=2", "1-" }),
 
                     makeTestCase( // nested addition, update and removal
                         a => { var i = a.Add(1); var j = i.Add(2); j.Value = 3; j.Remove(); },
-                        new[] { "1+", "1=1", "2+", "2=2", "2=3", "2-" }),
+                        new[] { "0+", "0=0", "1+", "1=1", "2+", "2=2", "2=3", "2-" }),
 
                     makeTestCase( // parent removal
                         a => { var i = a.Add(1); var j = i.Add(2); i.Remove(); },
-                        new[] { "1+", "1=1", "2+", "2=2", "1-", "2-" }),
+                        new[] { "0+", "0=0", "1+", "1=1", "2+", "2=2", "1-", "2-" }),
 
                     makeTestCase( // grandparent removal
                         a => { var i = a.Add(1); var j = i.Add(2); var k = j.Add(3); i.Value = 4; j.Value = 5; k.Value = 6; i.Remove(); },
-                        new[] { "1+", "1=1", "2+", "2=2", "3+", "3=3", "1=4", "2=5", "3=6", "1-", "2-", "3-" }),
+                        new[] { "0+", "0=0", "1+", "1=1", "2+", "2=2", "3+", "3=3", "1=4", "2=5", "3=6", "1-", "2-", "3-" }),
 
                     makeTestCase( // sibling independence
                         a => { var s1 = a.Add(1); var s2 = a.Add(2); var s11 = s1.Add(11); var s21 = s2.Add(21); s1.Remove(); s21.Value = 22; },
-                        new[] { "1+", "1=1", "2+", "2=2", "3+", "3=11", "4+", "4=21", "1-", "3-", "4=22" }),
+                        new[] { "0+", "0=0", "1+", "1=1", "2+", "2=2", "3+", "3=11", "4+", "4=21", "1-", "3-", "4=22" }),
                 };
             }
         }
@@ -153,7 +153,7 @@
             var subscription = root.Subject.FlattenComposite(c => c.Children, c => c.Value).Subscribe(
                 obs =>
                 {
-                    var thisItem = ++itemCount;
+                    var thisItem = itemCount++;
                     observed.Append($"{thisItem}+; ");
                     obs.Subscribe(
                         i => observed.Append($"{thisItem}={i}; "),
