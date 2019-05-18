@@ -1,7 +1,5 @@
 ﻿namespace GLHDN.Views.Renderables.Gui
 {
-    using GLHDN.ReactiveBuffers;
-    using System;
     using System.Collections.Generic;
     using System.Numerics;
 
@@ -12,7 +10,6 @@
     {
         private Vector4 color;
         private float borderWidth;
-        private SubElementCollection subElements;
 
         public PanelElement(
             Dimensions parentOrigin,
@@ -23,7 +20,7 @@
         {
             this.color = color;
             this.borderWidth = borderWidth;
-            subElements = new SubElementCollection(this);
+            this.SubElements = new ElementCollection(this);
         }
 
         /// <summary>
@@ -63,10 +60,8 @@
 
         // TODO: handlers? - onclick, onmouseover, onmouseout etc
 
-        public ICollection<Element> SubElements => subElements;
-
         /// <inheritdoc /> from IElementParent
-        IObservable<IObservable<Element>> IElementParent.SubElements => subElements.ToObservable<Element, Element>(a => a);
+        public ElementCollection SubElements { get; }
 
         /// <inheritdoc />
         public override void OnPropertyChanged(string propertyName)

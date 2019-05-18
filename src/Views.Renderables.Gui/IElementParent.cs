@@ -1,6 +1,5 @@
 ﻿namespace GLHDN.Views.Renderables.Gui
 {
-    using System;
     using System.Numerics;
 
     /// <summary>
@@ -11,7 +10,7 @@
         /// <summary>
         /// Gets the elements that this object contains.
         /// </summary>
-        IObservable<IObservable<Element>> SubElements { get; }
+       ElementCollection SubElements { get; }
 
         /// <summary>
         /// Gets the position of the center of this object, in screen space.

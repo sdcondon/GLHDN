@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Collections.Specialized;
     using System.ComponentModel;
+    using System.Reactive.Disposables;
     using System.Reactive.Linq;
     using System.Reactive.Subjects;
 
@@ -90,21 +91,17 @@
             Func<TIn, IObservable<IObservable<TIn>>> getChildren,
             Func<TIn, TLeaf> getLeafData)
         {
-            void subscribeToNode(IObservable<TIn> node, Subject<IObservable<TLeaf>> rootSubject)
+            IDisposable subscribeToNode(IObservable<TIn> node, IObserver<IObservable<TLeaf>> observer)
             {
-                rootSubject.OnNext(node.Select(getLeafData));
-                node.Select(getChildren)
+                observer.OnNext(node.Select(getLeafData));
+                var nodeRemoval = node.TakeLast(1);
+                return node.Select(getChildren)
                     .Switch()
-                    .TakeUntil(node.TakeLast(1))
-                    .Subscribe(b => subscribeToNode(b.TakeUntil(node.TakeLast(1)), rootSubject));
-                //node.Subscribe(a => getChildren(a).Subscribe(b => subscribeToNode(b.TakeUntil(node.TakeLast(1)), rootSubject))); // todo: another takeuntil needed? write a test..
+                    .TakeUntil(nodeRemoval)
+                    .Subscribe(b => subscribeToNode(b.TakeUntil(nodeRemoval), observer));
             }
 
-            var subject = new Subject<IObservable<TLeaf>>();
-            subscribeToNode(root, subject);
-            root.Subscribe(_ => { }, _ => subject.OnCompleted());
-
-            return subject;
+            return Observable.Create<IObservable<TLeaf>>(o => subscribeToNode(root, o));
         }
     }
 }

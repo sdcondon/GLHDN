@@ -1,12 +1,13 @@
 ﻿namespace GLHDN.Views.Renderables.Gui
 {
+    using System;
     using System.Collections.Generic;
     using System.Numerics;
     using System.Text;
 
     public class TextElement : Element
     {
-        public static readonly Font font = new Font("Fonts\\Inconsolata\\Inconsolata-Regular.ttf");
+        public static readonly Lazy<Font> font = new Lazy<Font>(() => new Font("Fonts\\Inconsolata\\Inconsolata-Regular.ttf"));
 
         private Vector4 color;
         private string content;
@@ -64,7 +65,7 @@
                 var position = this.PosTL;
                 foreach (var line in GetLines(scale))
                 {
-                    position = new Vector2(this.PosTL.X, position.Y - font.LineHeight/64);
+                    position = new Vector2(this.PosTL.X, position.Y - font.Value.LineHeight/64);
 
                     foreach (var c in line)
                     {
@@ -84,7 +85,7 @@
 
             foreach (var c in Content)
             {
-                var glyph = font[c];
+                var glyph = font.Value[c];
 
                 if (c == '\n' || (lineLength + glyph.Bearing.X * scale + glyph.Size.X > this.Size.X && currentLine.Length > 0))
                 {
@@ -105,7 +106,7 @@
 
         private Font.GlyphInfo AddChar(char c, Vector2 position, List<GuiVertex> vertices, float scale)
         {
-            var glyphInfo = font[c];
+            var glyphInfo = font.Value[c];
 
             var charSize = new Vector2(glyphInfo.Size.X * scale, glyphInfo.Size.Y * scale);
             var charPosBL = new Vector2(position.X + glyphInfo.Bearing.X * scale, position.Y + (glyphInfo.Bearing.Y - glyphInfo.Size.Y) * scale);
