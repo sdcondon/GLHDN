@@ -78,18 +78,14 @@
 
             gui = new Gui(view);
             var panel = new PanelElement(
-                parentOrigin: new Dimensions(-1f, 0f),
-                localOrigin: new Dimensions(-1f, 0f),
-                relativeSize: new Dimensions(250, 1f),
+                layout: new Layout((-1f, 0f), (-1f, 0f), (250, 1f)),
                 color: Color.White(0.05f),
                 borderWidth: 0f);
             panel.Clicked += Panel_Clicked;
             gui.SubElements.Add(panel);
 
             panel.SubElements.Add(camText = new TextElement(
-                parentOrigin: new Dimensions(-1f, 1f),
-                localOrigin: new Dimensions(-1f, 1f),
-                relativeSize: new Dimensions(1f, 0f),
+                new Layout((-1f, 1f), (-1f, 1f), (1f, 0f)),
                 color: Color.White()));
 
             Application.Run(form);

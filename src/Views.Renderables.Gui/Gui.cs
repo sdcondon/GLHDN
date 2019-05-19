@@ -35,7 +35,7 @@
             {
                 foreach (var element in SubElements)
                 {
-                    element.OnPropertyChanged("Parent");
+                    element.OnPropertyChanged(nameof(element.Parent));
                 }
             };
 
@@ -98,10 +98,7 @@
         {
             void visitElement(Element element)
             {
-                if (view.CursorPosition.X > element.PosTL.X
-                    && view.CursorPosition.X < element.PosTR.X
-                    && view.CursorPosition.Y < element.PosTL.Y
-                    && view.CursorPosition.Y > element.PosBL.Y)
+                if (element.Contains(view.CursorPosition))
                 {
                     element.OnClicked(view.CursorPosition);
 

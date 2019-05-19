@@ -11,12 +11,8 @@
         private Vector4 color;
         private float borderWidth;
 
-        public PanelElement(
-            Dimensions parentOrigin,
-            Dimensions localOrigin,
-            Dimensions relativeSize,
-            Vector4 color,
-            float borderWidth): base(parentOrigin, localOrigin, relativeSize)
+        public PanelElement(Layout layout, Vector4 color, float borderWidth)
+            : base(layout)
         {
             this.color = color;
             this.borderWidth = borderWidth;

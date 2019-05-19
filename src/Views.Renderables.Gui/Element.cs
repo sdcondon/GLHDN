@@ -11,25 +11,19 @@
     public abstract class Element : INotifyPropertyChanged
     {
         private IElementParent parent;
-        private Dimensions parentOrigin;
-        private Dimensions localOrigin;
-        private Dimensions relativeSize;
+        private Layout layout;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Element"/> class.
         /// </summary>
-        /// <param name="parentOrigin"></param>
-        /// <param name="localOrigin"></param>
-        /// <param name="relativeSize"></param>
-        public Element(Dimensions parentOrigin, Dimensions localOrigin, Dimensions relativeSize)
+        /// <param name="layout"></param>
+        public Element(Layout layout)
         {
-            this.parentOrigin = parentOrigin;
-            this.localOrigin = localOrigin;
-            this.relativeSize = relativeSize;
+            this.layout = layout;
         }
 
         /// <summary>
-        /// Gets the parent element of this element.
+        /// Gets the parent of this element.
         /// </summary>
         public IElementParent Parent
         {
@@ -42,73 +36,27 @@
         }
 
         /// <summary>
-        /// Gets or sets the position in parent-space of the local origin.
+        /// Gets or sets the object that controls the positioning and size of this element.
         /// </summary>
-        public Dimensions ParentOrigin
+        public Layout Layout
         {
-            get => parentOrigin;
+            get => layout;
             set
             {
-                parentOrigin = value;
-                OnPropertyChanged(nameof(ParentOrigin));
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the position relative to the center of the element that will be placed at the parent origin.
-        /// </summary>
-        public Dimensions LocalOrigin
-        {
-            get => localOrigin;
-            set
-            {
-                localOrigin = value;
-                OnPropertyChanged(nameof(LocalOrigin));
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the size of the element in relation to its parent.
-        /// </summary>
-        public Dimensions RelativeSize
-        {
-            get => relativeSize;
-            set
-            {
-                parentOrigin = value;
-                OnPropertyChanged(nameof(RelativeSize));
+                layout = value;
+                OnPropertyChanged(nameof(Layout));
             }
         }
 
         /// <summary>
         /// Gets the position of the center of the element, in screen space.
         /// </summary>
-        public Vector2 Center
-        {
-            get
-            {
-                var parentOriginScreenSpace = new Vector2(
-                    Parent.Center.X + (ParentOrigin.IsXRelative ? ParentOrigin.X * Parent.Size.X / 2 : ParentOrigin.X),
-                    Parent.Center.Y + (ParentOrigin.IsYRelative ? ParentOrigin.Y * Parent.Size.Y / 2 : ParentOrigin.Y));
-
-                return new Vector2(
-                    parentOriginScreenSpace.X - (LocalOrigin.IsXRelative ? LocalOrigin.X * Size.X / 2 : LocalOrigin.X),
-                    parentOriginScreenSpace.Y - (LocalOrigin.IsYRelative ? LocalOrigin.Y * Size.Y / 2 : LocalOrigin.Y));
-            }
-        }
+        public Vector2 Center => Layout.GetCenter(this);
 
         /// <summary>
         /// Gets the size of the element, in screen space.
         /// </summary>
-        public Vector2 Size
-        {
-            get
-            {
-                return new Vector2(
-                    RelativeSize.IsXRelative ? Parent.Size.X * RelativeSize.X : RelativeSize.X,
-                    RelativeSize.IsYRelative ? Parent.Size.Y * RelativeSize.Y : RelativeSize.Y);
-            }
-        }
+        public Vector2 Size => Layout.GetSize(this);
 
         /// <summary>
         /// Gets the position of the bottom-left corner of the element, in screen space.
@@ -135,10 +83,18 @@
         /// </summary>
         public abstract IList<GuiVertex> Vertices { get; }
 
-        /// <inheritdoc />
+        /// <inheritdoc /> from INotifyPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;
 
         public event EventHandler<Vector2> Clicked; 
+
+        public bool Contains(Vector2 position)
+        {
+            return position.X > this.PosTL.X
+                && position.X < this.PosTR.X
+                && position.Y < this.PosTL.Y
+                && position.Y > this.PosBL.Y;
+        }
 
         // TODO: Instead of this being public, IElementParent should inherit INotifyPropertyChanged
         public virtual void OnPropertyChanged(string propertyName)

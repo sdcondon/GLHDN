@@ -12,13 +12,8 @@
         private Vector4 color;
         private string content;
 
-        public TextElement(
-            Dimensions parentOrigin,
-            Dimensions localOrigin,
-            Dimensions relativeSize,
-            Vector4 color,
-            string content = "")
-            : base(parentOrigin, localOrigin, relativeSize)
+        public TextElement(Layout layout, Vector4 color, string content = "")
+            : base(layout)
         {
             this.color = color;
             this.content = content;
@@ -49,11 +44,6 @@
                 OnPropertyChanged(nameof(Content));
             }
         }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the text of this element is right-aligned.
-        /// </summary>
-        public bool RightAligned { get; set; }
 
         /// <inheritdoc />
         public override IList<GuiVertex> Vertices
