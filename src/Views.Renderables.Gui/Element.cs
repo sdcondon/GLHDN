@@ -97,7 +97,7 @@
         }
 
         // TODO: Instead of this being public, IElementParent should inherit INotifyPropertyChanged
-        public virtual void OnPropertyChanged(string propertyName)
+        internal virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

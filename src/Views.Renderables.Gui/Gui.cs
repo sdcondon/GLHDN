@@ -5,6 +5,7 @@
     using OpenGL;
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Numerics;
     using System.Reactive.Linq;
     using System.Reactive.Subjects;
@@ -14,7 +15,7 @@
     /// </summary>
     public class Gui : IRenderable, IElementParent
     {
-        private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.Gui";
+        private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.Gui.Shaders";
 
         private readonly View view;
 

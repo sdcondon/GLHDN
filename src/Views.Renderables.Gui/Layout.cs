@@ -4,46 +4,55 @@ namespace GLHDN.Views.Renderables.Gui
 {
     public class Layout
     {
-        public Layout(Dimensions parentOrigin, Dimensions localOrigin, Dimensions relativeSize)
+        public readonly Dimensions parentOrigin;
+        public readonly Dimensions localOrigin;
+        public readonly Dimensions relativeSize;
+        public readonly Vector2 offset;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Layout"/> class.
+        /// </summary>
+        /// <param name="parentOrigin">the position in parent-space of the local origin.</param>
+        /// <param name="localOrigin">the position relative to the center of the element that will be placed at the parent origin.</param>
+        /// <param name="relativeSize">the size of the element in relation to its parent.</param>
+        /// <param name="offset"></param>
+        public Layout(Dimensions parentOrigin, Dimensions localOrigin, Dimensions relativeSize, Vector2 offset)
         {
-            this.ParentOrigin = parentOrigin;
-            this.LocalOrigin = localOrigin;
-            this.RelativeSize = relativeSize;
+            this.parentOrigin = parentOrigin;
+            this.localOrigin = localOrigin;
+            this.relativeSize = relativeSize;
+            this.offset = offset;
         }
 
         /// <summary>
-        /// Gets the position in parent-space of the local origin.
+        /// Initializes a new instance of the <see cref="Layout"/> class.
         /// </summary>
-        public Dimensions ParentOrigin { get; }
-
-        /// <summary>
-        /// Gets the position relative to the center of the element that will be placed at the parent origin.
-        /// </summary>
-        public Dimensions LocalOrigin { get; }
-
-        /// <summary>
-        /// Gets the size of the element in relation to its parent.
-        /// </summary>
-        public Dimensions RelativeSize { get;  }
+        /// <param name="parentOrigin">the position in parent-space of the local origin.</param>
+        /// <param name="localOrigin">the position relative to the center of the element that will be placed at the parent origin.</param>
+        /// <param name="relativeSize">the size of the element in relation to its parent.</param>
+        public Layout(Dimensions parentOrigin, Dimensions localOrigin, Dimensions relativeSize)
+            : this(parentOrigin, localOrigin, relativeSize, Vector2.Zero)
+        {
+        }
 
         public Vector2 GetCenter(Element element)
         {
             var parentOriginScreenSpace = new Vector2(
-                element.Parent.Center.X + (ParentOrigin.IsXRelative ? ParentOrigin.X * element.Parent.Size.X / 2 : ParentOrigin.X),
-                element.Parent.Center.Y + (ParentOrigin.IsYRelative ? ParentOrigin.Y * element.Parent.Size.Y / 2 : ParentOrigin.Y));
+                element.Parent.Center.X + (parentOrigin.IsXRelative ? parentOrigin.X * element.Parent.Size.X / 2 : parentOrigin.X),
+                element.Parent.Center.Y + (parentOrigin.IsYRelative ? parentOrigin.Y * element.Parent.Size.Y / 2 : parentOrigin.Y));
 
-            return new Vector2(
-                parentOriginScreenSpace.X - (LocalOrigin.IsXRelative ? LocalOrigin.X * element.Size.X / 2 : LocalOrigin.X),
-                parentOriginScreenSpace.Y - (LocalOrigin.IsYRelative ? LocalOrigin.Y * element.Size.Y / 2 : LocalOrigin.Y));
+            return offset + new Vector2(
+                parentOriginScreenSpace.X - (localOrigin.IsXRelative ? localOrigin.X * element.Size.X / 2 : localOrigin.X),
+                parentOriginScreenSpace.Y - (localOrigin.IsYRelative ? localOrigin.Y * element.Size.Y / 2 : localOrigin.Y));
         }
 
         public Vector2 GetSize(Element element)
         {
             return new Vector2(
-                RelativeSize.IsXRelative ? element.Parent.Size.X * RelativeSize.X : RelativeSize.X,
-                RelativeSize.IsYRelative ? element.Parent.Size.Y * RelativeSize.Y : RelativeSize.Y);
+                relativeSize.IsXRelative ? element.Parent.Size.X * relativeSize.X : relativeSize.X,
+                relativeSize.IsYRelative ? element.Parent.Size.Y * relativeSize.Y : relativeSize.Y);
         }
-
+        
         public struct Dimensions
         {
             private Vector2 value;
