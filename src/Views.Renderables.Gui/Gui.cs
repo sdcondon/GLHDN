@@ -99,13 +99,16 @@
         {
             void visitElement(Element element)
             {
-                if (element.Contains(view.CursorPosition))
+                if (element.Contains(new Vector2(view.CursorPosition.X, -view.CursorPosition.Y)))
                 {
                     element.OnClicked(view.CursorPosition);
 
-                    foreach (var subElement in this.SubElements)
+                    if (element is IElementParent parent)
                     {
-                        visitElement(subElement);
+                        foreach (var subElement in parent.SubElements)
+                        {
+                            visitElement(subElement);
+                        }
                     }
                 }
             }
