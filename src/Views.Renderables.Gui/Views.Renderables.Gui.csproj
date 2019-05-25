@@ -11,6 +11,7 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DocumentationFile>GLHDN.Views.Renderables.Gui.xml</DocumentationFile>
+    <WarningLevel>0</WarningLevel>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,8 +25,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Gui.Fragment.glsl" />
-    <EmbeddedResource Include="Gui.Vertex.glsl" />
+    <EmbeddedResource Include="Shaders\Gui.Fragment.glsl" />
+    <EmbeddedResource Include="Shaders\Gui.Vertex.glsl" />
   </ItemGroup>
 
   <ItemGroup>

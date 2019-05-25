@@ -5,6 +5,7 @@
     using OpenGL;
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Numerics;
     using System.Reactive.Linq;
     using System.Reactive.Subjects;
@@ -14,7 +15,7 @@
     /// </summary>
     public class Gui : IRenderable, IElementParent
     {
-        private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.Gui";
+        private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.Gui.Shaders";
 
         private readonly View view;
 
@@ -98,13 +99,16 @@
         {
             void visitElement(Element element)
             {
-                if (element.Contains(view.CursorPosition))
+                if (element.Contains(new Vector2(view.CursorPosition.X, -view.CursorPosition.Y)))
                 {
                     element.OnClicked(view.CursorPosition);
 
-                    foreach (var subElement in this.SubElements)
+                    if (element is IElementParent parent)
                     {
-                        visitElement(subElement);
+                        foreach (var subElement in parent.SubElements)
+                        {
+                            visitElement(subElement);
+                        }
                     }
                 }
             }

@@ -60,7 +60,7 @@
         public ElementCollection SubElements { get; }
 
         /// <inheritdoc />
-        public override void OnPropertyChanged(string propertyName)
+        internal override void OnPropertyChanged(string propertyName)
         {
             foreach (var subElement in SubElements)
             {
