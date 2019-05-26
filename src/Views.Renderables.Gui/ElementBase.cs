@@ -8,16 +8,16 @@
     /// <summary>
     /// Base class for GUI elements. Provides for a nested element hierarchy, with elements being placed relative to their parents.
     /// </summary>
-    public abstract class Element : INotifyPropertyChanged
+    public abstract class ElementBase : INotifyPropertyChanged
     {
         private IElementParent parent;
         private Layout layout;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Element"/> class.
+        /// Initializes a new instance of the <see cref="ElementBase"/> class.
         /// </summary>
         /// <param name="layout"></param>
-        public Element(Layout layout)
+        public ElementBase(Layout layout)
         {
             this.layout = layout;
         }
@@ -81,7 +81,7 @@
         /// <summary>
         /// Gets the list of vertices to be rendered for this GUI element.
         /// </summary>
-        public abstract IList<GuiVertex> Vertices { get; }
+        public abstract IList<Vertex> Vertices { get; }
 
         /// <inheritdoc /> from INotifyPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;

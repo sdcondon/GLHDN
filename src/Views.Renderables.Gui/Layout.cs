@@ -2,6 +2,9 @@
 
 namespace GLHDN.Views.Renderables.Gui
 {
+    /// <summary>
+    /// Container for positioning data for an elemennt.
+    /// </summary>
     public class Layout
     {
         public readonly Dimensions parentOrigin;
@@ -35,7 +38,7 @@ namespace GLHDN.Views.Renderables.Gui
         {
         }
 
-        public Vector2 GetCenter(Element element)
+        public Vector2 GetCenter(ElementBase element)
         {
             var parentOriginScreenSpace = new Vector2(
                 element.Parent.Center.X + (parentOrigin.IsXRelative ? parentOrigin.X * element.Parent.Size.X / 2 : parentOrigin.X),
@@ -46,7 +49,7 @@ namespace GLHDN.Views.Renderables.Gui
                 parentOriginScreenSpace.Y - (localOrigin.IsYRelative ? localOrigin.Y * element.Size.Y / 2 : localOrigin.Y));
         }
 
-        public Vector2 GetSize(Element element)
+        public Vector2 GetSize(ElementBase element)
         {
             return new Vector2(
                 relativeSize.IsXRelative ? element.Parent.Size.X * relativeSize.X : relativeSize.X,

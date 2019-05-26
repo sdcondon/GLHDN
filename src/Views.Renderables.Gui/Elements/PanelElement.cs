@@ -6,7 +6,7 @@
     /// <summary>
     /// 
     /// </summary>
-    public class PanelElement : Element, IElementParent
+    public class PanelElement : ElementBase, IElementParent
     {
         private Vector4 color;
         private float borderWidth;
@@ -46,12 +46,12 @@
         }
 
         /// <inheritdoc />
-        public override IList<GuiVertex> Vertices => new[]
+        public override IList<Vertex> Vertices => new[]
         {
-            new GuiVertex(PosTL, Color, PosBL, Size, BorderWidth),
-            new GuiVertex(PosTR, Color, PosBL, Size, BorderWidth),
-            new GuiVertex(PosBL, Color, PosBL, Size, BorderWidth),
-            new GuiVertex(PosBR, Color, PosBL, Size, BorderWidth)
+            new Vertex(PosTL, Color, PosBL, Size, BorderWidth),
+            new Vertex(PosTR, Color, PosBL, Size, BorderWidth),
+            new Vertex(PosBL, Color, PosBL, Size, BorderWidth),
+            new Vertex(PosBR, Color, PosBL, Size, BorderWidth)
         };
 
         // TODO: handlers? - onclick, onmouseover, onmouseout etc
