@@ -33,7 +33,11 @@
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            var form = new GlForm();
+            var form = new GlForm()
+            {
+                WindowState = FormWindowState.Normal,
+                FormBorderStyle = FormBorderStyle.Sizable
+            };
 
             view = new Views.View(form.ViewContext, ModelUpdate, true, Vector3.Zero);
 
@@ -76,12 +80,11 @@
 
             view.Renderables.Add(Program.lines = new ColoredLines(camera));
 
-            gui = new Gui(view);
+            view.Renderables.Add(gui = new Gui(view));
             var panel = new PanelElement(
                 layout: new Layout((-1f, 0f), (-1f, 0f), (250, 1f)),
                 color: Color.White(0.05f),
                 borderWidth: 0f);
-            panel.Clicked += Panel_Clicked;
             gui.SubElements.Add(panel);
 
             panel.SubElements.Add(camText = new TextElement(
@@ -89,10 +92,6 @@
                 color: Color.White()));
 
             Application.Run(form);
-        }
-
-        private static void Panel_Clicked(object sender, Vector2 e)
-        {
         }
 
         private static void ModelUpdate(TimeSpan elapsed)
