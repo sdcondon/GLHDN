@@ -5,6 +5,8 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
+    using System.Linq;
+    using System.Reactive.Linq;
     using System.Reactive.Subjects;
     using System.Text;
     using Xunit;
@@ -113,73 +115,85 @@
         {
             get
             {
-                object[] makeTestCase(Action<Composite> action, ICollection<string> expectedObservations) =>
-                    new object[] { action, expectedObservations };
-
-                return new List<object[]>()
+                object[][] makeTestCases(Action<Composite> action, ICollection<string> expectedObservations) => new object[][]
                 {
-                    makeTestCase( // addition, update & removal
+                    new object[] { action, expectedObservations, false },
+                    new object[] { action, expectedObservations, true },
+                };
+
+                return new List<object[][]>()
+                {
+                    makeTestCases( // addition, update & removal
                         a => { var i = a.Add(1); i.Value = 2; i.Remove(); },
                         new[] { "0+", "0=0", "1+", "1=1", "1=2", "1-" }),
 
-                    makeTestCase( // nested addition, update and removal
+                    makeTestCases( // nested addition, update and removal
                         a => { var i = a.Add(1); var j = i.Add(2); j.Value = 3; j.Remove(); },
                         new[] { "0+", "0=0", "1+", "1=1", "2+", "2=2", "2=3", "2-" }),
 
-                    makeTestCase( // parent removal
+                    makeTestCases( // parent removal
                         a => { var i = a.Add(1); var j = i.Add(2); i.Remove(); },
                         new[] { "0+", "0=0", "1+", "1=1", "2+", "2=2", "1-", "2-" }),
 
-                    makeTestCase( // grandparent removal
+                    makeTestCases( // grandparent removal
                         a => { var i = a.Add(1); var j = i.Add(2); var k = j.Add(3); i.Value = 4; j.Value = 5; k.Value = 6; i.Remove(); },
                         new[] { "0+", "0=0", "1+", "1=1", "2+", "2=2", "3+", "3=3", "1=4", "2=5", "3=6", "1-", "2-", "3-" }),
 
-                    makeTestCase( // sibling independence
+                    makeTestCases( // sibling independence
                         a => { var s1 = a.Add(1); var s2 = a.Add(2); var s11 = s1.Add(11); var s21 = s2.Add(21); s1.Remove(); s21.Value = 22; },
                         new[] { "0+", "0=0", "1+", "1=1", "2+", "2=2", "3+", "3=11", "4+", "4=21", "1-", "3-", "4=22" }),
-                };
+                }
+                .SelectMany(a => a);
             }
         }
 
         [Theory]
         [MemberData(nameof(FlattenCompositeTestCases))]
-        public void FlattenCompositeTests(Action<Composite> action, ICollection<string> expectedObservations)
+        public void FlattenCompositeTests(Action<Composite> action, ICollection<string> expectedObservations, bool dispose)
         {
             // Arrange
-            var subjectMonitor = new Dictionary<string, object>();
-            var root = new Composite(0, subjectMonitor);
+            var allSubjects = new Dictionary<string, object>();
+            var root = new Composite(0, allSubjects);
             var observed = new StringBuilder();
             var itemCount = 0;
-            var subscription = root.Subject.FlattenComposite(c => c.Children, c => c.Value).Subscribe(
-                obs =>
-                {
-                    var thisItem = itemCount++;
-                    observed.Append($"{thisItem}+; ");
-                    obs.Subscribe(
-                        i => observed.Append($"{thisItem}={i}; "),
-                        e => observed.Append($"{thisItem}:err; "),
-                        () => observed.Append($"{thisItem}-; "));
-                },
-                e => observed.Append("Error; "),
-                () => observed.Append("Complete; "));
+            var subscription = root.Subject
+                .FlattenComposite(c => c.Children, c => c.Value)
+                .Subscribe(
+                    obs =>
+                    {
+                        var thisItem = itemCount++;
+                        observed.Append($"{thisItem}+; ");
+                        obs.Subscribe(
+                            i => observed.Append($"{thisItem}={i}; "),
+                            e => observed.Append($"{thisItem}:err; "),
+                            () => observed.Append($"{thisItem}-; "));
+                    },
+                    e => observed.Append("Error; "),
+                    () => observed.Append("Complete; "));
 
             try
             {
                 // Act
                 action(root);
 
-                // Assert - observationd
+                // Assert - observations
                 observed.ToString().Should().BeEquivalentTo(string.Join("; ", expectedObservations) + "; ");
             }
             finally
             {
-                root.Remove();
-                // subscription.Dispose(); // TODO: next challenge - this should work too. Will require different approach.
+                if (dispose)
+                {
+                    subscription.Dispose();
+                }
+                else
+                {
+                    root.Remove();
+                }
             }
 
             // Assert - tidy-up
-            subjectMonitor.Keys.Should().OnlyContain(
-                k => SubjectHasNoObservers(subjectMonitor[k]),
+            allSubjects.Keys.Should().OnlyContain(
+                k => SubjectHasNoObservers(allSubjects[k]),
                 "No observers should be left at the end of the test");
         }
 
@@ -198,16 +212,16 @@
 
         public class Composite
         {
-            private readonly Dictionary<string, object> monitor;
+            private readonly Dictionary<string, object> allSubjects;
             private readonly BehaviorSubject<Composite> subject;
             private readonly Subject<BehaviorSubject<Composite>> children;
             private int value;
 
-            public Composite(int value, Dictionary<string, object> monitor)
+            public Composite(int value, Dictionary<string, object> allSubjects)
             {
-                this.monitor = monitor;
-                monitor.Add($"item {value} self subject", this.subject = new BehaviorSubject<Composite>(this));
-                monitor.Add($"item {value} children subject", this.children = new Subject<BehaviorSubject<Composite>>());
+                this.allSubjects = allSubjects;
+                allSubjects.Add($"item {value} self subject", this.subject = new BehaviorSubject<Composite>(this));
+                allSubjects.Add($"item {value} children subject", this.children = new Subject<BehaviorSubject<Composite>>());
                 this.Value = value;
             }
 
@@ -227,7 +241,7 @@
 
             public Composite Add(int initialValue)
             {
-                var child = new Composite(initialValue, monitor);
+                var child = new Composite(initialValue, allSubjects);
                 children.OnNext(child.subject);
                 return child;
             }

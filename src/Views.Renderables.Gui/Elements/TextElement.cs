@@ -5,7 +5,7 @@
     using System.Numerics;
     using System.Text;
 
-    public class TextElement : Element
+    public class TextElement : ElementBase
     {
         public static readonly Lazy<Font> font = new Lazy<Font>(() => new Font("Fonts\\Inconsolata\\Inconsolata-Regular.ttf"));
 
@@ -46,12 +46,12 @@
         }
 
         /// <inheritdoc />
-        public override IList<GuiVertex> Vertices
+        public override IList<Vertex> Vertices
         {
             get
             {
                 var scale = 1f;
-                var vertices = new List<GuiVertex>();
+                var vertices = new List<Vertex>();
                 var position = this.PosTL;
                 foreach (var line in GetLines(scale))
                 {
@@ -94,7 +94,7 @@
             yield return currentLine.ToString();
         }
 
-        private Font.GlyphInfo AddChar(char c, Vector2 position, List<GuiVertex> vertices, float scale)
+        private Font.GlyphInfo AddChar(char c, Vector2 position, List<Vertex> vertices, float scale)
         {
             var glyphInfo = font.Value[c];
 
@@ -106,10 +106,10 @@
 
             vertices.AddRange(new[]
             {
-                new GuiVertex(charPosTL, Color, charPosBL, charSize, (int)c),
-                new GuiVertex(charPosTR, Color, charPosBL, charSize, (int)c),
-                new GuiVertex(charPosBL, Color, charPosBL, charSize, (int)c),
-                new GuiVertex(charPosBR, Color, charPosBL, charSize, (int)c)
+                new Vertex(charPosTL, Color, charPosBL, charSize, (int)c),
+                new Vertex(charPosTR, Color, charPosBL, charSize, (int)c),
+                new Vertex(charPosBL, Color, charPosBL, charSize, (int)c),
+                new Vertex(charPosBR, Color, charPosBL, charSize, (int)c)
             });
 
             return glyphInfo;

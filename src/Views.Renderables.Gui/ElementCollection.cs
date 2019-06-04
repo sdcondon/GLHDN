@@ -8,12 +8,12 @@
     using System.Reactive.Linq;
     using System.Reactive.Subjects;
 
-    public class ElementCollection : ICollection<Element>, IObservable<IObservable<Element>>
+    public class ElementCollection : ICollection<ElementBase>, IObservable<IObservable<ElementBase>>
     {
         private readonly IElementParent owner;
-        private readonly Subject<BehaviorSubject<Element>> innerSubject = new Subject<BehaviorSubject<Element>>();
-        private readonly LinkedList<BehaviorSubject<Element>> currentList = new LinkedList<BehaviorSubject<Element>>();
-        private readonly Dictionary<Element, Action> removalCallbacks = new Dictionary<Element, Action>();
+        private readonly Subject<BehaviorSubject<ElementBase>> innerSubject = new Subject<BehaviorSubject<ElementBase>>();
+        private readonly LinkedList<BehaviorSubject<ElementBase>> currentList = new LinkedList<BehaviorSubject<ElementBase>>();
+        private readonly Dictionary<ElementBase, Action> removalCallbacks = new Dictionary<ElementBase, Action>();
 
         public ElementCollection(IElementParent owner)
         {
@@ -27,7 +27,7 @@
         public bool IsReadOnly => false;
 
         /// <inheritdoc />
-        public void Add(Element element)
+        public void Add(ElementBase element)
         {
             // todo: throw if parent != null?
             element.Parent = this.owner;
@@ -39,11 +39,11 @@
                 .FromEventPattern<PropertyChangedEventHandler, PropertyChangedEventArgs>(
                     handler => element.PropertyChanged += handler,
                     handler => element.PropertyChanged -= handler)
-                .Select(a => (Element)a.Sender)
+                .Select(a => (ElementBase)a.Sender)
                 .StartWith(element)
                 .TakeUntil(removal);
 
-            var subject = new BehaviorSubject<Element>(element);
+            var subject = new BehaviorSubject<ElementBase>(element);
             obs.Subscribe(subject);
 
             var node = currentList.AddLast(subject);
@@ -52,7 +52,7 @@
         }
 
         /// <inheritdoc />
-        public bool Remove(Element element)
+        public bool Remove(ElementBase element)
         {
             if (removalCallbacks.TryGetValue(element, out var callback))
             {
@@ -75,15 +75,15 @@
         }
 
         /// <inheritdoc />
-        public bool Contains(Element item) =>
+        public bool Contains(ElementBase item) =>
             currentList.Any(a => a.Value.Equals(item));
 
         /// <inheritdoc />
-        public void CopyTo(Element[] array, int arrayIndex) =>
+        public void CopyTo(ElementBase[] array, int arrayIndex) =>
             currentList.Select(a => a.Value).ToList().CopyTo(array, arrayIndex);
 
         /// <inheritdoc />
-        public IEnumerator<Element> GetEnumerator() =>
+        public IEnumerator<ElementBase> GetEnumerator() =>
             currentList.Select(a => a.Value).GetEnumerator();
 
         /// <inheritdoc />)
@@ -91,7 +91,7 @@
             currentList.Select(a => a.Value).GetEnumerator();
 
         /// <inheritdoc />
-        public IDisposable Subscribe(IObserver<IObservable<Element>> observer)
+        public IDisposable Subscribe(IObserver<IObservable<ElementBase>> observer)
         {
             var disposable = innerSubject.Subscribe(observer);
             foreach (var current in currentList)

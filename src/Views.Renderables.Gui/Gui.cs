@@ -22,16 +22,16 @@
         private GlProgramBuilder programBuilder;
         private GlProgram program;
         private BehaviorSubject<IElementParent> subject; 
-        private ReactiveBuffer<GuiVertex> vertexBuffer;
+        private ReactiveBuffer<Vertex> vertexBuffer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Gui"/> class, 
         /// </summary>
-        /// <param name="view"></param>
+        /// <param name="view">The view from which to derive size and input.</param>
         public Gui(View view)
         {
             this.view = view;
-            view.Renderables.Add(this);
+
             view.Resized += (s, e) =>
             {
                 foreach (var element in SubElements)
@@ -65,10 +65,10 @@
             this.programBuilder = null;
 
             this.subject = new BehaviorSubject<IElementParent>(this);
-            this.vertexBuffer = new ReactiveBuffer<GuiVertex>(
-                this.subject.FlattenComposite<object, IList<GuiVertex>>(
-                    a => a is IElementParent p ? p.SubElements : Observable.Never<IObservable<Element>>(),
-                    a => a is Element e ? e.Vertices : new GuiVertex[0]),
+            this.vertexBuffer = new ReactiveBuffer<Vertex>(
+                this.subject.FlattenComposite<object, IList<Vertex>>(
+                    a => a is IElementParent p ? p.SubElements : Observable.Never<IObservable<ElementBase>>(),
+                    a => a is ElementBase e ? e.Vertices : new Vertex[0]),
                 PrimitiveType.Triangles,
                 1000,
                 new[] { 0, 2, 3, 0, 3, 1 },
@@ -97,7 +97,7 @@
 
         public void Update()
         {
-            void visitElement(Element element)
+            void visitElement(ElementBase element)
             {
                 if (element.Contains(new Vector2(view.CursorPosition.X, -view.CursorPosition.Y)))
                 {
