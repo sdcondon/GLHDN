@@ -7,7 +7,7 @@
 
     <AssemblyName>GLHDN.ReactiveBuffers.UnitTests</AssemblyName>
 
-    <RootNamespace>GLHDN.Core.UnitTests</RootNamespace>
+    <RootNamespace>GLHDN.ReactiveBuffers.UnitTests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
