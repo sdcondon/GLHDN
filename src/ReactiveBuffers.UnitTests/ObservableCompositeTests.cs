@@ -54,7 +54,7 @@ namespace GLHDN.ReactiveBuffers.UnitTests
         {
             // Arrange
             var subjectMonitor = new Dictionary<string, object>();
-            var root = new ObservableComposite<int>(null, new BehaviorSubject<int>(0), subjectMonitor);
+            var root = new ObservableComposite<int>(new BehaviorSubject<int>(0), subjectMonitor);
             var observed = new StringBuilder();
             var itemCount = 0;
             var subscription = root.Flatten().Subscribe(

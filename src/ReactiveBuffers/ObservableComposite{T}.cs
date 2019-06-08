@@ -14,18 +14,14 @@ namespace GLHDN.ReactiveBuffers
         private readonly Subject<ObservableComposite<TData>> children;
         private readonly Dictionary<string, object> monitor;
 
-        public ObservableComposite(ObservableComposite<TData> parent, IObservable<TData> values, Dictionary<string, object> monitor)
+        public ObservableComposite(IObservable<TData> values, Dictionary<string, object> monitor)
         {
-            IObservable<TData> parentOrSelfRemoved = this.removed = new Subject<TData>();
-            if (parent != null)
-            {
-                parentOrSelfRemoved = parentOrSelfRemoved.Merge(parent.Values.TakeLast(1));
-            }
+            removed = new Subject<TData>();
                 
-            Values = values.TakeUntil(parentOrSelfRemoved);
+            Values = values.TakeUntil(removed);
 
-            this.children = new Subject<ObservableComposite<TData>>();
-            Children = children.TakeUntil(parentOrSelfRemoved);
+            children = new Subject<ObservableComposite<TData>>();
+            Children = children.TakeUntil(removed);
 
             this.monitor = monitor;
             monitor?.Add($"item {id++} value subject", values);
@@ -38,7 +34,7 @@ namespace GLHDN.ReactiveBuffers
 
         public ObservableComposite<TData> Add(IObservable<TData> values)
         {
-            var child = new ObservableComposite<TData>(this, values, monitor);
+            var child = new ObservableComposite<TData>(values, monitor);
             children.OnNext(child);
             return child;
         }
@@ -50,18 +46,22 @@ namespace GLHDN.ReactiveBuffers
 
         public IObservable<IObservable<TData>> Flatten()
         {
-            IDisposable subscribe(ObservableComposite<TData> node, IObserver<IObservable<TData>> observer, CompositeDisposable disposable)
+            void subscribe(IObservable<TData> removed, ObservableComposite<TData> node, IObserver<IObservable<TData>> observer, CompositeDisposable disposable)
             {
-                var disposed = new Subject<bool>();
-                observer.OnNext(node.Values.TakeUntil(disposed));
-                disposable.Add(Disposable.Create(() => disposed.OnNext(true)));
+                var disposed = new Subject<TData>();
+                observer.OnNext(node.Values.TakeUntil(removed.Merge(disposed)));
+                disposable.Add(Disposable.Create(() => disposed.OnNext(default)));
 
-                disposable.Add(node.Children.Subscribe(n => subscribe(n, observer, disposable)));
-
-                return disposable;
+                var childrenDisposable = node.Children.TakeUntil(removed).Subscribe(n => subscribe(removed.Merge(node.Values.TakeLast(1)), n, observer, disposable));
+                disposable.Add(childrenDisposable);
             }
 
-            return Observable.Create<IObservable<TData>>(o => subscribe(this, o, new CompositeDisposable()));
+            return Observable.Create<IObservable<TData>>(o =>
+            {
+                var disposable = new CompositeDisposable();
+                subscribe(Observable.Never<TData>(), this, o, disposable);
+                return disposable;
+            });
         }
     }
 }
