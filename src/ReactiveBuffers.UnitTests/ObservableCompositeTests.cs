@@ -16,7 +16,7 @@ namespace GLHDN.ReactiveBuffers.UnitTests
         {
             get
             {
-                object[][] makeTestCases(Action<ObservableComposite<Node, int>> action, ICollection<string> expectedObservations) => new object[][]
+                object[][] makeTestCases(Action<ObservableComposite<int>> action, ICollection<string> expectedObservations) => new object[][]
                 {
                     new object[] { action, expectedObservations, false },
                     new object[] { action, expectedObservations, true },
@@ -25,23 +25,23 @@ namespace GLHDN.ReactiveBuffers.UnitTests
                 return new List<object[][]>()
                 {
                     makeTestCases( // addition, update & removal
-                        a => { var i = a.Add(1); i.Node.Value = 2; i.Remove(); },
+                        a => { var (i, iv) = a.Add(1); iv.OnNext(2); i.Remove(); },
                         new[] { "0+", "0=0", "1+", "1=1", "1=2", "1-" }),
 
                     makeTestCases( // nested addition, update and removal
-                        a => { var i = a.Add(1); var j = i.Add(2); j.Node.Value = 3; j.Remove(); },
+                        a => { var (i, _) = a.Add(1); var (j, jv) = i.Add(2); jv.OnNext(3); j.Remove(); },
                         new[] { "0+", "0=0", "1+", "1=1", "2+", "2=2", "2=3", "2-" }),
 
                     makeTestCases( // parent removal
-                        a => { var i = a.Add(1); var j = i.Add(2); i.Remove(); },
+                        a => { var (i, _) = a.Add(1); var j = i.Add(2); i.Remove(); },
                         new[] { "0+", "0=0", "1+", "1=1", "2+", "2=2", "1-", "2-" }),
 
                     makeTestCases( // grandparent removal
-                        a => { var i = a.Add(1); var j = i.Add(2); var k = j.Add(3); i.Node.Value = 4; j.Node.Value = 5; k.Node.Value = 6; i.Remove(); },
+                        a => { var (i, iv) = a.Add(1); var (j, jv) = i.Add(2); var (k, kv) = j.Add(3); iv.OnNext(4); jv.OnNext(5); kv.OnNext(6); i.Remove(); },
                         new[] { "0+", "0=0", "1+", "1=1", "2+", "2=2", "3+", "3=3", "1=4", "2=5", "3=6", "1-", "2-", "3-" }),
 
                     makeTestCases( // sibling independence
-                        a => { var s1 = a.Add(1); var s2 = a.Add(2); var s11 = s1.Add(11); var s21 = s2.Add(21); s1.Remove(); s21.Node.Value = 22; },
+                        a => { var (s1, _) = a.Add(1); var (s2, _) = a.Add(2); var s11 = s1.Add(11); var (s21, s21v) = s2.Add(21); s1.Remove(); s21v.OnNext(22); },
                         new[] { "0+", "0=0", "1+", "1=1", "2+", "2=2", "3+", "3=11", "4+", "4=21", "1-", "3-", "4=22" }),
                 }
                 .SelectMany(a => a);
@@ -50,11 +50,11 @@ namespace GLHDN.ReactiveBuffers.UnitTests
 
         [Theory]
         [MemberData(nameof(FlattenTestCases))]
-        public void FlattenTests(Action<ObservableComposite<Node, int>> action, ICollection<string> expectedObservations, bool dispose)
+        public void FlattenTests(Action<ObservableComposite<int>> action, ICollection<string> expectedObservations, bool dispose)
         {
             // Arrange
             var subjectMonitor = new Dictionary<string, object>();
-            var root = new ObservableComposite<Node, int>(null, new Node(0), n => n.Values, subjectMonitor);
+            var root = new ObservableComposite<int>(null, new BehaviorSubject<int>(0), subjectMonitor);
             var observed = new StringBuilder();
             var itemCount = 0;
             var subscription = root.Flatten().Subscribe(
@@ -62,7 +62,6 @@ namespace GLHDN.ReactiveBuffers.UnitTests
                 {
                     var thisItem = itemCount++;
                     observed.Append($"{thisItem}+; ");
-                    obs.Subscribe(_ => { }, () => Debugger.Break());
                     obs.Subscribe(
                         i => observed.Append($"{thisItem}={i}; "),
                         e => observed.Append($"{thisItem}:err; "),
@@ -103,27 +102,21 @@ namespace GLHDN.ReactiveBuffers.UnitTests
             {
                 case BehaviorSubject<int> bsi:
                     return !bsi.HasObservers;
-                case Subject<ObservableComposite<Node, int>> sc:
+                case Subject<ObservableComposite<int>> sc:
                     return !sc.HasObservers;
                 default:
                     //return true;
                     throw new Exception($"Unexpected type of monitored object");
             }
         }
+    }
 
-        public class Node
+    public static class Extensions
+    {
+        public static (ObservableComposite<int>, BehaviorSubject<int>) Add(this ObservableComposite<int> comp, int initialValue)
         {
-            public Node(int value) => Values = new BehaviorSubject<int>(value);
-
-            public BehaviorSubject<int> Values { get; }
-
-            public int Value
-            {
-                get => Values.Value;
-                set => Values.OnNext(value);
-            }
-
-            public static implicit operator Node(int value) => new Node(value);
+            var subject = new BehaviorSubject<int>(initialValue);
+            return (comp.Add(subject), subject);
         }
     }
 }

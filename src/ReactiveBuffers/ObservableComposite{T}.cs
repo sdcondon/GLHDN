@@ -6,16 +6,15 @@ using System.Reactive.Subjects;
 
 namespace GLHDN.ReactiveBuffers
 {
-    public class ObservableComposite<TNode, TData>
+    public class ObservableComposite<TData>
     {
         private static int id = 0;
 
         private readonly Subject<TData> removed;
-        private readonly Subject<ObservableComposite<TNode, TData>> children;
-        private readonly Func<TNode, IObservable<TData>> getValues;
+        private readonly Subject<ObservableComposite<TData>> children;
         private readonly Dictionary<string, object> monitor;
 
-        public ObservableComposite(ObservableComposite<TNode, TData> parent, TNode node, Func<TNode, IObservable<TData>> getValues, Dictionary<string, object> monitor)
+        public ObservableComposite(ObservableComposite<TData> parent, IObservable<TData> values, Dictionary<string, object> monitor)
         {
             IObservable<TData> parentOrSelfRemoved = this.removed = new Subject<TData>();
             if (parent != null)
@@ -23,29 +22,23 @@ namespace GLHDN.ReactiveBuffers
                 parentOrSelfRemoved = parentOrSelfRemoved.Merge(parent.Values.TakeLast(1));
             }
                 
-            Node = node;
+            Values = values.TakeUntil(parentOrSelfRemoved);
 
-            this.getValues = getValues;
-            var nodeVals = getValues(node);
-            Values = nodeVals.TakeUntil(parentOrSelfRemoved);
-
-            children = new Subject<ObservableComposite<TNode, TData>>();
+            this.children = new Subject<ObservableComposite<TData>>();
             Children = children.TakeUntil(parentOrSelfRemoved);
 
             this.monitor = monitor;
-            monitor.Add($"item {id++} value subject", nodeVals);
-            monitor.Add($"item {id} children subject", children);
+            monitor?.Add($"item {id++} value subject", values);
+            monitor?.Add($"item {id} children subject", children);
         }
-
-        public TNode Node { get; }
 
         public IObservable<TData> Values { get; }
 
-        public IObservable<ObservableComposite<TNode, TData>> Children { get; }
+        public IObservable<ObservableComposite<TData>> Children { get; }
 
-        public ObservableComposite<TNode, TData> Add(TNode node)
+        public ObservableComposite<TData> Add(IObservable<TData> values)
         {
-            var child = new ObservableComposite<TNode, TData>(this, node, getValues, monitor);
+            var child = new ObservableComposite<TData>(this, values, monitor);
             children.OnNext(child);
             return child;
         }
@@ -57,16 +50,13 @@ namespace GLHDN.ReactiveBuffers
 
         public IObservable<IObservable<TData>> Flatten()
         {
-            IDisposable subscribe(ObservableComposite<TNode, TData> node, IObserver<IObservable<TData>> observer, CompositeDisposable disposable)
+            IDisposable subscribe(ObservableComposite<TData> node, IObserver<IObservable<TData>> observer, CompositeDisposable disposable)
             {
-                var valueDisp = new CancellationDisposable();
-                var valueEnd = new Subject<bool>();
-                valueDisp.Token.Register(() => valueEnd.OnNext(false));
-                observer.OnNext(node.Values.TakeUntil(valueEnd));
-                disposable.Add(valueDisp);
+                var disposed = new Subject<bool>();
+                observer.OnNext(node.Values.TakeUntil(disposed));
+                disposable.Add(Disposable.Create(() => disposed.OnNext(true)));
 
-                var childDisp = node.Children.Subscribe(n => subscribe(n, observer, disposable));
-                disposable.Add(childDisp); // TODO: This adds the comp disposable to itself..
+                disposable.Add(node.Children.Subscribe(n => subscribe(n, observer, disposable)));
 
                 return disposable;
             }
