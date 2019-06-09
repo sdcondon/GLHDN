@@ -21,7 +21,6 @@
 
         private GlProgramBuilder programBuilder;
         private GlProgram program;
-        private BehaviorSubject<IElementParent> subject; 
         private ReactiveBuffer<Vertex> vertexBuffer;
 
         /// <summary>
@@ -64,11 +63,8 @@
             this.program = this.programBuilder.Build();
             this.programBuilder = null;
 
-            this.subject = new BehaviorSubject<IElementParent>(this);
             this.vertexBuffer = new ReactiveBuffer<Vertex>(
-                this.subject.FlattenComposite<object, IList<Vertex>>(
-                    a => a is IElementParent p ? p.SubElements : Observable.Never<IObservable<ElementBase>>(),
-                    a => a is ElementBase e ? e.Vertices : new Vertex[0]),
+                this.SubElements.Flatten(),
                 PrimitiveType.Triangles,
                 1000,
                 new[] { 0, 2, 3, 0, 3, 1 },
@@ -90,7 +86,6 @@
         /// <inheritdoc /> from IRenderable
         public void ContextDestroying(DeviceContext deviceContext)
         {
-            this.subject?.OnCompleted();
             this.program?.Dispose();
             this.vertexBuffer?.Dispose();
         }

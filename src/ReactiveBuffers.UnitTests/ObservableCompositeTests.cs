@@ -1,7 +1,6 @@
 ﻿using FluentAssertions;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -47,6 +46,8 @@ namespace GLHDN.ReactiveBuffers.UnitTests
                 .SelectMany(a => a);
             }
         }
+
+        // todo: test for subscription after child addition
 
         [Theory]
         [MemberData(nameof(FlattenTestCases))]
@@ -105,7 +106,6 @@ namespace GLHDN.ReactiveBuffers.UnitTests
                 case Subject<ObservableComposite<int>> sc:
                     return !sc.HasObservers;
                 default:
-                    //return true;
                     throw new Exception($"Unexpected type of monitored object");
             }
         }
@@ -116,7 +116,9 @@ namespace GLHDN.ReactiveBuffers.UnitTests
         public static (ObservableComposite<int>, BehaviorSubject<int>) Add(this ObservableComposite<int> comp, int initialValue)
         {
             var subject = new BehaviorSubject<int>(initialValue);
-            return (comp.Add(subject), subject);
+            var child = new ObservableComposite<int>(subject, null); // todo: re-add subject monitoring
+            comp.Add(child);
+            return (child, subject);
         }
     }
 }

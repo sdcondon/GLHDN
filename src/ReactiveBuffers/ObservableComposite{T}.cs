@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -12,17 +13,25 @@ namespace GLHDN.ReactiveBuffers
 
         private readonly Subject<TData> removed;
         private readonly Subject<ObservableComposite<TData>> children;
+        private readonly HashSet<ObservableComposite<TData>> currentChildren;
         private readonly Dictionary<string, object> monitor;
 
-        public ObservableComposite(IObservable<TData> values, Dictionary<string, object> monitor)
+        public ObservableComposite(IObservable<TData> values)
         {
             removed = new Subject<TData>();
-                
+
             Values = values.TakeUntil(removed);
 
+            currentChildren = new HashSet<ObservableComposite<TData>>();
             children = new Subject<ObservableComposite<TData>>();
-            Children = children.TakeUntil(removed);
+            Children = Observable.Defer(() => children
+                .StartWith(currentChildren.ToArray())
+                .TakeUntil(removed));
+        }
 
+        public ObservableComposite(IObservable<TData> values, Dictionary<string, object> monitor)
+            : this(values)
+        {
             this.monitor = monitor;
             monitor?.Add($"item {id++} value subject", values);
             monitor?.Add($"item {id} children subject", children);
@@ -32,11 +41,21 @@ namespace GLHDN.ReactiveBuffers
 
         public IObservable<ObservableComposite<TData>> Children { get; }
 
-        public ObservableComposite<TData> Add(IObservable<TData> values)
+        public void Add(ObservableComposite<TData> child)
         {
-            var child = new ObservableComposite<TData>(values, monitor);
+            currentChildren.Add(child);
             children.OnNext(child);
-            return child;
+        }
+
+        public bool Remove(ObservableComposite<TData> child)
+        {
+            if (currentChildren.Remove(child))
+            {
+                child.Remove();
+                return true;
+            }
+
+            return false;
         }
 
         public void Remove()

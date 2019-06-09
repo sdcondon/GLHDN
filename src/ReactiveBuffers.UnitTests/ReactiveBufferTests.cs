@@ -72,7 +72,7 @@
             ICollection<int> expectedIndices)
         {
             // Arrange
-            var source = new ObservableCollection<In>(); // todo: use a subject instead
+            var source = new ObservableCollection<In>(); // todo: use a subject instead. this is causing test failures atm
             var target = (MemoryVertexArrayObject)null;
             var subject = new ReactiveBuffer<(int elementId, int vertexId)>(
                 source.ToObservable((In a) => Enumerable.Range(1, a.vertexCount).Select(b => (a.id, b)).ToArray()),
