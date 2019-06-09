@@ -39,7 +39,8 @@
                 FormBorderStyle = FormBorderStyle.Sizable
             };
 
-            view = new Views.View(form.ViewContext, ModelUpdate, true, Vector3.Zero);
+            view = new Views.View(form.ViewContext, false, Vector3.Zero);
+            view.Update += ModelUpdate;
 
             camera = new FirstPersonCamera(
                 movementSpeed: 3.0f,
@@ -80,21 +81,36 @@
 
             view.Renderables.Add(Program.lines = new ColoredLines(camera));
 
-            view.Renderables.Add(gui = new Gui(view));
-            var panel = new PanelElement(
-                layout: new Layout((-1f, 0f), (-1f, 0f), (250, 1f)),
-                color: Color.White(0.05f),
-                borderWidth: 0f);
-            gui.SubElements.Add(panel);
-
-            panel.SubElements.Add(camText = new TextElement(
+            Program.camText = new TextElement(
                 new Layout((-1f, 1f), (-1f, 1f), (1f, 0f)),
-                color: Color.White()));
+                color: Color.White());
+            view.Renderables.Add(gui = new Gui(view)
+            {
+                SubElements =
+                {
+                    new PanelElement(
+                        layout: new Layout((-1f, 0f), (-1f, 0f), (250, 1f)),
+                        color: Color.White(0.05f),
+                        borderWidth: 0f)
+                    {
+                        SubElements =
+                        {
+                            camText
+                        }
+                    },
+                    new Views.Renderables.Gui.Button(
+                        layout: new Layout((1f, 1f), (1f, 1f), (100, 100)),
+                        color: Color.Blue(),
+                        textColor: Color.White(),
+                        text: "Click me",
+                        (s, e) => camText.Color = Color.Red())
+                }
+            });
 
             Application.Run(form);
         }
 
-        private static void ModelUpdate(TimeSpan elapsed)
+        private static void ModelUpdate(object sender, TimeSpan elapsed)
         {
             camera.Update(elapsed, view);
             gui.Update();
