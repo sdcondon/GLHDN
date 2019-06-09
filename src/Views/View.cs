@@ -21,14 +21,9 @@
         /// Initializes a new instance of the <see cref="View"/> class.
         /// </summary>
         /// <param name="context"></param>
-        /// <param name="modelUpdateHandler"></param>
         /// <param name="lockCursor"></param>
         /// <param name="clearColor"></param>
-        public View(
-            IViewContext context,
-            Action<TimeSpan> modelUpdateHandler,
-            bool lockCursor,
-            Vector3 clearColor)
+        public View(IViewContext context,bool lockCursor, Vector3 clearColor)
         {
             Debug.WriteLine("Registering OpenGL debug handler");
             Gl.DebugMessageCallback(OnGlDebugMessage, null);
@@ -156,6 +151,8 @@
         /// </summary>
         public event EventHandler<Vector2> Resized;
 
+        public event EventHandler<TimeSpan> Update;
+
         private void OnContextCreated(object sender, DeviceContext context)
         {
             Gl.ClearColor(clearColor.X, clearColor.Y, clearColor.Z, 0f);
@@ -211,7 +208,7 @@
 
                 // Update the game world, timing how long it takes to execute
                 //updateDurationStopwatch.Restart();
-                this.modelUpdateHandler?.Invoke(elapsed);
+                Update?.Invoke(e, elapsed);
 
                 // Reset user input properties
                 this.MouseWheelDelta = 0;

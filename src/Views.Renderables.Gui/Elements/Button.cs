@@ -31,5 +31,15 @@ namespace GLHDN.Views.Renderables.Gui
         public override IList<Vertex> Vertices { get; } = new Vertex[0];
 
         public ElementCollection SubElements { get; }
+
+        /// <inheritdoc />
+        internal override void OnPropertyChanged(string propertyName)
+        {
+            foreach (var subElement in SubElements)
+            {
+                subElement.OnPropertyChanged(nameof(Parent));
+            }
+            base.OnPropertyChanged(propertyName);
+        }
     }
 }
