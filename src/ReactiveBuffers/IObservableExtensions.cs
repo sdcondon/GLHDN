@@ -93,50 +93,21 @@
         {
             IDisposable subscribeToNode(IObservable<TIn> node, IObserver<IObservable<TLeaf>> observer, CompositeDisposable disposable)
             {
-                var valueDisp = new CancellationDisposable();
-                var valueEnd = new Subject<bool>();
-                valueDisp.Token.Register(() => valueEnd.OnNext(false));
-                observer.OnNext(node.Select(getLeafData).TakeUntil(valueEnd));
-                disposable.Add(valueDisp);
+                var disposed = new Subject<TLeaf>();
+                observer.OnNext(node.Select(getLeafData).TakeUntil(disposed));
+                disposable.Add(Disposable.Create(() => disposed.OnNext(default)));
 
                 var nodeRemoval = node.TakeLast(1);
                 var childSubscription = node
                     .SelectMany(n => getChildren(n))
                     .TakeUntil(nodeRemoval)
                     .Subscribe(child => subscribeToNode(child.TakeUntil(nodeRemoval),  observer, disposable));
+                disposable.Add(childSubscription);
 
-                disposable.Add(childSubscription); // TODO: this adds the disposable to itself..
                 return disposable;
             }
 
             return Observable.Create<IObservable<TLeaf>>(o => subscribeToNode(rootObs, o, new CompositeDisposable()));
         }
-
-#if false
-        /// <summary>
-        /// Creates an flat observable of (observables of) leaves from a hierarchical structure.
-        /// </summary>
-        public static IObservable<IObservable<TLeaf>> FlattenComposite2<TIn, TLeaf>(
-            this TIn root,
-            Func<TIn, IObservable<TIn>> getChildren,
-            Func<TIn, IObservable<TLeaf>> getLeafData)
-        {
-            IDisposable subscribe(TIn node, IObserver<IObservable<TLeaf>> observer, CompositeDisposable disposable)
-            {
-                var valueDisp = new CancellationDisposable();
-                var valueEnd = new Subject<bool>();
-                valueDisp.Token.Register(() => valueEnd.OnNext(false));
-                observer.OnNext(getLeafData(node).TakeUntil(valueEnd));
-                disposable.Add(valueDisp);
-
-                var childDisp = getChildren(node).Subscribe(n => subscribe(n, observer, disposable));
-                disposable.Add(childDisp);
-
-                return disposable;
-            }
-
-            return Observable.Create<IObservable<TLeaf>>(o => subscribe(root, o, new CompositeDisposable()));
-        }
-#endif
     }
 }

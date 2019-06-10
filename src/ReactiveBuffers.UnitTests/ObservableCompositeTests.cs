@@ -55,7 +55,8 @@ namespace GLHDN.ReactiveBuffers.UnitTests
         {
             // Arrange
             var subjectMonitor = new Dictionary<string, object>();
-            var root = new ObservableComposite<int>(new BehaviorSubject<int>(0), subjectMonitor);
+            var subjectId = 0;
+            var root = new ObservableComposite<int>(new BehaviorSubject<int>(0), subjectMonitor, ref subjectId);
             var observed = new StringBuilder();
             var itemCount = 0;
             var subscription = root.Flatten().Subscribe(
@@ -116,7 +117,7 @@ namespace GLHDN.ReactiveBuffers.UnitTests
         public static (ObservableComposite<int>, BehaviorSubject<int>) Add(this ObservableComposite<int> comp, int initialValue)
         {
             var subject = new BehaviorSubject<int>(initialValue);
-            var child = new ObservableComposite<int>(subject, null); // todo: re-add subject monitoring
+            var child = new ObservableComposite<int>(subject); // todo: re-add subject monitoring
             comp.Add(child);
             return (child, subject);
         }

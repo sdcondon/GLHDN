@@ -39,7 +39,7 @@
                 FormBorderStyle = FormBorderStyle.Sizable
             };
 
-            view = new Views.View(form.ViewContext, false, Vector3.Zero);
+            view = new Views.View(form.ViewContext, true, Vector3.Zero);
             view.Update += ModelUpdate;
 
             camera = new FirstPersonCamera(
@@ -74,7 +74,7 @@
 
             view.Renderables.Add(new PrimitiveRenderer(camera, Observable.Return(cubeSubject))
             {
-                AmbientLightColor = new Vector3(0.1f, 0.1f, 0.1f),
+                AmbientLightColor = Color.Grey(0.1f),
                 DirectedLightDirection = new Vector3(0, 1f, 0f),
                 DirectedLightColor = Color.Grey()
             });
@@ -93,17 +93,14 @@
                         color: Color.White(0.05f),
                         borderWidth: 0f)
                     {
-                        SubElements =
-                        {
-                            camText
-                        }
+                        SubElements = { camText }
                     },
-                    new Views.Renderables.Gui.Button(
-                        layout: new Layout((1f, 1f), (1f, 1f), (100, 100)),
-                        color: Color.Blue(),
-                        textColor: Color.White(),
-                        text: "Click me",
-                        (s, e) => camText.Color = Color.Red())
+                    //new Views.Renderables.Gui.Button(
+                    //    layout: new Layout((1f, 1f), (1f, 1f), (100, 100)),
+                    //    color: Color.Blue(),
+                    //    textColor: Color.White(),
+                    //    text: "Click me",
+                    //    (s, e) => camText.Color = Color.Red())
                 }
             });
 
@@ -114,7 +111,7 @@
         {
             camera.Update(elapsed, view);
             gui.Update();
-            camText.Content = $"Cam: {camera.Position:F2}\n\nHello, world!";
+            camText.Content = $"Hello, world!\n\nCam: {camera.Position:F2}";
 
             cubeWorldMatrix *= Matrix4x4.CreateRotationZ((float)elapsed.TotalSeconds);
             cubeWorldMatrix *= Matrix4x4.CreateRotationY((float)elapsed.TotalSeconds / 2);

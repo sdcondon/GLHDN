@@ -13,7 +13,6 @@
     {
         private readonly IViewContext context;
         private readonly Stopwatch modelUpdateIntervalStopwatch = new Stopwatch();
-        private readonly Action<TimeSpan> modelUpdateHandler;
         private readonly bool lockCursor;
         private readonly Vector3 clearColor;
 
@@ -23,7 +22,7 @@
         /// <param name="context"></param>
         /// <param name="lockCursor"></param>
         /// <param name="clearColor"></param>
-        public View(IViewContext context,bool lockCursor, Vector3 clearColor)
+        public View(IViewContext context, bool lockCursor, Vector3 clearColor)
         {
             Debug.WriteLine("Registering OpenGL debug handler");
             Gl.DebugMessageCallback(OnGlDebugMessage, null);
@@ -44,8 +43,6 @@
             context.MiddleMouseUp += (s, a) => { WasMiddleMouseButtonReleased = true; IsMiddleMouseButtonDown = false; };
             context.Resize += OnResize;
             context.Update += OnUpdate;
-
-            this.modelUpdateHandler = modelUpdateHandler;
 
             if (this.lockCursor = lockCursor)
             {
@@ -151,6 +148,9 @@
         /// </summary>
         public event EventHandler<Vector2> Resized;
 
+        /// <summary>
+        /// An event that is fired periodically - whenever the view context updates.
+        /// </summary>
         public event EventHandler<TimeSpan> Update;
 
         private void OnContextCreated(object sender, DeviceContext context)

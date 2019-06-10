@@ -9,12 +9,9 @@ namespace GLHDN.ReactiveBuffers
 {
     public class ObservableComposite<TData>
     {
-        private static int id = 0;
-
         private readonly Subject<TData> removed;
         private readonly Subject<ObservableComposite<TData>> children;
         private readonly HashSet<ObservableComposite<TData>> currentChildren;
-        private readonly Dictionary<string, object> monitor;
 
         public ObservableComposite(IObservable<TData> values)
         {
@@ -29,11 +26,10 @@ namespace GLHDN.ReactiveBuffers
                 .TakeUntil(removed));
         }
 
-        public ObservableComposite(IObservable<TData> values, Dictionary<string, object> monitor)
+        internal ObservableComposite(IObservable<TData> values, Dictionary<string, object> monitor, ref int id)
             : this(values)
         {
-            this.monitor = monitor;
-            monitor?.Add($"item {id++} value subject", values);
+            monitor?.Add($"item {++id} values", values);
             monitor?.Add($"item {id} children subject", children);
         }
 
@@ -71,7 +67,9 @@ namespace GLHDN.ReactiveBuffers
                 observer.OnNext(node.Values.TakeUntil(removed.Merge(disposed)));
                 disposable.Add(Disposable.Create(() => disposed.OnNext(default)));
 
-                var childrenDisposable = node.Children.TakeUntil(removed).Subscribe(n => subscribe(removed.Merge(node.Values.TakeLast(1)), n, observer, disposable));
+                var childrenDisposable = node.Children
+                    .TakeUntil(removed)
+                    .Subscribe(n => subscribe(removed.Merge(node.Values.TakeLast(1)), n, observer, disposable));
                 disposable.Add(childrenDisposable);
             }
 
