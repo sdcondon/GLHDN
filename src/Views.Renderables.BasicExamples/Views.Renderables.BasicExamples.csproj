@@ -16,6 +16,7 @@
   <ItemGroup>
     <None Remove="Colored.Fragment.glsl" />
     <None Remove="Colored.Vertex.glsl" />
+    <None Remove="GLHDN.Views.Renderables.Basic.xml" />
     <None Remove="Textured.Fragment.glsl" />
     <None Remove="Textured.Vertex.glsl" />
   </ItemGroup>
