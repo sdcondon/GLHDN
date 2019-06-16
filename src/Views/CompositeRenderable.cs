@@ -5,7 +5,7 @@ namespace GLHDN.Views
 {
     public abstract class CompositeRenderable : IRenderable
     {
-        protected List<IRenderable> Renderables { get; private set; } = new List<IRenderable>();
+        protected List<IRenderable> Renderables { get; } = new List<IRenderable>();
 
         public void ContextCreated(DeviceContext deviceContext)
         {

@@ -24,7 +24,6 @@
         event EventHandler<int> MouseWheel;
         event EventHandler<Vector2> Resize;
         event EventHandler GotFocus;
-        event EventHandler Update;
 
         /// <summary>
         /// Gets the width of the display.

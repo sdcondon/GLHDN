@@ -9,6 +9,8 @@
     /// </summary>
     public sealed class GlForm : Form
     {
+        private readonly GlControl glControl;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="GlForm"/> class.
         /// </summary>
@@ -22,7 +24,7 @@
             this.Name = "OpenGl";
             this.Text = "OpenGl";
 
-            var glControl = new GlControl()
+            this.glControl = new GlControl()
             {
                 Animation = true,
                 BackColor = Color.DimGray,
@@ -56,8 +58,7 @@
         {
             if (disposing)
             {
-                ViewContext?.Dispose();
-                ViewContext = null;
+                glControl?.Dispose();
             }
 
             base.Dispose(disposing);

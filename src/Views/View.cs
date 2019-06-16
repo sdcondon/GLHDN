@@ -42,7 +42,6 @@
             context.MiddleMouseDown += (s, a) => { WasMiddleMouseButtonPressed = true; IsMiddleMouseButtonDown = true; };
             context.MiddleMouseUp += (s, a) => { WasMiddleMouseButtonReleased = true; IsMiddleMouseButtonDown = false; };
             context.Resize += OnResize;
-            context.Update += OnUpdate;
 
             if (this.lockCursor = lockCursor)
             {
@@ -179,19 +178,7 @@
             }
         }
 
-        private void OnContextUpdate(object sender, DeviceContext context)
-        {
-        }
-
-        private void OnContextDestroying(object sender, DeviceContext context)
-        {
-            for (int i = 0; i < Renderables.Count; i++)
-            {
-                Renderables[i].ContextDestroying(context);
-            }
-        }
-
-        private void OnUpdate(object sender, EventArgs e)
+        private void OnContextUpdate(object sender, DeviceContext deviceContext)
         {
             if (context.IsFocused)
             {
@@ -208,7 +195,7 @@
 
                 // Update the game world, timing how long it takes to execute
                 //updateDurationStopwatch.Restart();
-                Update?.Invoke(e, elapsed);
+                Update?.Invoke(this, elapsed);
 
                 // Reset user input properties
                 this.MouseWheelDelta = 0;
@@ -224,6 +211,14 @@
                 {
                     context.CursorPosition = context.GetCenter();
                 }
+            }
+        }
+
+        private void OnContextDestroying(object sender, DeviceContext context)
+        {
+            for (int i = 0; i < Renderables.Count; i++)
+            {
+                Renderables[i].ContextDestroying(context);
             }
         }
 
