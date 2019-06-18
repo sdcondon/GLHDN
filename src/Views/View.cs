@@ -28,10 +28,10 @@
             Gl.DebugMessageCallback(OnGlDebugMessage, null);
 
             this.context = context;
-            context.GlContextCreated += OnContextCreated;
-            context.GlRender += OnRender;
-            context.GlContextUpdate += OnContextUpdate;
-            context.GlContextDestroying += OnContextDestroying;
+            context.GlContextCreated += OnGlContextCreated;
+            context.GlRender += OnGlRender;
+            context.GlContextUpdate += OnGlContextUpdate;
+            context.GlContextDestroying += OnGlContextDestroying;
             context.KeyDown += (s, a) => { KeysPressed.Add(a); KeysDown.Add(a); };
             context.KeyUp += (s, a) => { KeysReleased.Add(a); KeysDown.Remove(a); };
             context.MouseWheel += (s, a) => MouseWheelDelta = a; // SO much is wrong with this approach..;
@@ -152,7 +152,7 @@
         /// </summary>
         public event EventHandler<TimeSpan> Update;
 
-        private void OnContextCreated(object sender, DeviceContext context)
+        private void OnGlContextCreated(object sender, DeviceContext context)
         {
             Gl.ClearColor(clearColor.X, clearColor.Y, clearColor.Z, 0f);
             Gl.Enable(EnableCap.DepthTest); // Enable depth test
@@ -169,7 +169,7 @@
             }
         }
         
-        private void OnRender(object sender, DeviceContext context)
+        private void OnGlRender(object sender, DeviceContext context)
         {
             Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             for (int i = 0; i < Renderables.Count; i++)
@@ -178,7 +178,7 @@
             }
         }
 
-        private void OnContextUpdate(object sender, DeviceContext deviceContext)
+        private void OnGlContextUpdate(object sender, DeviceContext deviceContext)
         {
             if (context.IsFocused)
             {
@@ -214,7 +214,7 @@
             }
         }
 
-        private void OnContextDestroying(object sender, DeviceContext context)
+        private void OnGlContextDestroying(object sender, DeviceContext context)
         {
             for (int i = 0; i < Renderables.Count; i++)
             {
