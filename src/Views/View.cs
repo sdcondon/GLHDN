@@ -28,10 +28,10 @@
             Gl.DebugMessageCallback(OnGlDebugMessage, null);
 
             this.context = context;
-            context.GlContextCreated += OnContextCreated;
-            context.GlRender += OnRender;
-            context.GlContextUpdate += OnContextUpdate;
-            context.GlContextDestroying += OnContextDestroying;
+            context.GlContextCreated += OnGlContextCreated;
+            context.GlRender += OnGlRender;
+            context.GlContextUpdate += OnGlContextUpdate;
+            context.GlContextDestroying += OnGlContextDestroying;
             context.KeyDown += (s, a) => { KeysPressed.Add(a); KeysDown.Add(a); };
             context.KeyUp += (s, a) => { KeysReleased.Add(a); KeysDown.Remove(a); };
             context.MouseWheel += (s, a) => MouseWheelDelta = a; // SO much is wrong with this approach..;
@@ -42,7 +42,6 @@
             context.MiddleMouseDown += (s, a) => { WasMiddleMouseButtonPressed = true; IsMiddleMouseButtonDown = true; };
             context.MiddleMouseUp += (s, a) => { WasMiddleMouseButtonReleased = true; IsMiddleMouseButtonDown = false; };
             context.Resize += OnResize;
-            context.Update += OnUpdate;
 
             if (this.lockCursor = lockCursor)
             {
@@ -153,7 +152,7 @@
         /// </summary>
         public event EventHandler<TimeSpan> Update;
 
-        private void OnContextCreated(object sender, DeviceContext context)
+        private void OnGlContextCreated(object sender, DeviceContext context)
         {
             Gl.ClearColor(clearColor.X, clearColor.Y, clearColor.Z, 0f);
             Gl.Enable(EnableCap.DepthTest); // Enable depth test
@@ -170,7 +169,7 @@
             }
         }
         
-        private void OnRender(object sender, DeviceContext context)
+        private void OnGlRender(object sender, DeviceContext context)
         {
             Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             for (int i = 0; i < Renderables.Count; i++)
@@ -179,19 +178,7 @@
             }
         }
 
-        private void OnContextUpdate(object sender, DeviceContext context)
-        {
-        }
-
-        private void OnContextDestroying(object sender, DeviceContext context)
-        {
-            for (int i = 0; i < Renderables.Count; i++)
-            {
-                Renderables[i].ContextDestroying(context);
-            }
-        }
-
-        private void OnUpdate(object sender, EventArgs e)
+        private void OnGlContextUpdate(object sender, DeviceContext deviceContext)
         {
             if (context.IsFocused)
             {
@@ -208,7 +195,7 @@
 
                 // Update the game world, timing how long it takes to execute
                 //updateDurationStopwatch.Restart();
-                Update?.Invoke(e, elapsed);
+                Update?.Invoke(this, elapsed);
 
                 // Reset user input properties
                 this.MouseWheelDelta = 0;
@@ -224,6 +211,14 @@
                 {
                     context.CursorPosition = context.GetCenter();
                 }
+            }
+        }
+
+        private void OnGlContextDestroying(object sender, DeviceContext context)
+        {
+            for (int i = 0; i < Renderables.Count; i++)
+            {
+                Renderables[i].ContextDestroying(context);
             }
         }
 

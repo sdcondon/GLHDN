@@ -19,11 +19,11 @@
         /// </summary>
         /// <param name="primitiveType">OpenGL primitive type.</param>
         /// <param name="attributeBufferSpecs">Specs for the buffers in this VAO.</param>
-        /// <param name="indexData">The data to populate the index buffer with, or null if there should be no index.</param>
+        /// <param name="indexSpec">The data to populate the index buffer with, or null if there should be no index.</param>
         internal GlVertexArrayObject(
             PrimitiveType primitiveType,
-            IList<(BufferUsage usage, Array data)> attributeBufferSpecs,
-            uint[] indexData)
+            IList<(BufferUsage usage, Type elementType, int capacity, Array data)> attributeBufferSpecs,
+            (int capacity, uint[] data) indexSpec)
         {
             // Record primitive type for use in draw calls, create and bind the VAO
             this.primitiveType = primitiveType;
@@ -38,6 +38,8 @@
                 var buffer = attributeBuffers[i] = new GlVertexBufferObject(
                     BufferTarget.ArrayBuffer,
                     attributeBufferSpecs[i].usage,
+                    attributeBufferSpecs[i].elementType,
+                    attributeBufferSpecs[i].capacity,
                     attributeBufferSpecs[i].data);
                 for (uint j = 0; j < buffer.Attributes.Length; j++, k++)
                 {
@@ -54,9 +56,9 @@
             }
 
             // Establish element count & populate index buffer if there is one
-            if (indexData != null)
+            if (indexSpec.capacity > 0)
             {
-                this.indexBuffer = new GlVertexBufferObject(BufferTarget.ElementArrayBuffer, BufferUsage.DynamicDraw, indexData);
+                this.indexBuffer = new GlVertexBufferObject(BufferTarget.ElementArrayBuffer, BufferUsage.DynamicDraw, typeof(uint), indexSpec.capacity, indexSpec.data);
             }
         }
 
@@ -79,12 +81,12 @@
         /// <inheritdoc />
         public IReadOnlyList<IVertexBufferObject> AttributeBuffers => this.attributeBuffers;
 
-        public static IVertexArrayObject MakeVertexArrayObject(PrimitiveType primitiveType, IList<(BufferUsage, Array)> attributeBufferSpecs, uint[] indices)
+        public static IVertexArrayObject MakeVertexArrayObject(
+            PrimitiveType primitiveType,
+            IList<(BufferUsage, Type, int, Array)> attributeBufferSpecs,
+            (int capacity, uint[] data) indexSpec)
         {
-            return new GlVertexArrayObject(
-                primitiveType,
-                attributeBufferSpecs, // TODO: different VAO ctor to avoid needless large heap allocation 
-                indices); // TODO: different VAO ctor to avoid needless large heap allocation
+            return new GlVertexArrayObject(primitiveType, attributeBufferSpecs, indexSpec);
         }
 
         /// <inheritdoc />

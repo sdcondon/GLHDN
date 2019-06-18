@@ -10,10 +10,9 @@
     /// <summary>
     /// Wrapper for <see cref="GlControl"/> to the <see cref="IViewContext"/> interface.
     /// </summary>
-    public sealed class GlControlAdapter : IViewContext, IDisposable
+    public sealed class GlControlAdapter : IViewContext
     {
         private GlControl glControl;
-        private readonly Timer modelUpdateTimer; // TODO: this is the wrong timer type to use - it's tied to forms update
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GlControlAdapter"/> class.
@@ -61,10 +60,6 @@
             };
             this.glControl.Resize += (s, a) => Resize?.Invoke(this, new Vector2(this.glControl.ClientSize.Width, this.glControl.ClientSize.Height));
             this.glControl.GotFocus += (s, a) => GotFocus?.Invoke(this, EventArgs.Empty);
-
-            this.modelUpdateTimer = new Timer() { Interval = 15 };
-            this.modelUpdateTimer.Tick += (s, a) => Update(this, EventArgs.Empty);
-            this.modelUpdateTimer.Start();
         }
 
         /// <inheritdoc />
@@ -143,12 +138,6 @@
         public void HideCursor()
         {
             Cursor.Hide();
-        }
-
-        /// <inheritdoc />
-        public void Dispose()
-        {
-            modelUpdateTimer?.Dispose();
         }
     }
 }

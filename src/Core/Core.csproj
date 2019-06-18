@@ -14,6 +14,10 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DocumentationFile>GLHDN.Core.xml</DocumentationFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="GLHDN.Core.xml" />
+  </ItemGroup>
   
   <ItemGroup>
     <PackageReference Include="OpenGL.Net" Version="0.7.1" />

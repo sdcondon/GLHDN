@@ -56,15 +56,15 @@ namespace GLHDN.Views
         public static Color Black(float alpha = 1) => new Color(0, 0, 0, alpha);
 
         /// <summary>
-        /// Returns a color that is some variation of grey.
+        /// Returns a color that is a shade of grey.
         /// </summary>
         /// <param name="brightness">The brightness of the returned color.</param>
         /// <param name="alpha">The alpha of the returned color.</param>
         /// <returns>An appropriate <see cref="Color"/> instance.</returns>
-        public static Color Grey(float brightness = 1, float alpha = 1) => new Color(brightness, brightness, brightness, alpha);
+        public static Color Grey(float brightness = 0.5f, float alpha = 1) => new Color(brightness, brightness, brightness, alpha);
 
         /// <summary>
-        /// Returns red.
+        /// Returns pure red.
         /// </summary>
         /// <param name="brightness">The brightness of the returned color.</param>
         /// <param name="alpha">The alpha of the returned color.</param>
@@ -72,7 +72,7 @@ namespace GLHDN.Views
         public static Color Red(float brightness = 1, float alpha = 1) => new Color(brightness, 0, 0, alpha);
 
         /// <summary>
-        /// Returns green.
+        /// Returns pure green.
         /// </summary>
         /// <param name="brightness">The brightness of the returned color.</param>
         /// <param name="alpha">The alpha of the returned color.</param>
@@ -80,7 +80,7 @@ namespace GLHDN.Views
         public static Color Green(float brightness = 1, float alpha = 1) => new Color(0, brightness, 0, alpha);
 
         /// <summary>
-        /// Returns blue.
+        /// Returns pure blue.
         /// </summary>
         /// <param name="brightness">The brightness of the returned color.</param>
         /// <param name="alpha">The alpha of the returned color.</param>
