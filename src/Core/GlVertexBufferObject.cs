@@ -17,16 +17,17 @@
         /// </summary>
         /// <param name="target">OpenGL buffer target specification.</param>
         /// <param name="usage">OpenGL buffer usage specification.</param>
-        /// <param name="vertexData">The vertex data to populate the buffer with. The data type must be a blittable value type (or an exception will be thrown).</param>
-        public GlVertexBufferObject(BufferTarget target, BufferUsage usage, Array vertexData)
+        /// <param name="elementType">The type of elements to be stored in the buffer. The data type must be a blittable value type (or an exception will be thrown).</param>
+        /// <param name="elementCapacity">The maximum number of elements to be stored in the buffer.</param>
+        /// <param name="vertexData">The vertex data to populate the buffer with.</param>
+        public GlVertexBufferObject(BufferTarget target, BufferUsage usage, Type elementType, int elementCapacity, Array vertexData)
         {
-            var elementType = vertexData.GetType().GetElementType();
             this.Attributes = GlVertexAttributeInfo.ForType(elementType);
-            this.Count = vertexData.Length;
+            this.Count = elementCapacity;
 
             this.Id = Gl.GenBuffer();
             Gl.BindBuffer(target, this.Id); // NB: Side effect - leaves this buffer bound. 
-            Gl.BufferData(target, (uint)(Marshal.SizeOf(elementType) * vertexData.Length), vertexData, usage);
+            Gl.BufferData(target, (uint)(Marshal.SizeOf(elementType) * elementCapacity), vertexData, usage);
         }
 
         ~GlVertexBufferObject()
