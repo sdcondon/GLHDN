@@ -64,7 +64,7 @@
                     pso.Select(ps => 
                         ps.Where(p => p.IsTrianglePrimitive).SelectMany(p => p.Vertices).ToList())),
                 PrimitiveType.Triangles,
-                1000,
+                100000,
                 new[] { 0, 1, 2 },
                 GlVertexArrayObject.MakeVertexArrayObject);
 
@@ -73,7 +73,7 @@
                     pso.Select(ps =>
                         ps.Where(p => !p.IsTrianglePrimitive).SelectMany(p => p.Vertices).ToList())),
                 PrimitiveType.Lines,
-                1000,
+                100000,
                 new[] { 0, 1, },
                 GlVertexArrayObject.MakeVertexArrayObject);
         }
