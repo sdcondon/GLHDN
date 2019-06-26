@@ -159,6 +159,11 @@
         /// </summary>
         public event EventHandler<TimeSpan> Update;
 
+        public void Exit()
+        {
+            context.Exit();
+        }
+
         public void Dispose()
         {
             context.GlContextCreated -= OnGlContextCreated;

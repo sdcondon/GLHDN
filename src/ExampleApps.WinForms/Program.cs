@@ -134,7 +134,11 @@
                     view.LockCursor = !view.LockCursor;
                 }
 
-                // todo: q to quit
+                if (view.KeysReleased.Contains('Q'))
+                {
+                    view.Exit();
+                }
+
                 // todo: iviewcontext.exit & view.exit
                 // todo: menu to move to demo & to quit
             }

@@ -49,5 +49,10 @@
         /// Sets a value indicating whether the mouse cursor should be displayed.
         /// </summary>
         bool ShowCursor { set; }
+
+        /// <summary>
+        /// Closes the app.
+        /// </summary>
+        void Exit();
     }
 }

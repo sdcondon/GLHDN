@@ -149,5 +149,11 @@
                 }
             }
         }
+
+        /// <inheritdoc />
+        public void Exit()
+        {
+            Application.Exit();
+        }
     }
 }
