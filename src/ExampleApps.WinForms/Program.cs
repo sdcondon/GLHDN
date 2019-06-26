@@ -10,7 +10,7 @@
     using System.Numerics;
     using System.Reactive.Linq;
     using System.Reactive.Subjects;
-    using System.Windows.Forms;
+    using WinFormsApp = System.Windows.Forms.Application;
 
     static class Program
     {
@@ -20,8 +20,8 @@
         [STAThread]
         static void Main()
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
+            WinFormsApp.EnableVisualStyles();
+            WinFormsApp.SetCompatibleTextRenderingDefault(false);
 
             var form = new GlForm()
             {
@@ -29,13 +29,13 @@
                 // FormBorderStyle = FormBorderStyle.Sizable
             };
 
-            var view = new Views.View(form.ViewContext, true, Color.Black());
+            var view = new View(form.ViewContext, true, Color.Black());
 
             var demo = new DemoRenderable(view);
             view.Renderables.Add(demo);
             view.Update += demo.Update;
 
-            Application.Run(form);
+            WinFormsApp.Run(form);
         }
 
         private class DemoRenderable : CompositeRenderable
@@ -113,21 +113,30 @@
 
             public void Update(object sender, TimeSpan elapsed)
             {
-                var view = (Views.View)sender;
+                var view = (View)sender;
 
                 camera.Update(elapsed, view);
-                gui.Update();
-                camTextElement.Content = $"Hello, world!\n\nCam: {camera.Position:F2}";
+                gui.Update(); // todo: Iupdateable?
+                camTextElement.Content = $"Hello, world!\n\nCam: {camera.Position:F2}\n\nPress q to quit";
 
                 cubeWorldMatrix *= Matrix4x4.CreateRotationZ((float)elapsed.TotalSeconds);
                 cubeWorldMatrix *= Matrix4x4.CreateRotationY((float)elapsed.TotalSeconds / 2);
-                cubeSubject.OnNext(new[] { Primitive.Cuboid(new Vector3(.5f, 1f, 0.75f), cubeWorldMatrix, Color.Red()) });
+                cubeSubject.OnNext(new[] { Primitive.Cuboid(new Vector3(.5f, 1f, 0.75f), cubeWorldMatrix, Color.Red()) }); // todo: no new array each time
 
                 if (view.WasLeftMouseButtonReleased)
                 {
                     var ray = new Ray(camera, view);
                     lines.AddLine(ray.Origin, ray.Origin + ray.Direction * 10);
                 }
+
+                if (view.KeysReleased.Contains(' '))
+                {
+                    view.LockCursor = !view.LockCursor;
+                }
+
+                // todo: q to quit
+                // todo: iviewcontext.exit & view.exit
+                // todo: menu to move to demo & to quit
             }
         }
     }

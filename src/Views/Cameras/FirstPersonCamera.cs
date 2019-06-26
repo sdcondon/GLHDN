@@ -72,15 +72,18 @@
         /// <inheritdoc />
         public void Update(TimeSpan elapsed, View view)
         {
-            // Compute new orientation
-            var xDiff = view.CursorPosition.X;
-            if (Math.Abs(xDiff) < 2) xDiff = 0;
-            horizontalAngle -= RotationSpeed * xDiff;
+            if (view.LockCursor)
+            {
+                // Compute new orientation
+                var xDiff = view.CursorPosition.X;
+                if (Math.Abs(xDiff) < 2) xDiff = 0;
+                horizontalAngle -= RotationSpeed * xDiff;
 
-            var yDiff = view.CursorPosition.Y;
-            if (Math.Abs(yDiff) < 2) yDiff = 0;
-            verticalAngle -= RotationSpeed * yDiff;
-            verticalAngle = Math.Max(-(float)Math.PI / 2, Math.Min(verticalAngle, (float)Math.PI / 2));
+                var yDiff = view.CursorPosition.Y;
+                if (Math.Abs(yDiff) < 2) yDiff = 0;
+                verticalAngle -= RotationSpeed * yDiff;
+                verticalAngle = Math.Max(-(float)Math.PI / 2, Math.Min(verticalAngle, (float)Math.PI / 2));
+            }
 
             // Direction : Spherical coordinates to Cartesian coordinates conversion
             var direction = new Vector3(

@@ -13,8 +13,9 @@
     {
         private readonly IViewContext context;
         private readonly Stopwatch modelUpdateIntervalStopwatch = new Stopwatch();
-        private readonly bool lockCursor;
         private readonly Vector3 clearColor;
+
+        private bool lockCursor;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="View"/> class.
@@ -42,40 +43,46 @@
             context.MiddleMouseDown += OnMiddleMouseDown;
             context.MiddleMouseUp += OnMiddleMouseUp;
             context.Resize += OnResize;
+            context.GotFocus += OnGotFocus;
 
-            if (this.lockCursor = lockCursor)
-            {
-                context.GotFocus += OnGotFocus;
-                context.HideCursor();
-            }
-
+            this.LockCursor = lockCursor;
             this.clearColor = clearColor;
         }
 
         /// <summary>
         /// Gets the list of objects being rendered.
         /// </summary>
-        public List<IRenderable> Renderables { get; private set; } = new List<IRenderable>();
+        public List<IRenderable> Renderables { get; } = new List<IRenderable>();
 
         /// <summary>
         /// Gets the set of keys pressed since the last update. TODO: should be readonly
         /// </summary>
-        public HashSet<char> KeysPressed { get; private set; } = new HashSet<char>();
+        public HashSet<char> KeysPressed { get; } = new HashSet<char>();
 
         /// <summary>
         /// Gets the set of currently pressed keys. TODO: should be readonly
         /// </summary>
-        public HashSet<char> KeysDown { get; private set; } = new HashSet<char>();
+        public HashSet<char> KeysDown { get; } = new HashSet<char>();
 
         /// <summary>
         /// Gets the set of keys released since the last update. TODO: should be readonly
         /// </summary>
-        public HashSet<char> KeysReleased { get; private set; } = new HashSet<char>();
+        public HashSet<char> KeysReleased { get; } = new HashSet<char>();
 
         /// <summary>
         /// Gets the cursor position, with the origin being at the centre of the view, X increasing from left to right and Y increasing from top to bottom.
         /// </summary>
         public Vector2 CursorPosition { get; private set; }
+
+        public bool LockCursor
+        {
+            get => lockCursor;
+            set
+            {
+                context.ShowCursor = !value;
+                lockCursor = value;
+            }
+        }
 
         /// <summary>
         /// Gets the mouse wheel delta since the last update.
@@ -275,7 +282,10 @@
 
         private void OnGotFocus(object sender, EventArgs a)
         {
-            context.CursorPosition = context.GetCenter();
+            if (this.lockCursor)
+            {
+                context.CursorPosition = context.GetCenter();
+            }
         }
 
         private void OnGlDebugMessage(
