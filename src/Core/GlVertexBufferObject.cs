@@ -30,6 +30,9 @@
             Gl.BufferData(target, (uint)(Marshal.SizeOf(elementType) * elementCapacity), vertexData, usage);
         }
 
+        /// <summary>
+        /// Finalizes an instance of the <see cref="GlVertexBufferObject"/> class.
+        /// </summary>
         ~GlVertexBufferObject()
         {
             Gl.DeleteBuffers(this.Id);

@@ -17,10 +17,5 @@
         /// Render logic.
         /// </summary>
         void Render(DeviceContext deviceContext);
-
-        /// <summary>
-        /// Handler for the render context being destroyed.
-        /// </summary>
-        void ContextDestroying(DeviceContext deviceContext);
     }
 }

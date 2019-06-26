@@ -9,7 +9,7 @@
     /// <summary>
     /// Encapsulates an interactive view rendered with OpenGl.
     /// </summary>
-    public sealed class View
+    public sealed class View : IDisposable
     {
         private readonly IViewContext context;
         private readonly Stopwatch modelUpdateIntervalStopwatch = new Stopwatch();
@@ -32,20 +32,20 @@
             context.GlRender += OnGlRender;
             context.GlContextUpdate += OnGlContextUpdate;
             context.GlContextDestroying += OnGlContextDestroying;
-            context.KeyDown += (s, a) => { KeysPressed.Add(a); KeysDown.Add(a); };
-            context.KeyUp += (s, a) => { KeysReleased.Add(a); KeysDown.Remove(a); };
-            context.MouseWheel += (s, a) => MouseWheelDelta = a; // SO much is wrong with this approach..;
-            context.LeftMouseDown += (s, a) => { WasLeftMouseButtonPressed = true; IsLeftMouseButtonDown = true; };
-            context.LeftMouseUp += (s, a) => { WasLeftMouseButtonReleased = true; IsLeftMouseButtonDown = false; };
-            context.RightMouseDown += (s, a) => { WasRightMouseButtonPressed = true; IsRightMouseButtonDown = true; };
-            context.RightMouseUp += (s, a) => { WasRightMouseButtonReleased = true; IsRightMouseButtonDown = false; };
-            context.MiddleMouseDown += (s, a) => { WasMiddleMouseButtonPressed = true; IsMiddleMouseButtonDown = true; };
-            context.MiddleMouseUp += (s, a) => { WasMiddleMouseButtonReleased = true; IsMiddleMouseButtonDown = false; };
+            context.KeyDown += OnKeyDown;
+            context.KeyUp += OnKeyUp;
+            context.MouseWheel += OnMouseWheel;
+            context.LeftMouseDown += OnLeftMouseDown;
+            context.LeftMouseUp += OnLeftMouseUp;
+            context.RightMouseDown += OnRightMouseDown;
+            context.RightMouseUp += OnRightMouseUp;
+            context.MiddleMouseDown += OnMiddleMouseDown;
+            context.MiddleMouseUp += OnMiddleMouseUp;
             context.Resize += OnResize;
 
             if (this.lockCursor = lockCursor)
             {
-                context.GotFocus += (s, a) => context.CursorPosition = context.GetCenter();
+                context.GotFocus += OnGotFocus;
                 context.HideCursor();
             }
 
@@ -152,6 +152,37 @@
         /// </summary>
         public event EventHandler<TimeSpan> Update;
 
+        public void Dispose()
+        {
+            context.GlContextCreated -= OnGlContextCreated;
+            context.GlRender -= OnGlRender;
+            context.GlContextUpdate -= OnGlContextUpdate;
+            context.GlContextDestroying -= OnGlContextDestroying;
+            context.KeyDown -= OnKeyDown;
+            context.KeyUp -= OnKeyUp;
+            context.MouseWheel -= OnMouseWheel;
+            context.LeftMouseDown -= OnLeftMouseDown;
+            context.LeftMouseUp -= OnLeftMouseUp;
+            context.RightMouseDown -= OnRightMouseDown;
+            context.RightMouseUp -= OnRightMouseUp;
+            context.MiddleMouseDown -= OnMiddleMouseDown;
+            context.MiddleMouseUp -= OnMiddleMouseUp;
+            context.Resize -= OnResize;
+
+            if (this.lockCursor)
+            {
+                context.GotFocus -= OnGotFocus;
+            }
+
+            foreach (var renderable in Renderables)
+            {
+                if (renderable is IDisposable disposable)
+                {
+                    disposable.Dispose();
+                }
+            }
+        }
+
         private void OnGlContextCreated(object sender, DeviceContext context)
         {
             Gl.ClearColor(clearColor.X, clearColor.Y, clearColor.Z, 0f);
@@ -168,7 +199,7 @@
                 Renderables[i].ContextCreated(context);
             }
         }
-        
+
         private void OnGlRender(object sender, DeviceContext context)
         {
             Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -193,8 +224,7 @@
                 var maxEffectiveElapsed = TimeSpan.FromSeconds(0.1);
                 if (elapsed > maxEffectiveElapsed) { elapsed = maxEffectiveElapsed; }
 
-                // Update the game world, timing how long it takes to execute
-                //updateDurationStopwatch.Restart();
+                // Update the game world
                 Update?.Invoke(this, elapsed);
 
                 // Reset user input properties
@@ -216,16 +246,36 @@
 
         private void OnGlContextDestroying(object sender, DeviceContext context)
         {
-            for (int i = 0; i < Renderables.Count; i++)
-            {
-                Renderables[i].ContextDestroying(context);
-            }
+            Dispose();
         }
+
+        private void OnKeyDown(object sender, char a) { KeysPressed.Add(a); KeysDown.Add(a); }
+
+        private void OnKeyUp(object sender, char a) { KeysReleased.Add(a); KeysDown.Remove(a); }
+
+        private void OnMouseWheel(object s, int a) => MouseWheelDelta = a; // SO much is wrong with this approach..;
+
+        private void OnLeftMouseDown(object s, EventArgs a) { WasLeftMouseButtonPressed = true; IsLeftMouseButtonDown = true; }
+
+        private void OnLeftMouseUp(object s, EventArgs a) { WasLeftMouseButtonReleased = true; IsLeftMouseButtonDown = false; }
+
+        private void OnRightMouseDown(object s, EventArgs a) { WasRightMouseButtonPressed = true; IsRightMouseButtonDown = true; }
+
+        private void OnRightMouseUp(object s, EventArgs a) { WasRightMouseButtonReleased = true; IsRightMouseButtonDown = false; }
+
+        private void OnMiddleMouseDown(object s, EventArgs a) { WasMiddleMouseButtonPressed = true; IsMiddleMouseButtonDown = true; }
+
+        private void OnMiddleMouseUp(object s, EventArgs a) { WasMiddleMouseButtonReleased = true; IsMiddleMouseButtonDown = false; }
 
         private void OnResize(object sender, Vector2 size)
         {
             Gl.Viewport(0, 0, (int)size.X, (int)size.Y);
             Resized?.Invoke(this, size);
+        }
+
+        private void OnGotFocus(object sender, EventArgs a)
+        {
+            context.CursorPosition = context.GetCenter();
         }
 
         private void OnGlDebugMessage(

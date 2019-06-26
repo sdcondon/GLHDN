@@ -13,7 +13,7 @@
     /// <summary>
     /// Renderable container for a set of graphical user interface elements.
     /// </summary>
-    public class Gui : IRenderable, IElementParent
+    public class Gui : IRenderable, IElementParent, IDisposable
     {
         private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.Gui.Shaders";
 
@@ -22,6 +22,7 @@
         private GlProgramBuilder programBuilder;
         private GlProgram program;
         private ReactiveBuffer<Vertex> vertexBuffer;
+        private bool isDisposed;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Gui"/> class, 
@@ -60,6 +61,8 @@
         /// <inheritdoc /> from IRenderable
         public void ContextCreated(DeviceContext deviceContext)
         {
+            ThrowIfDisposed();
+
             this.program = this.programBuilder.Build();
             this.programBuilder = null;
 
@@ -74,6 +77,8 @@
         /// <inheritdoc /> from IRenderable
         public void Render(DeviceContext deviceContext)
         {
+            ThrowIfDisposed();
+
             // Assume the GUI is drawn last and is independent - goes on top of everything drawn already - so clear the depth buffer
             Gl.Clear(ClearBufferMask.DepthBufferBit);
 
@@ -83,15 +88,11 @@
             this.vertexBuffer.Draw();
         }
 
-        /// <inheritdoc /> from IRenderable
-        public void ContextDestroying(DeviceContext deviceContext)
-        {
-            this.program?.Dispose();
-            this.vertexBuffer?.Dispose();
-        }
 
         public void Update()
         {
+            ThrowIfDisposed();
+
             void visitElement(ElementBase element)
             {
                 if (element.Contains(new Vector2(view.CursorPosition.X, -view.CursorPosition.Y)))
@@ -114,6 +115,21 @@
                 {
                     visitElement(element);
                 }
+            }
+        }
+
+        public void Dispose()
+        {
+            this.program?.Dispose();
+            this.vertexBuffer?.Dispose();
+            isDisposed = true;
+        }
+
+        private void ThrowIfDisposed()
+        {
+            if (isDisposed)
+            {
+                throw new ObjectDisposedException(GetType().FullName);
             }
         }
     }

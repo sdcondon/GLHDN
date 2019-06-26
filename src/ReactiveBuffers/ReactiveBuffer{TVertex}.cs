@@ -14,7 +14,7 @@
     /// <remarks>
     /// TODO: probably best to remove the buffer creation stuff from here and turn this into an IObserver.
     /// </remarks>
-    public class ReactiveBuffer<TVertex>
+    public class ReactiveBuffer<TVertex> : IDisposable
     {
         private readonly IObservable<IObservable<IList<TVertex>>> vertexSource;
         private readonly int verticesPerAtom;
@@ -48,7 +48,7 @@
             this.atomCapacity = atomCapacity;
             this.vao = makeVertexArrayObject(
                 primitiveType,
-                new[] { (BufferUsage.DynamicDraw, typeof(TVertex), atomCapacity * verticesPerAtom, (Array)null) }, 
+                new[] { (BufferUsage.DynamicDraw, typeof(TVertex), atomCapacity * verticesPerAtom, (Array)null) },
                 (atomCapacity * indices.Count, null));
 
             // todo: store subscription to unsubscribe on dispose
@@ -120,6 +120,7 @@
                             (uint)(bufferIndex * parent.verticesPerAtom + parent.indices[i]);
                     }
                 }
+
                 while (atomIndex < bufferIndices.Count)
                 {
                     DeleteAtom(atomIndex);

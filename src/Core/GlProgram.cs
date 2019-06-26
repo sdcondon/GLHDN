@@ -71,11 +71,11 @@
         }
 
         /// <summary>
-        /// Finalizer
+        /// Finalizes an instance of the <see cref="GlProgram"/> class.
         /// </summary>
         ~GlProgram()
         {
-            Dispose(false);
+            Gl.DeleteProgram(this.id);
         }
 
         /// <summary>
@@ -128,13 +128,8 @@
         /// <inheritdoc />
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        private void Dispose(bool disposing)
-        {
             Gl.DeleteProgram(this.id);
+            GC.SuppressFinalize(this);
         }
     }
 }

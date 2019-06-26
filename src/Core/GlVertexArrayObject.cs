@@ -63,7 +63,7 @@
         }
 
         /// <summary>
-        /// Finalizer
+        /// Finalizes an instance of the <see cref="GlVertexArrayObject"/> class.
         /// </summary>
         ~GlVertexArrayObject()
         {
@@ -71,7 +71,7 @@
         }
 
         /// <summary>
-        /// The number of vertices to be rendered.
+        /// Gets the number of vertices to be rendered.
         /// </summary>
         public int VertexCount => indexBuffer?.Count ?? attributeBuffers[0].Count;
 

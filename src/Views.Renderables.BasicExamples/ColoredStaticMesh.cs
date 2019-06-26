@@ -1,7 +1,8 @@
 ﻿namespace GLHDN.Views.Renderables.BasicExamples
 {
-    using OpenGL;
     using GLHDN.Core;
+    using OpenGL;
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Numerics;
@@ -9,7 +10,7 @@
     /// <summary>
     /// Simple renderable class for static 3D geometry.
     /// </summary>
-    public class ColoredStaticMesh : IRenderable
+    public class ColoredStaticMesh : IRenderable, IDisposable
     {
         private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.BasicExamples";
 
@@ -19,6 +20,7 @@
         private GlProgram program;
         private GlVertexArrayObjectBuilder vertexArrayObjectBuilder;
         private GlVertexArrayObject vertexArrayObject;
+        private bool isDisposed;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ColoredStaticMesh"/> class.
@@ -58,6 +60,8 @@
         /// <inheritdoc />
         public void ContextCreated(DeviceContext deviceContext)
         {
+            ThrowIfDisposed();
+
             this.program = this.programBuilder.Build();
             this.programBuilder = null;
             this.vertexArrayObject = this.vertexArrayObjectBuilder.Build();
@@ -67,6 +71,8 @@
         /// <inheritdoc />
         public void Render(DeviceContext deviceContext)
         {
+            ThrowIfDisposed();
+
             this.program.UseWithUniformValues(
                 Matrix4x4.Transpose(this.Model * this.viewProjection.View * this.viewProjection.Projection),
                 Matrix4x4.Transpose(this.viewProjection.View),
@@ -79,10 +85,18 @@
         }
 
         /// <inheritdoc />
-        public void ContextDestroying(DeviceContext deviceContext)
+        public void Dispose()
         {
             this.vertexArrayObject.Dispose();
             this.program.Dispose();
+        }
+
+        private void ThrowIfDisposed()
+        {
+            if (isDisposed)
+            {
+                throw new ObjectDisposedException(GetType().FullName);
+            }
         }
     }
 }

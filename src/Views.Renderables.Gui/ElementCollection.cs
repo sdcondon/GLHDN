@@ -90,7 +90,6 @@
         /// <inheritdoc />)
         IEnumerator IEnumerable.GetEnumerator() => removalCallbacks.Keys.GetEnumerator();
 
-        /// <inheritdoc />
         public IObservable<IObservable<IList<Vertex>>> Flatten() => composite.Flatten();
 
         private static IObservable<IList<Vertex>> MakeVerticesObservable(ElementBase elementBase)

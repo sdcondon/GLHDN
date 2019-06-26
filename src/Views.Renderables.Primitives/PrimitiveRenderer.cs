@@ -10,7 +10,7 @@
     using System.Numerics;
     using System.Reactive.Linq;
 
-    public class PrimitiveRenderer : IRenderable
+    public class PrimitiveRenderer : IRenderable, IDisposable
     {
         private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.Primitives";
 
@@ -21,6 +21,7 @@
         private GlProgram program;
         private ReactiveBuffer<PrimitiveVertex> triangleBuffer;
         private ReactiveBuffer<PrimitiveVertex> lineBuffer;
+        private bool isDisposed;
 
         public Vector3 AmbientLightColor { get; set; } = Vector3.Zero;
 
@@ -56,6 +57,8 @@
         /// <inheritdoc />
         public void ContextCreated(DeviceContext deviceContext)
         {
+            ThrowIfDisposed();
+
             this.program = this.programBuilder.Build();
             this.programBuilder = null;
 
@@ -79,16 +82,10 @@
         }
 
         /// <inheritdoc />
-        public void ContextDestroying(DeviceContext deviceContext)
-        {
-            triangleBuffer.Dispose();
-            lineBuffer.Dispose();
-            program.Dispose();
-        }
-
-        /// <inheritdoc />
         public void Render(DeviceContext deviceContext)
         {
+            ThrowIfDisposed();
+
             this.program.UseWithUniformValues(
                 Matrix4x4.Transpose(this.camera.View * this.camera.Projection),
                 Matrix4x4.Transpose(this.camera.View),
@@ -101,6 +98,23 @@
                 PointLightPower);
             this.triangleBuffer.Draw();
             this.lineBuffer.Draw();
+        }
+
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            triangleBuffer.Dispose();
+            lineBuffer.Dispose();
+            program.Dispose();
+            isDisposed = true;
+        }
+
+        private void ThrowIfDisposed()
+        {
+            if (isDisposed)
+            {
+                throw new ObjectDisposedException(GetType().FullName);
+            }
         }
     }
 }

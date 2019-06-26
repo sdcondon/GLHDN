@@ -52,19 +52,19 @@
                 initialHorizontalAngleRadians: (float)Math.PI,
                 initialVerticalAngleRadians: 0f);
 
-            view.Renderables.Add(new StaticTexuredRenderer(
+            view.Renderables.Add(new TexturedStaticMesh(
                 camera,
                 new[]
                 {
-                    new StaticTexuredRenderer.Vertex(
+                    new TexturedStaticMesh.Vertex(
                         new Vector3(-1f, -1f, -2f),
                         new Vector2(0f, 0f),
                         new Vector3(0f, 0f, 1f)),
-                    new StaticTexuredRenderer.Vertex(
+                    new TexturedStaticMesh.Vertex(
                         new Vector3(1f, -1f, -2f),
                         new Vector2(1f, 0f),
                         new Vector3(0f, 0f, 1f)),
-                    new StaticTexuredRenderer.Vertex(
+                    new TexturedStaticMesh.Vertex(
                         new Vector3(0f, 1f, -2f),
                         new Vector2(0.5f, 1f),
                         new Vector3(0f, 0f, 1f)),
@@ -93,14 +93,17 @@
                         color: Color.White(0.05f),
                         borderWidth: 0f)
                     {
-                        SubElements = { camText }
-                    },
-                    //new Views.Renderables.Gui.Button(
-                    //    layout: new Layout((1f, 1f), (1f, 1f), (100, 100)),
-                    //    color: Color.Blue(),
-                    //    textColor: Color.White(),
-                    //    text: "Click me",
-                    //    (s, e) => camText.Color = Color.Red())
+                        SubElements =
+                        {
+                            camText,
+                            new Views.Renderables.Gui.Button(
+                                layout: new Layout((1f, 1f), (1f, 1f), (100, 100)),
+                                color: Color.Blue(),
+                                textColor: Color.White(),
+                                text: "Dispose",
+                                (s, e) => view.Dispose())
+                        }
+                    }
                 }
             });
 

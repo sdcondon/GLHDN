@@ -2,6 +2,7 @@
 {
     using GLHDN.Core;
     using OpenGL;
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Numerics;
@@ -9,7 +10,7 @@
     /// <summary>
     /// Renderable class for static 3D geometry.
     /// </summary>
-    public class StaticTexuredRenderer : IRenderable
+    public class TexturedStaticMesh : IRenderable, IDisposable
     {
         private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.BasicExamples";
 
@@ -21,8 +22,9 @@
         private GlProgram program;
         private GlVertexArrayObjectBuilder vertexArrayObjectBuilder;
         private GlVertexArrayObject vertexArrayObject;
+        private bool isDisposed;
 
-        public StaticTexuredRenderer(
+        public TexturedStaticMesh(
             IViewProjection viewProjection,
             IEnumerable<Vertex> vertices,
             IEnumerable<uint> indices,
@@ -44,6 +46,14 @@
         }
 
         /// <summary>
+        /// Finalizes an instance of the <see cref="TexturedStaticMesh"/> class.
+        /// </summary>
+        ~TexturedStaticMesh()
+        {
+            Gl.DeleteTextures(textures);
+        }
+
+        /// <summary>
         /// Gets or sets the model transform for this mesh.
         /// </summary>
         public Matrix4x4 Model { get; set; } = Matrix4x4.Identity;
@@ -51,6 +61,8 @@
         /// <inheritdoc />
         public void ContextCreated(DeviceContext deviceContext)
         {
+            ThrowIfDisposed();
+
             this.textures = new uint[1];
             this.textures[0] = TextureLoader.LoadDDS(textureFilePath);
 
@@ -63,6 +75,8 @@
         /// <inheritdoc />
         public void Render(DeviceContext deviceContext)
         {
+            ThrowIfDisposed();
+
             program.UseWithUniformValues(
                 Matrix4x4.Transpose(this.Model * this.viewProjection.View * this.viewProjection.Projection),
                 Matrix4x4.Transpose(this.viewProjection.View),
@@ -80,11 +94,21 @@
         }
 
         /// <inheritdoc />
-        public void ContextDestroying(DeviceContext deviceContext)
+        public void Dispose()
         {
             this.vertexArrayObject.Dispose();
             this.program.Dispose();
             Gl.DeleteTextures(textures);
+            GC.SuppressFinalize(this);
+            isDisposed = true;
+        }
+
+        private void ThrowIfDisposed()
+        {
+            if (isDisposed)
+            {
+                throw new ObjectDisposedException(GetType().FullName);
+            }
         }
 
         public struct Vertex
