@@ -29,17 +29,47 @@
                 // FormBorderStyle = FormBorderStyle.Sizable
             };
 
-            var view = new View(form.ViewContext, true, Color.Black());
-
-            var demo = new DemoRenderable(view);
-            view.Renderables.Add(demo);
-            view.Update += demo.Update;
+            var view = new View(form.ViewContext, false, Color.Black());
+            view.Renderable = new DemoMenu(view);
 
             WinFormsApp.Run(form);
         }
 
+        private class DemoMenu : CompositeRenderable
+        {
+            public DemoMenu(View view)
+            {
+                AddRenderable(new Gui(view)
+                {
+                    SubElements =
+                    {
+                        new Button(
+                            layout: new Layout((0f, 0f), (0f, 0f), (250, 100), new Vector2(0, 100)),
+                            color: Color.Blue(),
+                            textColor: Color.White(),
+                            text: "DEMO",
+                            (s, e) =>
+                            {
+                                view.Renderable = new DemoRenderable(view);
+                                this.Dispose();
+                            }),
+                        new Button(
+                            layout: new Layout((0f, 0f), (0f, 0f), (250, 100), new Vector2(0, -100)),
+                            color: Color.Blue(),
+                            textColor: Color.White(),
+                            text: "QUIT",
+                            (s, e) =>
+                            {
+                                view.Exit();
+                            }),
+                    },
+                });
+            }
+        }
+
         private class DemoRenderable : CompositeRenderable
         {
+            private readonly View view;
             private readonly ICamera camera;
 
             private readonly ColoredLines lines;
@@ -49,8 +79,9 @@
             private Matrix4x4 cubeWorldMatrix = Matrix4x4.Identity;
             private Subject<IList<Primitive>> cubeSubject = new Subject<IList<Primitive>>();
 
-            public DemoRenderable(Views.View view)
+            public DemoRenderable(View view)
             {
+                this.view = view;
                 camera = new FirstPersonCamera(
                     movementSpeed: 3.0f,
                     rotationSpeed: 0.005f,
@@ -61,7 +92,7 @@
                     initialHorizontalAngleRadians: (float)Math.PI,
                     initialVerticalAngleRadians: 0f);
 
-                Renderables.Add(new TexturedStaticMesh(
+                AddRenderable(new TexturedStaticMesh(
                     camera,
                     new[]
                     {
@@ -81,19 +112,19 @@
                     new uint[] { 0, 1, 2 },
                     "uvmap.DDS"));
 
-                Renderables.Add(new PrimitiveRenderer(camera, Observable.Return(cubeSubject))
+                AddRenderable(new PrimitiveRenderer(camera, Observable.Return(cubeSubject))
                 {
                     AmbientLightColor = Color.Grey(0.1f),
                     DirectedLightDirection = new Vector3(0, 1f, 0f),
                     DirectedLightColor = Color.Grey()
                 });
 
-                Renderables.Add(lines = new ColoredLines(camera));
+                AddRenderable(lines = new ColoredLines(camera));
 
                 camTextElement = new TextElement(
                     new Layout((-1f, 1f), (-1f, 1f), (1f, 0f)),
                     color: Color.White());
-                Renderables.Add(gui = new Gui(view)
+                AddRenderable(gui = new Gui(view)
                 {
                     SubElements =
                     {
@@ -111,12 +142,12 @@
                 });
             }
 
-            public void Update(object sender, TimeSpan elapsed)
+            public override void Update(TimeSpan elapsed)
             {
-                var view = (View)sender;
+                base.Update(elapsed);
 
                 camera.Update(elapsed, view);
-                gui.Update(); // todo: Iupdateable?
+
                 camTextElement.Content = $"Hello, world!\n\nCam: {camera.Position:F2}\n\nPress q to quit";
 
                 cubeWorldMatrix *= Matrix4x4.CreateRotationZ((float)elapsed.TotalSeconds);
@@ -136,7 +167,8 @@
 
                 if (view.KeysReleased.Contains('Q'))
                 {
-                    view.Exit();
+                    view.Renderable = new DemoMenu(view);
+                    this.Dispose();
                 }
 
                 // todo: iviewcontext.exit & view.exit

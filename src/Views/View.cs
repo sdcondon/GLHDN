@@ -15,7 +15,9 @@
         private readonly Stopwatch modelUpdateIntervalStopwatch = new Stopwatch();
         private readonly Vector3 clearColor;
 
+        private IRenderable renderable;
         private bool lockCursor;
+        private DeviceContext createdContext;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="View"/> class.
@@ -50,11 +52,6 @@
         }
 
         /// <summary>
-        /// Gets the list of objects being rendered.
-        /// </summary>
-        public List<IRenderable> Renderables { get; } = new List<IRenderable>();
-
-        /// <summary>
         /// Gets the set of keys pressed since the last update. TODO: should be readonly
         /// </summary>
         public HashSet<char> KeysPressed { get; } = new HashSet<char>();
@@ -73,7 +70,7 @@
         /// Gets the cursor position, with the origin being at the centre of the view, X increasing from left to right and Y increasing from top to bottom.
         /// </summary>
         public Vector2 CursorPosition { get; private set; }
-
+         
         public bool LockCursor
         {
             get => lockCursor;
@@ -149,15 +146,24 @@
         /// </summary>
         public float AspectRatio => (float)context.Width / context.Height;
 
+        public IRenderable Renderable
+        {
+            get => renderable;
+            set
+            {
+                if (createdContext != null)
+                {
+                    value.ContextCreated(createdContext);
+                }
+
+                renderable = value;
+            }
+        }
+
         /// <summary>
         /// An event that is fired when the size of the view changes.
         /// </summary>
         public event EventHandler<Vector2> Resized;
-
-        /// <summary>
-        /// An event that is fired periodically - whenever the view context updates.
-        /// </summary>
-        public event EventHandler<TimeSpan> Update;
 
         public void Exit()
         {
@@ -186,12 +192,9 @@
                 context.GotFocus -= OnGotFocus;
             }
 
-            foreach (var renderable in Renderables)
+            if (renderable is IDisposable disposable)
             {
-                if (renderable is IDisposable disposable)
-                {
-                    disposable.Dispose();
-                }
+                disposable.Dispose();
             }
         }
 
@@ -206,19 +209,14 @@
             Gl.Enable(EnableCap.Blend);
             Gl.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
-            for (int i = 0; i < Renderables.Count; i++)
-            {
-                Renderables[i].ContextCreated(context);
-            }
+            renderable.ContextCreated(context);
+            createdContext = context; // todo: re-entry safety
         }
 
         private void OnGlRender(object sender, DeviceContext context)
         {
             Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            for (int i = 0; i < Renderables.Count; i++)
-            {
-                Renderables[i].Render(context);
-            }
+            renderable.Render(context);
         }
 
         private void OnGlContextUpdate(object sender, DeviceContext deviceContext)
@@ -237,7 +235,7 @@
                 if (elapsed > maxEffectiveElapsed) { elapsed = maxEffectiveElapsed; }
 
                 // Update the game world
-                Update?.Invoke(this, elapsed);
+                renderable.Update(elapsed);
 
                 // Reset user input properties
                 this.MouseWheelDelta = 0;

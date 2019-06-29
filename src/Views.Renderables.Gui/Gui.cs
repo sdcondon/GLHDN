@@ -88,8 +88,8 @@
             this.vertexBuffer.Draw();
         }
 
-
-        public void Update()
+        /// <inheritdoc />
+        public void Update(TimeSpan elapsed)
         {
             ThrowIfDisposed();
 

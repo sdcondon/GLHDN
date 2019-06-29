@@ -101,6 +101,11 @@
         }
 
         /// <inheritdoc />
+        public void Update(TimeSpan elapsed)
+        {
+        }
+
+        /// <inheritdoc />
         public void Dispose()
         {
             triangleBuffer.Dispose();

@@ -93,6 +93,11 @@
         }
 
         /// <inheritdoc />
+        public void Update(TimeSpan elapsed)
+        {
+        }
+
+        /// <inheritdoc />
         public void Dispose()
         {
             this.linesBuffer.Dispose();

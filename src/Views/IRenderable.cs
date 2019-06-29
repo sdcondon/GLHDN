@@ -1,6 +1,7 @@
 ﻿namespace GLHDN.Views
 {
     using OpenGL;
+    using System;
 
     /// <summary>
     /// A discrete renderable part of a <see cref="View"/>. Typically will encapsulate everything
@@ -17,5 +18,10 @@
         /// Render logic.
         /// </summary>
         void Render(DeviceContext deviceContext);
+
+        /// <summary>
+        /// Update logic.
+        /// </summary>
+        void Update(TimeSpan elapsed);
     }
 }

@@ -94,6 +94,11 @@
         }
 
         /// <inheritdoc />
+        public void Update(TimeSpan elapsed)
+        {
+        }
+
+        /// <inheritdoc />
         public void Dispose()
         {
             this.vertexArrayObject.Dispose();
