@@ -14,11 +14,13 @@
     {
         private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.Primitives";
 
+        private static object stateLock = new object();
+        private static GlProgramBuilder programBuilder;
+        private static GlProgram program;
+
         private readonly IViewProjection camera;
         private readonly IObservable<IObservable<IList<Primitive>>> source;
 
-        private GlProgramBuilder programBuilder;
-        private GlProgram program;
         private ReactiveBuffer<PrimitiveVertex> triangleBuffer;
         private ReactiveBuffer<PrimitiveVertex> lineBuffer;
         private bool isDisposed;
@@ -47,11 +49,19 @@
             this.camera = camera;
             this.source = source;
 
-            // TODO: allow program to be shared..
-            this.programBuilder = new GlProgramBuilder()
-                .WithShaderFromEmbeddedResource(ShaderType.VertexShader, $"{ShaderResourceNamePrefix}.Colored.Vertex.glsl")
-                .WithShaderFromEmbeddedResource(ShaderType.FragmentShader, $"{ShaderResourceNamePrefix}.Colored.Fragment.glsl")
-                .WithUniforms("MVP", "V", "M", "AmbientLightColor", "DirectedLightDirection", "DirectedLightColor", "LightPosition_worldspace", "LightColor", "LightPower");
+            if (program == null && programBuilder == null)
+            {
+                lock (stateLock)
+                {
+                    if (program == null && programBuilder == null)
+                    {
+                        programBuilder = new GlProgramBuilder()
+                            .WithShaderFromEmbeddedResource(ShaderType.VertexShader, $"{ShaderResourceNamePrefix}.Colored.Vertex.glsl")
+                            .WithShaderFromEmbeddedResource(ShaderType.FragmentShader, $"{ShaderResourceNamePrefix}.Colored.Fragment.glsl")
+                            .WithUniforms("MVP", "V", "M", "AmbientLightColor", "DirectedLightDirection", "DirectedLightColor", "LightPosition_worldspace", "LightColor", "LightPower");
+                    }
+                }
+            }
         }
 
         /// <inheritdoc />
@@ -59,8 +69,17 @@
         {
             ThrowIfDisposed();
 
-            this.program = this.programBuilder.Build();
-            this.programBuilder = null;
+            if (program == null)
+            {
+                lock (stateLock)
+                {
+                    if (program == null)
+                    {
+                        program = programBuilder.Build();
+                        programBuilder = null;
+                    }
+                }
+            }
 
             this.triangleBuffer = new ReactiveBuffer<PrimitiveVertex>(
                 this.source.Select(pso => 
@@ -86,7 +105,7 @@
         {
             ThrowIfDisposed();
 
-            this.program.UseWithUniformValues(
+            program.UseWithUniformValues(
                 Matrix4x4.Transpose(this.camera.View * this.camera.Projection),
                 Matrix4x4.Transpose(this.camera.View),
                 Matrix4x4.Transpose(Matrix4x4.Identity),
@@ -110,7 +129,6 @@
         {
             triangleBuffer.Dispose();
             lineBuffer.Dispose();
-            program.Dispose();
             isDisposed = true;
         }
 

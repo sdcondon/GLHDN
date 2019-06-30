@@ -58,10 +58,7 @@
                             color: Color.Blue(),
                             textColor: Color.White(),
                             text: "QUIT",
-                            (s, e) =>
-                            {
-                                view.Exit();
-                            }),
+                            (s, e) => view.Exit()),
                     },
                 });
             }
@@ -73,7 +70,6 @@
             private readonly ICamera camera;
 
             private readonly ColoredLines lines;
-            private readonly Gui gui;
             private readonly TextElement camTextElement;
 
             private Matrix4x4 cubeWorldMatrix = Matrix4x4.Identity;
@@ -124,7 +120,7 @@
                 camTextElement = new TextElement(
                     new Layout((-1f, 1f), (-1f, 1f), (1f, 0f)),
                     color: Color.White());
-                AddRenderable(gui = new Gui(view)
+                AddRenderable(new Gui(view)
                 {
                     SubElements =
                     {
@@ -170,9 +166,6 @@
                     view.Renderable = new DemoMenu(view);
                     this.Dispose();
                 }
-
-                // todo: iviewcontext.exit & view.exit
-                // todo: menu to move to demo & to quit
             }
         }
     }

@@ -17,10 +17,12 @@
     {
         private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.Gui.Shaders";
 
+        private static object stateLock = new object();
+        private static GlProgramBuilder programBuilder;
+        private static GlProgram program;
+
         private readonly View view;
 
-        private GlProgramBuilder programBuilder;
-        private GlProgram program;
         private ReactiveBuffer<Vertex> vertexBuffer;
         private bool isDisposed;
 
@@ -42,11 +44,19 @@
 
             SubElements = new ElementCollection(this);
 
-            // TODO: allow program to be shared..
-            this.programBuilder = new GlProgramBuilder()
-                .WithShaderFromEmbeddedResource(ShaderType.VertexShader, $"{ShaderResourceNamePrefix}.Gui.Vertex.glsl")
-                .WithShaderFromEmbeddedResource(ShaderType.FragmentShader, $"{ShaderResourceNamePrefix}.Gui.Fragment.glsl")
-                .WithUniforms("P", "text");
+            if (program == null && programBuilder == null)
+            {
+                lock (stateLock)
+                {
+                    if (program == null && programBuilder == null)
+                    {
+                        programBuilder = new GlProgramBuilder()
+                            .WithShaderFromEmbeddedResource(ShaderType.VertexShader, $"{ShaderResourceNamePrefix}.Gui.Vertex.glsl")
+                            .WithShaderFromEmbeddedResource(ShaderType.FragmentShader, $"{ShaderResourceNamePrefix}.Gui.Fragment.glsl")
+                            .WithUniforms("P", "text");
+                    }
+                }
+            }
         }
 
         /// <inheritdoc /> from IElementParent
@@ -63,8 +73,17 @@
         {
             ThrowIfDisposed();
 
-            this.program = this.programBuilder.Build();
-            this.programBuilder = null;
+            if (program == null)
+            {
+                lock (stateLock)
+                {
+                    if (program == null)
+                    {
+                        program = programBuilder.Build();
+                        programBuilder = null;
+                    }
+                }
+            }
 
             this.vertexBuffer = new ReactiveBuffer<Vertex>(
                 this.SubElements.Flatten(),
@@ -82,7 +101,7 @@
             // Assume the GUI is drawn last and is independent - goes on top of everything drawn already - so clear the depth buffer
             Gl.Clear(ClearBufferMask.DepthBufferBit);
 
-            this.program.UseWithUniformValues(Matrix4x4.Transpose(Matrix4x4.CreateOrthographic(Size.X, Size.Y, 1f, -1f)), 0);
+            program.UseWithUniformValues(Matrix4x4.Transpose(Matrix4x4.CreateOrthographic(Size.X, Size.Y, 1f, -1f)), 0);
             Gl.ActiveTexture(TextureUnit.Texture0);
             Gl.BindTexture(TextureTarget.Texture2dArray, TextElement.font.Value.TextureId);
             this.vertexBuffer.Draw();
@@ -120,7 +139,6 @@
 
         public void Dispose()
         {
-            this.program?.Dispose();
             this.vertexBuffer?.Dispose();
             isDisposed = true;
         }

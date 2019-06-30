@@ -33,10 +33,7 @@
         /// <summary>
         /// Finalizes an instance of the <see cref="GlVertexBufferObject"/> class.
         /// </summary>
-        ~GlVertexBufferObject()
-        {
-            Gl.DeleteBuffers(this.Id);
-        }
+        ~GlVertexBufferObject() => Dispose(false);
 
         /// <inheritdoc />
         public uint Id { get; private set; }
@@ -116,8 +113,16 @@
         /// <inheritdoc />
         public void Dispose()
         {
-            Gl.DeleteBuffers(this.Id);
+            Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (DeviceContext.GetCurrentContext() != IntPtr.Zero)
+            {
+                Gl.DeleteBuffers(this.Id);
+            }
         }
     }
 }

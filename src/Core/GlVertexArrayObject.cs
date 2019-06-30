@@ -65,10 +65,7 @@
         /// <summary>
         /// Finalizes an instance of the <see cref="GlVertexArrayObject"/> class.
         /// </summary>
-        ~GlVertexArrayObject()
-        {
-            Dispose(false);
-        }
+        ~GlVertexArrayObject() => Dispose(false);
 
         /// <summary>
         /// Gets the number of vertices to be rendered.
@@ -144,7 +141,10 @@
                 }
             }
 
-            Gl.DeleteVertexArrays(this.id);
+            if (DeviceContext.GetCurrentContext() != IntPtr.Zero)
+            {
+                Gl.DeleteVertexArrays(this.id);
+            }
         }
     }
 }
