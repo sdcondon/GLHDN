@@ -44,8 +44,8 @@
                     SubElements =
                     {
                         new Button(
-                            layout: new Layout((0f, 0f), (0f, 0f), (250, 100), new Vector2(0, 100)),
-                            color: Color.Blue(),
+                            layout: new Layout((0f, 0f), (0f, 0f), (200, 40), new Vector2(0, 50)),
+                            color: Color.Blue(.5f),
                             textColor: Color.White(),
                             text: "DEMO",
                             (s, e) =>
@@ -54,8 +54,8 @@
                                 this.Dispose();
                             }),
                         new Button(
-                            layout: new Layout((0f, 0f), (0f, 0f), (250, 100), new Vector2(0, -100)),
-                            color: Color.Blue(),
+                            layout: new Layout((0f, 0f), (0f, 0f), (200, 40), new Vector2(0, -10)),
+                            color: Color.Blue(.5f),
                             textColor: Color.White(),
                             text: "QUIT",
                             (s, e) => view.Exit()),
