@@ -9,12 +9,15 @@
     /// <summary>
     /// Encapsulates an interactive view rendered with OpenGl.
     /// </summary>
-    public sealed class View
+    public sealed class View : IDisposable
     {
         private readonly IViewContext context;
         private readonly Stopwatch modelUpdateIntervalStopwatch = new Stopwatch();
-        private readonly bool lockCursor;
         private readonly Vector3 clearColor;
+
+        private IRenderable renderable;
+        private bool lockCursor;
+        private DeviceContext createdContext;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="View"/> class.
@@ -32,50 +35,51 @@
             context.GlRender += OnGlRender;
             context.GlContextUpdate += OnGlContextUpdate;
             context.GlContextDestroying += OnGlContextDestroying;
-            context.KeyDown += (s, a) => { KeysPressed.Add(a); KeysDown.Add(a); };
-            context.KeyUp += (s, a) => { KeysReleased.Add(a); KeysDown.Remove(a); };
-            context.MouseWheel += (s, a) => MouseWheelDelta = a; // SO much is wrong with this approach..;
-            context.LeftMouseDown += (s, a) => { WasLeftMouseButtonPressed = true; IsLeftMouseButtonDown = true; };
-            context.LeftMouseUp += (s, a) => { WasLeftMouseButtonReleased = true; IsLeftMouseButtonDown = false; };
-            context.RightMouseDown += (s, a) => { WasRightMouseButtonPressed = true; IsRightMouseButtonDown = true; };
-            context.RightMouseUp += (s, a) => { WasRightMouseButtonReleased = true; IsRightMouseButtonDown = false; };
-            context.MiddleMouseDown += (s, a) => { WasMiddleMouseButtonPressed = true; IsMiddleMouseButtonDown = true; };
-            context.MiddleMouseUp += (s, a) => { WasMiddleMouseButtonReleased = true; IsMiddleMouseButtonDown = false; };
+            context.KeyDown += OnKeyDown;
+            context.KeyUp += OnKeyUp;
+            context.MouseWheel += OnMouseWheel;
+            context.LeftMouseDown += OnLeftMouseDown;
+            context.LeftMouseUp += OnLeftMouseUp;
+            context.RightMouseDown += OnRightMouseDown;
+            context.RightMouseUp += OnRightMouseUp;
+            context.MiddleMouseDown += OnMiddleMouseDown;
+            context.MiddleMouseUp += OnMiddleMouseUp;
             context.Resize += OnResize;
+            context.GotFocus += OnGotFocus;
 
-            if (this.lockCursor = lockCursor)
-            {
-                context.GotFocus += (s, a) => context.CursorPosition = context.GetCenter();
-                context.HideCursor();
-            }
-
+            this.LockCursor = lockCursor;
             this.clearColor = clearColor;
         }
 
         /// <summary>
-        /// Gets the list of objects being rendered.
-        /// </summary>
-        public List<IRenderable> Renderables { get; private set; } = new List<IRenderable>();
-
-        /// <summary>
         /// Gets the set of keys pressed since the last update. TODO: should be readonly
         /// </summary>
-        public HashSet<char> KeysPressed { get; private set; } = new HashSet<char>();
+        public HashSet<char> KeysPressed { get; } = new HashSet<char>();
 
         /// <summary>
         /// Gets the set of currently pressed keys. TODO: should be readonly
         /// </summary>
-        public HashSet<char> KeysDown { get; private set; } = new HashSet<char>();
+        public HashSet<char> KeysDown { get; } = new HashSet<char>();
 
         /// <summary>
         /// Gets the set of keys released since the last update. TODO: should be readonly
         /// </summary>
-        public HashSet<char> KeysReleased { get; private set; } = new HashSet<char>();
+        public HashSet<char> KeysReleased { get; } = new HashSet<char>();
 
         /// <summary>
         /// Gets the cursor position, with the origin being at the centre of the view, X increasing from left to right and Y increasing from top to bottom.
         /// </summary>
         public Vector2 CursorPosition { get; private set; }
+         
+        public bool LockCursor
+        {
+            get => lockCursor;
+            set
+            {
+                context.ShowCursor = !value;
+                lockCursor = value;
+            }
+        }
 
         /// <summary>
         /// Gets the mouse wheel delta since the last update.
@@ -142,15 +146,57 @@
         /// </summary>
         public float AspectRatio => (float)context.Width / context.Height;
 
+        public IRenderable Renderable
+        {
+            get => renderable;
+            set
+            {
+                if (createdContext != null)
+                {
+                    value.ContextCreated(createdContext);
+                }
+
+                renderable = value;
+            }
+        }
+
         /// <summary>
         /// An event that is fired when the size of the view changes.
         /// </summary>
         public event EventHandler<Vector2> Resized;
 
-        /// <summary>
-        /// An event that is fired periodically - whenever the view context updates.
-        /// </summary>
-        public event EventHandler<TimeSpan> Update;
+        public void Exit()
+        {
+            context.Exit();
+        }
+
+        public void Dispose()
+        {
+            context.GlContextCreated -= OnGlContextCreated;
+            context.GlRender -= OnGlRender;
+            context.GlContextUpdate -= OnGlContextUpdate;
+            context.GlContextDestroying -= OnGlContextDestroying;
+            context.KeyDown -= OnKeyDown;
+            context.KeyUp -= OnKeyUp;
+            context.MouseWheel -= OnMouseWheel;
+            context.LeftMouseDown -= OnLeftMouseDown;
+            context.LeftMouseUp -= OnLeftMouseUp;
+            context.RightMouseDown -= OnRightMouseDown;
+            context.RightMouseUp -= OnRightMouseUp;
+            context.MiddleMouseDown -= OnMiddleMouseDown;
+            context.MiddleMouseUp -= OnMiddleMouseUp;
+            context.Resize -= OnResize;
+
+            if (this.lockCursor)
+            {
+                context.GotFocus -= OnGotFocus;
+            }
+
+            if (renderable is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+        }
 
         private void OnGlContextCreated(object sender, DeviceContext context)
         {
@@ -163,19 +209,14 @@
             Gl.Enable(EnableCap.Blend);
             Gl.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
-            for (int i = 0; i < Renderables.Count; i++)
-            {
-                Renderables[i].ContextCreated(context);
-            }
+            renderable.ContextCreated(context);
+            createdContext = context; // todo: re-entry safety
         }
-        
+
         private void OnGlRender(object sender, DeviceContext context)
         {
             Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            for (int i = 0; i < Renderables.Count; i++)
-            {
-                Renderables[i].Render(context);
-            }
+            renderable.Render(context);
         }
 
         private void OnGlContextUpdate(object sender, DeviceContext deviceContext)
@@ -193,9 +234,8 @@
                 var maxEffectiveElapsed = TimeSpan.FromSeconds(0.1);
                 if (elapsed > maxEffectiveElapsed) { elapsed = maxEffectiveElapsed; }
 
-                // Update the game world, timing how long it takes to execute
-                //updateDurationStopwatch.Restart();
-                Update?.Invoke(this, elapsed);
+                // Update the game world
+                renderable.Update(elapsed);
 
                 // Reset user input properties
                 this.MouseWheelDelta = 0;
@@ -216,16 +256,39 @@
 
         private void OnGlContextDestroying(object sender, DeviceContext context)
         {
-            for (int i = 0; i < Renderables.Count; i++)
-            {
-                Renderables[i].ContextDestroying(context);
-            }
+            Dispose();
         }
+
+        private void OnKeyDown(object sender, char a) { KeysPressed.Add(a); KeysDown.Add(a); }
+
+        private void OnKeyUp(object sender, char a) { KeysReleased.Add(a); KeysDown.Remove(a); }
+
+        private void OnMouseWheel(object s, int a) => MouseWheelDelta = a; // SO much is wrong with this approach..;
+
+        private void OnLeftMouseDown(object s, EventArgs a) { WasLeftMouseButtonPressed = true; IsLeftMouseButtonDown = true; }
+
+        private void OnLeftMouseUp(object s, EventArgs a) { WasLeftMouseButtonReleased = true; IsLeftMouseButtonDown = false; }
+
+        private void OnRightMouseDown(object s, EventArgs a) { WasRightMouseButtonPressed = true; IsRightMouseButtonDown = true; }
+
+        private void OnRightMouseUp(object s, EventArgs a) { WasRightMouseButtonReleased = true; IsRightMouseButtonDown = false; }
+
+        private void OnMiddleMouseDown(object s, EventArgs a) { WasMiddleMouseButtonPressed = true; IsMiddleMouseButtonDown = true; }
+
+        private void OnMiddleMouseUp(object s, EventArgs a) { WasMiddleMouseButtonReleased = true; IsMiddleMouseButtonDown = false; }
 
         private void OnResize(object sender, Vector2 size)
         {
             Gl.Viewport(0, 0, (int)size.X, (int)size.Y);
             Resized?.Invoke(this, size);
+        }
+
+        private void OnGotFocus(object sender, EventArgs a)
+        {
+            if (this.lockCursor)
+            {
+                context.CursorPosition = context.GetCenter();
+            }
         }
 
         private void OnGlDebugMessage(

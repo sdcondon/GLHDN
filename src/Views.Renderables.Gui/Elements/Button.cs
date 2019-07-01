@@ -20,7 +20,7 @@ namespace GLHDN.Views.Renderables.Gui
                 {
                     SubElements =
                     {
-                        new TextElement(fillLayout, textColor, text)
+                        new TextElement(fillLayout, textColor, text) { HorizontalAlignment = 0.5f, VerticalAlignment = 0.5f }
                     }
                 }
             };

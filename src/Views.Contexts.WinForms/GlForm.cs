@@ -5,7 +5,7 @@
     using System.Windows.Forms;
 
     /// <summary>
-    /// Windows form containing only a single OpenGL render control, with handlers as passed to the forms constructor.
+    /// Windows form containing only a single OpenGL render control.
     /// </summary>
     public sealed class GlForm : Form
     {
@@ -48,7 +48,7 @@
         /// <summary>
         /// Gets the <see cref="IViewContext" /> of this form for <see cref="View"/> instances to use.
         /// </summary>
-        public GlControlAdapter ViewContext { get; private set; }
+        public GlControlAdapter ViewContext { get; }
 
         /// <summary>
         /// Clean up any resources being used.

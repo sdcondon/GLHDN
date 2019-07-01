@@ -46,8 +46,13 @@
         Vector2 CursorPosition { get; set; }
 
         /// <summary>
-        /// Instructs the context to hide the mouse cursor.
+        /// Sets a value indicating whether the mouse cursor should be displayed.
         /// </summary>
-        void HideCursor();
+        bool ShowCursor { set; }
+
+        /// <summary>
+        /// Closes the app.
+        /// </summary>
+        void Exit();
     }
 }

@@ -117,6 +117,9 @@
         int IViewContext.Height => glControl.ClientSize.Height;
 
         /// <inheritdoc />
+        public bool IsFocused => glControl.Focused;
+
+        /// <inheritdoc />
         Vector2 IViewContext.CursorPosition
         {
             get
@@ -132,12 +135,25 @@
         }
 
         /// <inheritdoc />
-        public bool IsFocused => glControl.Focused;
+        public bool ShowCursor
+        {
+            set
+            {
+                if (value)
+                {
+                    Cursor.Show();
+                }
+                else
+                {
+                    Cursor.Hide();
+                }
+            }
+        }
 
         /// <inheritdoc />
-        public void HideCursor()
+        public void Exit()
         {
-            Cursor.Hide();
+            Application.Exit();
         }
     }
 }

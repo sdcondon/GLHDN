@@ -71,12 +71,9 @@
         }
 
         /// <summary>
-        /// Finalizer
+        /// Finalizes an instance of the <see cref="GlProgram"/> class.
         /// </summary>
-        ~GlProgram()
-        {
-            Dispose(false);
-        }
+        ~GlProgram() => Dispose(false);
 
         /// <summary>
         /// Installs the program as part of the current rendering state and sets the current uniform values (using the default uniform block).
@@ -134,7 +131,10 @@
 
         private void Dispose(bool disposing)
         {
-            Gl.DeleteProgram(this.id);
+            if (DeviceContext.GetCurrentContext() != IntPtr.Zero)
+            {
+                Gl.DeleteProgram(this.id);
+            }
         }
     }
 }

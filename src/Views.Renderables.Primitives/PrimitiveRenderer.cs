@@ -10,17 +10,20 @@
     using System.Numerics;
     using System.Reactive.Linq;
 
-    public class PrimitiveRenderer : IRenderable
+    public class PrimitiveRenderer : IRenderable, IDisposable
     {
         private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.Primitives";
+
+        private static object stateLock = new object();
+        private static GlProgramBuilder programBuilder;
+        private static GlProgram program;
 
         private readonly IViewProjection camera;
         private readonly IObservable<IObservable<IList<Primitive>>> source;
 
-        private GlProgramBuilder programBuilder;
-        private GlProgram program;
         private ReactiveBuffer<PrimitiveVertex> triangleBuffer;
         private ReactiveBuffer<PrimitiveVertex> lineBuffer;
+        private bool isDisposed;
 
         public Vector3 AmbientLightColor { get; set; } = Vector3.Zero;
 
@@ -46,18 +49,37 @@
             this.camera = camera;
             this.source = source;
 
-            // TODO: allow program to be shared..
-            this.programBuilder = new GlProgramBuilder()
-                .WithShaderFromEmbeddedResource(ShaderType.VertexShader, $"{ShaderResourceNamePrefix}.Colored.Vertex.glsl")
-                .WithShaderFromEmbeddedResource(ShaderType.FragmentShader, $"{ShaderResourceNamePrefix}.Colored.Fragment.glsl")
-                .WithUniforms("MVP", "V", "M", "AmbientLightColor", "DirectedLightDirection", "DirectedLightColor", "LightPosition_worldspace", "LightColor", "LightPower");
+            if (program == null && programBuilder == null)
+            {
+                lock (stateLock)
+                {
+                    if (program == null && programBuilder == null)
+                    {
+                        programBuilder = new GlProgramBuilder()
+                            .WithShaderFromEmbeddedResource(ShaderType.VertexShader, $"{ShaderResourceNamePrefix}.Colored.Vertex.glsl")
+                            .WithShaderFromEmbeddedResource(ShaderType.FragmentShader, $"{ShaderResourceNamePrefix}.Colored.Fragment.glsl")
+                            .WithUniforms("MVP", "V", "M", "AmbientLightColor", "DirectedLightDirection", "DirectedLightColor", "LightPosition_worldspace", "LightColor", "LightPower");
+                    }
+                }
+            }
         }
 
         /// <inheritdoc />
         public void ContextCreated(DeviceContext deviceContext)
         {
-            this.program = this.programBuilder.Build();
-            this.programBuilder = null;
+            ThrowIfDisposed();
+
+            if (program == null)
+            {
+                lock (stateLock)
+                {
+                    if (program == null)
+                    {
+                        program = programBuilder.Build();
+                        programBuilder = null;
+                    }
+                }
+            }
 
             this.triangleBuffer = new ReactiveBuffer<PrimitiveVertex>(
                 this.source.Select(pso => 
@@ -79,17 +101,11 @@
         }
 
         /// <inheritdoc />
-        public void ContextDestroying(DeviceContext deviceContext)
-        {
-            triangleBuffer.Dispose();
-            lineBuffer.Dispose();
-            program.Dispose();
-        }
-
-        /// <inheritdoc />
         public void Render(DeviceContext deviceContext)
         {
-            this.program.UseWithUniformValues(
+            ThrowIfDisposed();
+
+            program.UseWithUniformValues(
                 Matrix4x4.Transpose(this.camera.View * this.camera.Projection),
                 Matrix4x4.Transpose(this.camera.View),
                 Matrix4x4.Transpose(Matrix4x4.Identity),
@@ -101,6 +117,27 @@
                 PointLightPower);
             this.triangleBuffer.Draw();
             this.lineBuffer.Draw();
+        }
+
+        /// <inheritdoc />
+        public void Update(TimeSpan elapsed)
+        {
+        }
+
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            triangleBuffer.Dispose();
+            lineBuffer.Dispose();
+            isDisposed = true;
+        }
+
+        private void ThrowIfDisposed()
+        {
+            if (isDisposed)
+            {
+                throw new ObjectDisposedException(GetType().FullName);
+            }
         }
     }
 }

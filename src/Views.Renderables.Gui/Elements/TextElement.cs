@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Numerics;
     using System.Text;
 
@@ -11,6 +12,8 @@
 
         private Vector4 color;
         private string content;
+        private float horizontalAlignment;
+        private float verticalAlignment;
 
         public TextElement(Layout layout, Vector4 color, string content = "")
             : base(layout)
@@ -45,6 +48,32 @@
             }
         }
 
+        /// <summary>
+        /// Gets or sets the horizontal aligment of the text within the element.
+        /// </summary>
+        public float HorizontalAlignment
+        {
+            get => horizontalAlignment;
+            set
+            {
+                horizontalAlignment = value;
+                OnPropertyChanged(nameof(HorizontalAlignment));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the vertical aligment of the text within the element.
+        /// </summary>
+        public float VerticalAlignment
+        {
+            get => verticalAlignment;
+            set
+            {
+                verticalAlignment = value;
+                OnPropertyChanged(nameof(VerticalAlignment));
+            }
+        }
+
         /// <inheritdoc />
         public override IList<Vertex> Vertices
         {
@@ -52,15 +81,27 @@
             {
                 var scale = 1f;
                 var vertices = new List<Vertex>();
-                var position = this.PosTL;
-                foreach (var line in GetLines(scale))
+                var lineHeight = font.Value.LineHeight / 64;
+                var lines = GetLines(scale);
+                var lineBottomLeft = this.PosTL - Vector2.UnitY * ((this.Size.Y - (lineHeight * lines.Count())) * verticalAlignment);
+                foreach (var line in lines)
                 {
-                    position = new Vector2(this.PosTL.X, position.Y - font.Value.LineHeight/64);
+                    lineBottomLeft.Y -= lineHeight;
 
-                    foreach (var c in line)
+                    if (line.Count > 0)
                     {
-                        var glyphInfo = AddChar(c, position, vertices, scale);
-                        position.X += glyphInfo.Advance * scale; // Advance cursor for next glyph
+                        var lineSize = line[line.Count - 1].position - line[0].position;
+                        lineBottomLeft.X = this.PosTL.X + ((this.Size.X - lineSize.X) * horizontalAlignment);
+
+                        foreach (var v in line)
+                        {
+                            vertices.Add(new Vertex(
+                                v.position + lineBottomLeft,
+                                v.color,
+                                v.position + lineBottomLeft - v.elementPosition,
+                                v.elementSize,
+                                v.borderWidth));
+                        }
                     }
                 }
 
@@ -68,33 +109,40 @@
             }
         }
 
-        private IEnumerable<string> GetLines(float scale)
+        private IEnumerable<IList<Vertex>> GetLines(float scale)
         {
-            var currentLine = new StringBuilder();
-            var lineLength = 0f;
+            List<Vertex> currentLine;
+            float lineLength = 0f;
+
+            void startNewLine()
+            {
+                currentLine = new List<Vertex>();
+                lineLength = 0f;
+            }
+
+            startNewLine();
 
             foreach (var c in Content)
             {
                 var glyph = font.Value[c];
 
-                if (c == '\n' || (lineLength + glyph.Bearing.X * scale + glyph.Size.X > this.Size.X && currentLine.Length > 0))
+                if (c == '\n' || (lineLength + glyph.Bearing.X * scale + glyph.Size.X > this.Size.X && currentLine.Count > 0))
                 {
-                    yield return currentLine.ToString();
-                    currentLine = new StringBuilder();
-                    lineLength = 0;
+                    yield return currentLine;
+                    startNewLine();
                 }
 
                 if (c != '\n')
                 {
-                    currentLine.Append(c);
+                    AddChar(c, new Vector2(lineLength, 0f), currentLine, scale);
                     lineLength += glyph.Advance * scale;
                 }
             }
 
-            yield return currentLine.ToString();
+            yield return currentLine;
         }
 
-        private Font.GlyphInfo AddChar(char c, Vector2 position, List<Vertex> vertices, float scale)
+        private void AddChar(char c, Vector2 position, List<Vertex> vertices, float scale)
         {
             var glyphInfo = font.Value[c];
 
@@ -111,8 +159,6 @@
                 new Vertex(charPosBL, Color, charPosBL, charSize, (int)c),
                 new Vertex(charPosBR, Color, charPosBL, charSize, (int)c)
             });
-
-            return glyphInfo;
         }
     }
 }

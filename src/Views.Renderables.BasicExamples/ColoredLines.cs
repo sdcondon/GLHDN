@@ -1,16 +1,17 @@
 ﻿namespace GLHDN.Views.Renderables.BasicExamples
 {
-    using OpenGL;
     using GLHDN.Core;
-    using System.Numerics;
+    using GLHDN.ReactiveBuffers;
+    using OpenGL;
+    using System;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
-    using GLHDN.ReactiveBuffers;
+    using System.Numerics;
 
     /// <summary>
     /// Renderable class for 3D lines. For debug utilities.
     /// </summary>
-    public class ColoredLines : IRenderable
+    public class ColoredLines : IRenderable, IDisposable
     {
         private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.BasicExamples";
 
@@ -20,6 +21,7 @@
         private GlProgramBuilder programBuilder;
         private GlProgram program;
         private ReactiveBuffer<Vertex> linesBuffer;
+        private bool isDisposed;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ColoredLines"/> class.
@@ -44,6 +46,8 @@
         /// <param name="end">The position of the end of the line.</param>
         public void AddLine(Vector3 start, Vector3 end)
         {
+            ThrowIfDisposed();
+
             this.lines.Add(new Line(start, end));
         }
 
@@ -52,12 +56,16 @@
         /// </summary>
         public void ClearLines()
         {
+            ThrowIfDisposed();
+
             this.lines.Clear();
         }
 
         /// <inheritdoc />
         public void ContextCreated(DeviceContext deviceContext)
         {
+            ThrowIfDisposed();
+
             this.program = this.programBuilder.Build();
             this.programBuilder = null;
             this.linesBuffer = new ReactiveBuffer<Vertex>(
@@ -65,12 +73,14 @@
                 PrimitiveType.Lines,
                 100,
                 new[] { 0, 1 }, // TODO: Change so not needed (i.e. allow index-less)
-                GlVertexArrayObject.MakeVertexArrayObject); 
+                GlVertexArrayObject.MakeVertexArrayObject);
         }
 
         /// <inheritdoc />
         public void Render(DeviceContext deviceContext)
         {
+            ThrowIfDisposed();
+
             this.program.UseWithUniformValues(
                 Matrix4x4.Transpose(this.viewProjection.View * this.viewProjection.Projection),
                 Matrix4x4.Transpose(this.viewProjection.View),
@@ -83,10 +93,24 @@
         }
 
         /// <inheritdoc />
-        public void ContextDestroying(DeviceContext deviceContext)
+        public void Update(TimeSpan elapsed)
+        {
+        }
+
+        /// <inheritdoc />
+        public void Dispose()
         {
             this.linesBuffer.Dispose();
             this.program.Dispose();
+            isDisposed = true;
+        }
+
+        private void ThrowIfDisposed()
+        {
+            if (isDisposed)
+            {
+                throw new ObjectDisposedException(GetType().FullName);
+            }
         }
 
         private class Line : INotifyPropertyChanged
@@ -108,7 +132,7 @@
             public readonly Vector3 position;
             public readonly Vector3 color;
             public readonly Vector3 normal;
-            
+
             public Vertex(Vector3 position, Vector3 color, Vector3 normal)
             {
                 this.position = position;
