@@ -10,7 +10,10 @@
     using System.Numerics;
     using System.Reactive.Linq;
 
-    public class PrimitiveRenderer : IRenderable, IDisposable
+    /// <summary>
+    /// Implementation of <see cref="IRenderable" /> that renders a set of primitive shapes from an observable sequence of source data.
+    /// </summary>
+    public class PrimitiveRenderer : IRenderable
     {
         private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.Primitives";
 
@@ -21,10 +24,13 @@
         private readonly IViewProjection camera;
         private readonly IObservable<IObservable<IList<Primitive>>> source;
 
-        private ReactiveBuffer<PrimitiveVertex> triangleBuffer;
-        private ReactiveBuffer<PrimitiveVertex> lineBuffer;
+        private ReactiveBuffer<PrimitiveVertex> coloredTriangleBuffer;
+        private ReactiveBuffer<PrimitiveVertex> coloredLineBuffer;
         private bool isDisposed;
 
+        /// <summary>
+        /// The ambient light color, applied as a minimum to every fragment.
+        /// </summary>
         public Vector3 AmbientLightColor { get; set; } = Vector3.Zero;
 
         public Vector3 DirectedLightDirection { get; set; } = Vector3.Zero;
@@ -40,8 +46,8 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="PrimitiveRenderer"/> class.
         /// </summary>
-        /// <param name="camera"></param>
-        /// <param name="source"></param>
+        /// <param name="camera">Provider for view and projection matrices.</param>
+        /// <param name="source">Source data. Outer sequence pushes different renderable entities, each of which pushes each time its state changes.</param>
         public PrimitiveRenderer(
             IViewProjection camera,
             IObservable<IObservable<IList<Primitive>>> source)
@@ -65,7 +71,7 @@
         }
 
         /// <inheritdoc />
-        public void ContextCreated(DeviceContext deviceContext)
+        public void ContextCreated()
         {
             ThrowIfDisposed();
 
@@ -81,7 +87,7 @@
                 }
             }
 
-            this.triangleBuffer = new ReactiveBuffer<PrimitiveVertex>(
+            this.coloredTriangleBuffer = new ReactiveBuffer<PrimitiveVertex>(
                 this.source.Select(pso => 
                     pso.Select(ps => 
                         ps.Where(p => p.IsTrianglePrimitive).SelectMany(p => p.Vertices).ToList())),
@@ -90,7 +96,7 @@
                 new[] { 0, 1, 2 },
                 GlVertexArrayObject.MakeVertexArrayObject);
 
-            this.lineBuffer = new ReactiveBuffer<PrimitiveVertex>(
+            this.coloredLineBuffer = new ReactiveBuffer<PrimitiveVertex>(
                 this.source.Select(pso =>
                     pso.Select(ps =>
                         ps.Where(p => !p.IsTrianglePrimitive).SelectMany(p => p.Vertices).ToList())),
@@ -101,7 +107,12 @@
         }
 
         /// <inheritdoc />
-        public void Render(DeviceContext deviceContext)
+        public void ContextUpdate(TimeSpan elapsed)
+        {
+        }
+
+        /// <inheritdoc />
+        public void Render()
         {
             ThrowIfDisposed();
 
@@ -115,20 +126,15 @@
                 PointLightPosition,
                 PointLightColor,
                 PointLightPower);
-            this.triangleBuffer.Draw();
-            this.lineBuffer.Draw();
-        }
-
-        /// <inheritdoc />
-        public void Update(TimeSpan elapsed)
-        {
+            this.coloredTriangleBuffer.Draw();
+            this.coloredLineBuffer.Draw();
         }
 
         /// <inheritdoc />
         public void Dispose()
         {
-            triangleBuffer.Dispose();
-            lineBuffer.Dispose();
+            coloredTriangleBuffer.Dispose();
+            coloredLineBuffer.Dispose();
             isDisposed = true;
         }
 

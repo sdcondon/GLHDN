@@ -30,14 +30,14 @@
             };
 
             var view = new View(form.ViewContext, false, Color.Black());
-            view.Renderable = new DemoMenu(view);
+            view.Renderable = new MenuRenderable(view);
 
             WinFormsApp.Run(form);
         }
 
-        private class DemoMenu : CompositeRenderable
+        private class MenuRenderable : CompositeRenderable
         {
-            public DemoMenu(View view)
+            public MenuRenderable(View view)
             {
                 AddRenderable(new Gui(view)
                 {
@@ -59,6 +59,13 @@
                             textColor: Color.White(),
                             text: "QUIT",
                             (s, e) => view.Exit()),
+                        new TextElement(
+                            layout: new Layout((0f, -1f), (0f, -1f), (1f, 40)),
+                            color: Color.Grey(0.7f),
+                            content: "Here is a footer. Hello!")
+                        {
+                            HorizontalAlignment = 0.5f
+                        }
                     },
                 });
             }
@@ -106,7 +113,7 @@
                             new Vector3(0f, 0f, 1f)),
                     },
                     new uint[] { 0, 1, 2 },
-                    "uvmap.DDS"));
+                    @"Assets\Textures\uvmap.DDS"));
 
                 AddRenderable(new PrimitiveRenderer(camera, Observable.Return(cubeSubject))
                 {
@@ -138,9 +145,9 @@
                 });
             }
 
-            public override void Update(TimeSpan elapsed)
+            public override void ContextUpdate(TimeSpan elapsed)
             {
-                base.Update(elapsed);
+                base.ContextUpdate(elapsed);
 
                 camera.Update(elapsed, view);
 
@@ -163,7 +170,7 @@
 
                 if (view.KeysReleased.Contains('Q'))
                 {
-                    view.Renderable = new DemoMenu(view);
+                    view.Renderable = new MenuRenderable(view);
                     this.Dispose();
                 }
             }

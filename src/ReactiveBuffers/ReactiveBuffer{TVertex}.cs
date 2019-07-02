@@ -43,8 +43,8 @@
             Func<PrimitiveType, IList<(BufferUsage, Type, int, Array)>, (int, uint[]), IVertexArrayObject> makeVertexArrayObject)
         {
             this.vertexSource = vertexSource;
-            this.verticesPerAtom = indices.Max() + 1; // TODO: throw if has unused indices?
-            this.indices = indices;
+            this.verticesPerAtom = indices.Max() + 1; // Perhaps should throw if has unused indices..
+            this.indices = indices;  // TODO: Perhaps change so optional?
             this.atomCapacity = atomCapacity;
             this.vao = makeVertexArrayObject(
                 primitiveType,

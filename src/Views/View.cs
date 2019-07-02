@@ -17,7 +17,7 @@
 
         private IRenderable renderable;
         private bool lockCursor;
-        private DeviceContext createdContext;
+        private bool isContextCreated;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="View"/> class.
@@ -151,9 +151,9 @@
             get => renderable;
             set
             {
-                if (createdContext != null)
+                if (isContextCreated)
                 {
-                    value.ContextCreated(createdContext);
+                    value.ContextCreated();
                 }
 
                 renderable = value;
@@ -209,14 +209,14 @@
             Gl.Enable(EnableCap.Blend);
             Gl.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
-            renderable.ContextCreated(context);
-            createdContext = context; // todo: re-entry safety
+            renderable.ContextCreated();
+            isContextCreated = true; // todo: re-entry safety
         }
 
         private void OnGlRender(object sender, DeviceContext context)
         {
             Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            renderable.Render(context);
+            renderable.Render();
         }
 
         private void OnGlContextUpdate(object sender, DeviceContext deviceContext)
@@ -235,7 +235,7 @@
                 if (elapsed > maxEffectiveElapsed) { elapsed = maxEffectiveElapsed; }
 
                 // Update the game world
-                renderable.Update(elapsed);
+                renderable.ContextUpdate(elapsed);
 
                 // Reset user input properties
                 this.MouseWheelDelta = 0;

@@ -17,8 +17,6 @@
 
         public bool IsTrianglePrimitive { get; private set; }
 
-        // todo: sphere
-
         public static Primitive Cuboid(Vector3 size, Matrix4x4 worldTransform, Vector4 color)
         {
             var xy = new Vector2(size.X, size.Y);

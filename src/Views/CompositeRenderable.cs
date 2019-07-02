@@ -8,44 +8,44 @@ namespace GLHDN.Views
     {
         private readonly List<IRenderable> renderables = new List<IRenderable>();
 
-        private DeviceContext createdContext;
+        private bool contextCreated;
 
         public void AddRenderable(IRenderable renderable)
         {
-            if (createdContext != null)
+            if (contextCreated)
             {
-                renderable.ContextCreated(createdContext);
+                renderable.ContextCreated();
             }
 
             renderables.Add(renderable);
         }
 
         /// <inheritdoc />
-        public void ContextCreated(DeviceContext deviceContext)
+        public void ContextCreated()
         {
             for (int i = 0; i < renderables.Count; i++)
             {
-                renderables[i].ContextCreated(deviceContext);
+                renderables[i].ContextCreated();
             }
 
-            createdContext = deviceContext;
+            contextCreated = true;
         }
 
         /// <inheritdoc />
-        public void Render(DeviceContext deviceContext)
+        public virtual void ContextUpdate(TimeSpan elapsed)
         {
             for (int i = 0; i < renderables.Count; i++)
             {
-                renderables[i].Render(deviceContext);
+                renderables[i].ContextUpdate(elapsed);
             }
         }
 
         /// <inheritdoc />
-        public virtual void Update(TimeSpan elapsed)
+        public void Render()
         {
             for (int i = 0; i < renderables.Count; i++)
             {
-                renderables[i].Update(elapsed);
+                renderables[i].Render();
             }
         }
 

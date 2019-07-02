@@ -8,7 +8,7 @@
 
     public class TextElement : ElementBase
     {
-        public static readonly Lazy<Font> font = new Lazy<Font>(() => new Font("Fonts\\Inconsolata\\Inconsolata-Regular.ttf"));
+        public static readonly Lazy<Font> font = new Lazy<Font>(() => new Font(@"Assets\Fonts\Inconsolata\Inconsolata-Regular.ttf"));
 
         private Vector4 color;
         private string content;

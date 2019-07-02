@@ -10,7 +10,7 @@
     /// <summary>
     /// Simple renderable class for static 3D geometry.
     /// </summary>
-    public class ColoredStaticMesh : IRenderable, IDisposable
+    public class ColoredStaticMesh : IRenderable
     {
         private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.BasicExamples";
 
@@ -58,7 +58,7 @@
         public Matrix4x4 Model { get; set; } = Matrix4x4.Identity;
 
         /// <inheritdoc />
-        public void ContextCreated(DeviceContext deviceContext)
+        public void ContextCreated()
         {
             ThrowIfDisposed();
 
@@ -69,7 +69,12 @@
         }
 
         /// <inheritdoc />
-        public void Render(DeviceContext deviceContext)
+        public void ContextUpdate(TimeSpan elapsed)
+        {
+        }
+
+        /// <inheritdoc />
+        public void Render()
         {
             ThrowIfDisposed();
 
@@ -82,11 +87,6 @@
                 30f,
                 new Vector3(0.3f, 0.3f, 0.3f));
             this.vertexArrayObject.Draw();
-        }
-
-        /// <inheritdoc />
-        public void Update(TimeSpan elapsed)
-        {
         }
 
         /// <inheritdoc />

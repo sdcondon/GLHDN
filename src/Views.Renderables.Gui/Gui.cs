@@ -13,7 +13,7 @@
     /// <summary>
     /// Renderable container for a set of graphical user interface elements.
     /// </summary>
-    public class Gui : IRenderable, IElementParent, IDisposable
+    public class Gui : IRenderable, IElementParent
     {
         private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.Gui.Shaders";
 
@@ -69,7 +69,7 @@
         public Vector2 Size => new Vector2(view.Width, view.Height);
 
         /// <inheritdoc /> from IRenderable
-        public void ContextCreated(DeviceContext deviceContext)
+        public void ContextCreated()
         {
             ThrowIfDisposed();
 
@@ -93,22 +93,8 @@
                 GlVertexArrayObject.MakeVertexArrayObject);
         }
 
-        /// <inheritdoc /> from IRenderable
-        public void Render(DeviceContext deviceContext)
-        {
-            ThrowIfDisposed();
-
-            // Assume the GUI is drawn last and is independent - goes on top of everything drawn already - so clear the depth buffer
-            Gl.Clear(ClearBufferMask.DepthBufferBit);
-
-            program.UseWithUniformValues(Matrix4x4.Transpose(Matrix4x4.CreateOrthographic(Size.X, Size.Y, 1f, -1f)), 0);
-            Gl.ActiveTexture(TextureUnit.Texture0);
-            Gl.BindTexture(TextureTarget.Texture2dArray, TextElement.font.Value.TextureId);
-            this.vertexBuffer.Draw();
-        }
-
         /// <inheritdoc />
-        public void Update(TimeSpan elapsed)
+        public void ContextUpdate(TimeSpan elapsed)
         {
             ThrowIfDisposed();
 
@@ -135,6 +121,20 @@
                     visitElement(element);
                 }
             }
+        }
+
+        /// <inheritdoc /> from IRenderable
+        public void Render()
+        {
+            ThrowIfDisposed();
+
+            // Assume the GUI is drawn last and is independent - goes on top of everything drawn already - so clear the depth buffer
+            Gl.Clear(ClearBufferMask.DepthBufferBit);
+
+            program.UseWithUniformValues(Matrix4x4.Transpose(Matrix4x4.CreateOrthographic(Size.X, Size.Y, 1f, -1f)), 0);
+            Gl.ActiveTexture(TextureUnit.Texture0);
+            Gl.BindTexture(TextureTarget.Texture2dArray, TextElement.font.Value.TextureId);
+            this.vertexBuffer.Draw();
         }
 
         public void Dispose()

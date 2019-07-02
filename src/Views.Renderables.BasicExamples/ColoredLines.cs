@@ -11,7 +11,7 @@
     /// <summary>
     /// Renderable class for 3D lines. For debug utilities.
     /// </summary>
-    public class ColoredLines : IRenderable, IDisposable
+    public class ColoredLines : IRenderable
     {
         private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.BasicExamples";
 
@@ -62,7 +62,7 @@
         }
 
         /// <inheritdoc />
-        public void ContextCreated(DeviceContext deviceContext)
+        public void ContextCreated()
         {
             ThrowIfDisposed();
 
@@ -72,12 +72,17 @@
                 lines.ToObservable((Line a) => new[] { new Vertex(a.from, Vector3.One, a.from), new Vertex(a.to, Vector3.One, a.to) }),
                 PrimitiveType.Lines,
                 100,
-                new[] { 0, 1 }, // TODO: Change so not needed (i.e. allow index-less)
+                new[] { 0, 1 },
                 GlVertexArrayObject.MakeVertexArrayObject);
         }
 
         /// <inheritdoc />
-        public void Render(DeviceContext deviceContext)
+        public void ContextUpdate(TimeSpan elapsed)
+        {
+        }
+
+        /// <inheritdoc />
+        public void Render()
         {
             ThrowIfDisposed();
 
@@ -90,11 +95,6 @@
                 30f,
                 new Vector3(0.3f, 0.3f, 0.3f));
             this.linesBuffer.Draw();
-        }
-
-        /// <inheritdoc />
-        public void Update(TimeSpan elapsed)
-        {
         }
 
         /// <inheritdoc />

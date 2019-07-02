@@ -10,7 +10,7 @@
     /// <summary>
     /// Renderable class for static 3D geometry.
     /// </summary>
-    public class TexturedStaticMesh : IRenderable, IDisposable
+    public class TexturedStaticMesh : IRenderable
     {
         private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.BasicExamples";
 
@@ -59,7 +59,7 @@
         public Matrix4x4 Model { get; set; } = Matrix4x4.Identity;
 
         /// <inheritdoc />
-        public void ContextCreated(DeviceContext deviceContext)
+        public void ContextCreated()
         {
             ThrowIfDisposed();
 
@@ -73,7 +73,12 @@
         }
 
         /// <inheritdoc />
-        public void Render(DeviceContext deviceContext)
+        public void ContextUpdate(TimeSpan elapsed)
+        {
+        }
+
+        /// <inheritdoc />
+        public void Render()
         {
             ThrowIfDisposed();
 
@@ -91,11 +96,6 @@
             Gl.BindTexture(TextureTarget.Texture2d, textures[0]);
 
             this.vertexArrayObject.Draw();
-        }
-
-        /// <inheritdoc />
-        public void Update(TimeSpan elapsed)
-        {
         }
 
         /// <inheritdoc />
