@@ -84,6 +84,7 @@
                 var lineHeight = font.Value.LineHeight / 64;
                 var lines = GetLines(scale);
                 var lineBottomLeft = this.PosTL - Vector2.UnitY * ((this.Size.Y - (lineHeight * lines.Count())) * verticalAlignment);
+                lineBottomLeft.Y = (float)Math.Round(lineBottomLeft.Y); // bc we use texelfetch
                 foreach (var line in lines)
                 {
                     lineBottomLeft.Y -= lineHeight;
@@ -92,6 +93,7 @@
                     {
                         var lineSize = line[line.Count - 1].position - line[0].position;
                         lineBottomLeft.X = this.PosTL.X + ((this.Size.X - lineSize.X) * horizontalAlignment);
+                        lineBottomLeft.X = (float)Math.Round(lineBottomLeft.X); // bc we use texelfetch
 
                         foreach (var v in line)
                         {

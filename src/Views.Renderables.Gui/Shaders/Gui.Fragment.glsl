@@ -29,6 +29,7 @@ void main() {
 	}
 	else {
 		vec4 sampled = vec4(1.0, 1.0, 1.0, texelFetch(text, ivec3(velementPos.x, velementSize.y - velementPos.y, elementLayer), 0).a);
+		//vec4 sampled = vec4(1.0, 1.0, 1.0, texture(text, vec3(velementPos.x, velementSize.y - velementPos.y, elementLayer)).a);
 		color = matColor * sampled;
 	}
 }
