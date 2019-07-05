@@ -34,9 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="GlForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="GlForm.cs" />
   </ItemGroup>
 
 </Project>

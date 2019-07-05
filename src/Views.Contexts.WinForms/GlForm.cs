@@ -1,12 +1,14 @@
 ﻿namespace GLHDN.Views.Contexts.WinForms
 {
     using OpenGL;
+    using System.ComponentModel;
     using System.Drawing;
     using System.Windows.Forms;
 
     /// <summary>
     /// Windows form containing only a single OpenGL render control.
     /// </summary>
+    [DesignerCategory("")]
     public sealed class GlForm : Form
     {
         private readonly GlControl glControl;
@@ -20,7 +22,6 @@
 
             this.FormBorderStyle = FormBorderStyle.None;
             this.WindowState = FormWindowState.Maximized;
-            //this.Size = new Size(1000, 600);
             this.Name = "OpenGl";
             this.Text = "OpenGl";
 
@@ -49,6 +50,60 @@
         /// Gets the <see cref="IViewContext" /> of this form for <see cref="View"/> instances to use.
         /// </summary>
         public GlControlAdapter ViewContext { get; }
+
+        /// <summary>
+        /// Gets or sets the flag indicating whether control should update itself continuously.
+        /// </summary>
+        public bool Animation
+        {
+            get => glControl.Animation;
+            set => glControl.Animation = value;
+        }
+
+        /// <summary>
+        /// Gets or sets the time interval between animation updates, in milliseconds.
+        /// </summary>
+        public int AnimationTime
+        {
+            get => glControl.AnimationTime;
+            set => glControl.AnimationTime = value;
+        }
+
+        /// <summary>
+        /// Gets or sets the OpenGL minimum color buffer bits.
+        /// </summary>
+        public uint ColorBits
+        {
+            get => glControl.ColorBits;
+            set => glControl.ColorBits = value;
+        }
+
+        /// <summary>
+        /// Gets or sets the OpenGL minimum depth buffer bits.
+        /// </summary>
+        public uint DepthBits
+        {
+            get => glControl.DepthBits;
+            set => glControl.DepthBits = value;
+        }
+
+        /// <summary>
+        /// Gets or sets the OpenGL minimum multisample buffer "bits".
+        /// </summary>
+        public uint MultisampleBits
+        {
+            get => glControl.MultisampleBits;
+            set => glControl.MultisampleBits = value;
+        }
+
+        /// <summary>
+        /// Gets or sets the OpenGL minimum stencil buffer bits.
+        /// </summary>
+        public uint StencilBits
+        {
+            get => glControl.StencilBits;
+            set => glControl.StencilBits = value;
+        }
 
         /// <summary>
         /// Clean up any resources being used.
