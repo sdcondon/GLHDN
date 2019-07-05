@@ -23,6 +23,7 @@
 
         private readonly IViewProjection camera;
         private readonly IObservable<IObservable<IList<Primitive>>> source;
+        private readonly int capacity;
 
         private ReactiveBuffer<PrimitiveVertex> coloredTriangleBuffer;
         private ReactiveBuffer<PrimitiveVertex> coloredLineBuffer;
@@ -48,12 +49,15 @@
         /// </summary>
         /// <param name="camera">Provider for view and projection matrices.</param>
         /// <param name="source">Source data. Outer sequence pushes different renderable entities, each of which pushes each time its state changes.</param>
+        /// <param name="capacity">The maximum number of triangles and lines that can be rendered at once.</param>
         public PrimitiveRenderer(
             IViewProjection camera,
-            IObservable<IObservable<IList<Primitive>>> source)
+            IObservable<IObservable<IList<Primitive>>> source,
+            int capacity)
         {
             this.camera = camera;
             this.source = source;
+            this.capacity = capacity;
 
             if (program == null && programBuilder == null)
             {
@@ -92,7 +96,7 @@
                     pso.Select(ps => 
                         ps.Where(p => p.IsTrianglePrimitive).SelectMany(p => p.Vertices).ToList())),
                 PrimitiveType.Triangles,
-                100000,
+                this.capacity,
                 new[] { 0, 1, 2 },
                 GlVertexArrayObject.MakeVertexArrayObject);
 
@@ -101,7 +105,7 @@
                     pso.Select(ps =>
                         ps.Where(p => !p.IsTrianglePrimitive).SelectMany(p => p.Vertices).ToList())),
                 PrimitiveType.Lines,
-                100000,
+                this.capacity,
                 new[] { 0, 1, },
                 GlVertexArrayObject.MakeVertexArrayObject);
         }

@@ -115,7 +115,7 @@
                     new uint[] { 0, 1, 2 },
                     @"Assets\Textures\uvmap.DDS"));
 
-                AddRenderable(new PrimitiveRenderer(camera, Observable.Return(cubeSubject))
+                AddRenderable(new PrimitiveRenderer(camera, Observable.Return(cubeSubject), 12)
                 {
                     AmbientLightColor = Color.Grey(0.1f),
                     DirectedLightDirection = new Vector3(0, 1f, 0f),
