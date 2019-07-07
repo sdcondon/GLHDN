@@ -13,7 +13,7 @@
     {
         private readonly IViewContext context;
         private readonly Stopwatch modelUpdateIntervalStopwatch = new Stopwatch();
-        private readonly Vector3 clearColor;
+        private readonly Color clearColor;
 
         private IRenderable renderable;
         private bool lockCursor;
@@ -25,7 +25,7 @@
         /// <param name="context"></param>
         /// <param name="lockCursor"></param>
         /// <param name="clearColor"></param>
-        public View(IViewContext context, bool lockCursor, Vector3 clearColor)
+        public View(IViewContext context, bool lockCursor, Color clearColor)
         {
             Debug.WriteLine("Registering OpenGL debug handler");
             Gl.DebugMessageCallback(OnGlDebugMessage, null);
@@ -200,7 +200,7 @@
 
         private void OnGlContextCreated(object sender, DeviceContext context)
         {
-            Gl.ClearColor(clearColor.X, clearColor.Y, clearColor.Z, 0f);
+            Gl.ClearColor(clearColor.R, clearColor.G, clearColor.B, clearColor.A);
             Gl.Enable(EnableCap.DepthTest); // Enable depth test
             Gl.DepthFunc(DepthFunction.Lequal); // Accept fragment if it closer to the camera than the former one
             Gl.Enable(EnableCap.CullFace); // Cull triangles of which normal is not towards the camera
