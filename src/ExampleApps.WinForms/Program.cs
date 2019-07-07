@@ -29,6 +29,8 @@
                 // FormBorderStyle = FormBorderStyle.Sizable
             };
 
+            TextElement.Font = new Font(@"Assets\Fonts\Inconsolata\Inconsolata-Regular.ttf");
+
             var view = new View(form.ViewContext, false, Color.Black());
             view.Renderable = new MenuRenderable(view);
 

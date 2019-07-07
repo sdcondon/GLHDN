@@ -8,8 +8,6 @@
 
     public class TextElement : ElementBase
     {
-        public static readonly Lazy<Font> font = new Lazy<Font>(() => new Font(@"Assets\Fonts\Inconsolata\Inconsolata-Regular.ttf"));
-
         private Vector4 color;
         private string content;
         private float horizontalAlignment;
@@ -21,6 +19,8 @@
             this.color = color;
             this.content = content;
         }
+
+        public static Font Font { get; set; }
 
         /// <summary>
         /// Gets or sets the text color.
@@ -81,10 +81,10 @@
             {
                 var scale = 1f;
                 var vertices = new List<Vertex>();
-                var lineHeight = font.Value.LineHeight / 64;
+                var lineHeight = Font.LineHeight / 64;
                 var lines = GetLines(scale);
                 var lineBottomLeft = this.PosTL - Vector2.UnitY * ((this.Size.Y - (lineHeight * lines.Count())) * verticalAlignment);
-                lineBottomLeft.Y = (float)Math.Round(lineBottomLeft.Y); // bc we use texelfetch
+                lineBottomLeft.Y = (float)Math.Round(lineBottomLeft.Y); // bc we use texelfetch - needs to be on pixel boundaries
                 foreach (var line in lines)
                 {
                     lineBottomLeft.Y -= lineHeight;
@@ -93,7 +93,7 @@
                     {
                         var lineSize = line[line.Count - 1].position - line[0].position;
                         lineBottomLeft.X = this.PosTL.X + ((this.Size.X - lineSize.X) * horizontalAlignment);
-                        lineBottomLeft.X = (float)Math.Round(lineBottomLeft.X); // bc we use texelfetch
+                        lineBottomLeft.X = (float)Math.Round(lineBottomLeft.X); // bc we use texelfetch - needs to be on pixel boundaries
 
                         foreach (var v in line)
                         {
@@ -126,7 +126,7 @@
 
             foreach (var c in Content)
             {
-                var glyph = font.Value[c];
+                var glyph = Font[c];
 
                 if (c == '\n' || (lineLength + glyph.Bearing.X * scale + glyph.Size.X > this.Size.X && currentLine.Count > 0))
                 {
@@ -146,7 +146,7 @@
 
         private void AddChar(char c, Vector2 position, List<Vertex> vertices, float scale)
         {
-            var glyphInfo = font.Value[c];
+            var glyphInfo = Font[c];
 
             var charSize = new Vector2(glyphInfo.Size.X * scale, glyphInfo.Size.Y * scale);
             var charPosBL = new Vector2(position.X + glyphInfo.Bearing.X * scale, position.Y + (glyphInfo.Bearing.Y - glyphInfo.Size.Y) * scale);
@@ -156,10 +156,10 @@
 
             vertices.AddRange(new[]
             {
-                new Vertex(charPosTL, Color, charPosBL, charSize, (int)c),
-                new Vertex(charPosTR, Color, charPosBL, charSize, (int)c),
-                new Vertex(charPosBL, Color, charPosBL, charSize, (int)c),
-                new Vertex(charPosBR, Color, charPosBL, charSize, (int)c)
+                new Vertex(charPosTL, Color, charPosBL, charSize, (int)glyphInfo.ZOffset),
+                new Vertex(charPosTR, Color, charPosBL, charSize, (int)glyphInfo.ZOffset),
+                new Vertex(charPosBL, Color, charPosBL, charSize, (int)glyphInfo.ZOffset),
+                new Vertex(charPosBR, Color, charPosBL, charSize, (int)glyphInfo.ZOffset)
             });
         }
     }

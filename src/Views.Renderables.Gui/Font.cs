@@ -15,8 +15,11 @@
     {
         private static readonly Library sharpFont = new Library();
 
-        private readonly Dictionary<char, GlyphInfo> glyphs = new Dictionary<char, GlyphInfo>();
         private readonly Face face;
+        private readonly (int Width, int Height) max;
+        private readonly Dictionary<char, uint> glyphIndicesByChar = new Dictionary<char, uint>();
+        private readonly object glyphsLock = new object();
+        private GlyphInfo[] glyphs;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Font"/> class.
@@ -25,66 +28,17 @@
         /// <param name="pixelSize"></param>
         public Font(string filePath, uint pixelSize = 16)
         {
-            void DebugWriteLine(string msg) => Debug.WriteLine(msg, $"{this}:{nameof(Font)}");
+            this.face = new Face(sharpFont, filePath);
+            this.face.SetPixelSizes(0, pixelSize);
+            this.face.SelectCharmap(Encoding.Unicode);
+            // this.face.SetCharSize(0, 16 * 64, 300, 300);
 
-            DebugWriteLine("Constructing new Font object");
-            face = new Face(sharpFont, filePath);
-            face.SetPixelSizes(0, pixelSize); 
-            //face.SetCharSize(0, 16 * 64, 300, 300);
-
-            const int maxChar = 128;
-            int maxWidth = 0, maxHeight = 0;
-            for (char c = (char)0; c < maxChar; c++)
+            // Establish maximum glyph dimensions;
+            for (uint i = 0; i < face.GlyphCount; i++)
             {
-                face.LoadChar(c, LoadFlags.Default, LoadTarget.Normal);
-                face.Glyph.RenderGlyph(RenderMode.Normal);
-                maxWidth = Math.Max(maxWidth, face.Glyph.Bitmap.Width);
-                maxHeight = Math.Max(maxHeight, face.Glyph.Bitmap.Rows);
-            }
-
-            // TODO: really, there should be no direct Gl usage other than in core. add this logic to it
-            Gl.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
-            this.TextureId = Gl.GenTexture();
-            Gl.BindTexture(TextureTarget.Texture2dArray, this.TextureId);
-            Gl.TexStorage3D(
-                target: TextureTarget.Texture2dArray,
-                levels: 1,
-                internalformat: InternalFormat.Alpha8,
-                width: maxWidth,
-                height: maxHeight,
-                depth: maxChar);
-            Gl.TexParameter(TextureTarget.Texture2dArray, TextureParameterName.TextureWrapS, Gl.CLAMP_TO_EDGE);
-            Gl.TexParameter(TextureTarget.Texture2dArray, TextureParameterName.TextureWrapT, Gl.CLAMP_TO_EDGE);
-            Gl.TexParameter(TextureTarget.Texture2dArray, TextureParameterName.TextureMinFilter, Gl.LINEAR);
-            Gl.TexParameter(TextureTarget.Texture2dArray, TextureParameterName.TextureMagFilter, Gl.LINEAR);
-
-            // Loop glyphs and pack them
-            for (char c = (char)0; c < maxChar; c++)
-            {
-                face.LoadChar(c, LoadFlags.Default, LoadTarget.Normal);
-                face.Glyph.RenderGlyph(RenderMode.Normal);
-
-                if (face.Glyph.Bitmap.Buffer != IntPtr.Zero)
-                {
-                    Gl.TexSubImage3D(
-                        target: TextureTarget.Texture2dArray,
-                        level: 0,
-                        xoffset: 0,
-                        yoffset: 0,
-                        zoffset: c,
-                        width: face.Glyph.Bitmap.Width,
-                        height: face.Glyph.Bitmap.Rows,
-                        depth: 1,
-                        format: PixelFormat.Alpha,
-                        type: PixelType.UnsignedByte,
-                        pixels: face.Glyph.Bitmap.BufferData);
-                }
-
-                this.glyphs[c] = new GlyphInfo(
-                    c,
-                    new Vector2(face.Glyph.Bitmap.Width, face.Glyph.Bitmap.Rows),
-                    new Vector2(face.Glyph.BitmapLeft, face.Glyph.BitmapTop),
-                    (uint)(double)face.Glyph.Advance.X);
+                face.LoadGlyph(i, LoadFlags.Default, LoadTarget.Normal);
+                max.Width = Math.Max(max.Width, face.Glyph.Metrics.Width.ToInt32());
+                max.Height = Math.Max(max.Height, face.Glyph.Metrics.Height.ToInt32());
             }
         }
 
@@ -95,12 +49,99 @@
 
         public short LineHeight => face.Height;
 
-        public GlyphInfo this[char c] => glyphs[c];
+        public GlyphInfo this[char c]
+        {
+            get
+            {
+                // Lazily load glyphs on first access because its easy.
+                // Would be better to load as soon as device context is available.
+                if (glyphs == null)
+                {
+                    lock (glyphsLock)
+                    {
+                        if (glyphs == null)
+                        {
+                            LoadGlyphs();
+                        }
+                    }
+                }
+
+                // Apparently some fonts have char entries for a LOT of characters,
+                // so do this lazily rather than looping at ctor time
+                if (!glyphIndicesByChar.ContainsKey(c))
+                {
+                    glyphIndicesByChar[c] = face.GetCharIndex(c);
+                }
+
+                return glyphs[glyphIndicesByChar[c]];
+            }
+        }
 
         /// <inheritdoc />
         public void Dispose()
         {
             face?.Dispose();
+        }
+
+        private void LoadGlyphs()
+        {
+            if (DeviceContext.GetCurrentContext() == IntPtr.Zero)
+            {
+                throw new InvalidOperationException("No current OpenGL context!");
+            }
+
+            this.glyphs = new GlyphInfo[face.GlyphCount];
+
+            // Create texture array to store glyphs
+            // TODO: all direct Gl usage should be in core - add a GlTexture(2dArray?) class.
+            Gl.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
+            this.TextureId = Gl.GenTexture();
+            Gl.BindTexture(TextureTarget.Texture2dArray, this.TextureId);
+            Gl.TexStorage3D(
+                target: TextureTarget.Texture2dArray,
+                levels: 1,
+                internalformat: InternalFormat.Alpha8,
+                width: max.Width,
+                height: max.Height,
+                depth: face.GlyphCount);
+            Gl.TexParameter(TextureTarget.Texture2dArray, TextureParameterName.TextureWrapS, Gl.CLAMP_TO_EDGE);
+            Gl.TexParameter(TextureTarget.Texture2dArray, TextureParameterName.TextureWrapT, Gl.CLAMP_TO_EDGE);
+            Gl.TexParameter(TextureTarget.Texture2dArray, TextureParameterName.TextureMinFilter, Gl.LINEAR);
+            Gl.TexParameter(TextureTarget.Texture2dArray, TextureParameterName.TextureMagFilter, Gl.LINEAR);
+
+            // Eagerly load all glyphs
+            for (uint i = 0; i < face.GlyphCount; i++)
+            {
+                LoadGlyph(i);
+            }
+        }
+
+        private void LoadGlyph(uint glyphIndex)
+        {
+            face.LoadGlyph(glyphIndex, LoadFlags.Default, LoadTarget.Normal);
+            face.Glyph.RenderGlyph(RenderMode.Normal);
+
+            if (face.Glyph.Bitmap.Buffer != IntPtr.Zero)
+            {
+                Gl.TexSubImage3D(
+                    target: TextureTarget.Texture2dArray,
+                    level: 0,
+                    xoffset: 0,
+                    yoffset: 0,
+                    zoffset: (int)glyphIndex,
+                    width: face.Glyph.Bitmap.Width,
+                    height: face.Glyph.Bitmap.Rows,
+                    depth: 1,
+                    format: PixelFormat.Alpha,
+                    type: PixelType.UnsignedByte,
+                    pixels: face.Glyph.Bitmap.BufferData);
+            }
+
+            this.glyphs[glyphIndex] = new GlyphInfo(
+                glyphIndex,
+                new Vector2(face.Glyph.Bitmap.Width, face.Glyph.Bitmap.Rows),
+                new Vector2(face.Glyph.BitmapLeft, face.Glyph.BitmapTop),
+                (uint)(double)face.Glyph.Advance.X);
         }
 
         public struct GlyphInfo

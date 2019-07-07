@@ -133,7 +133,7 @@
 
             program.UseWithUniformValues(Matrix4x4.Transpose(Matrix4x4.CreateOrthographic(Size.X, Size.Y, 1f, -1f)), 0);
             Gl.ActiveTexture(TextureUnit.Texture0);
-            Gl.BindTexture(TextureTarget.Texture2dArray, TextElement.font.Value.TextureId);
+            Gl.BindTexture(TextureTarget.Texture2dArray, TextElement.Font.TextureId);
             this.vertexBuffer.Draw();
         }
 
