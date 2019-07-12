@@ -50,7 +50,7 @@
                             color: Color.Blue(.5f),
                             textColor: Color.White(),
                             text: "DEMO",
-                            (s, e) =>
+                            v =>
                             {
                                 view.Renderable = new DemoRenderable(view);
                                 this.Dispose();
@@ -60,7 +60,7 @@
                             color: Color.Blue(.5f),
                             textColor: Color.White(),
                             text: "QUIT",
-                            (s, e) => view.Exit()),
+                            v => view.Exit()),
                         new TextElement(
                             layout: new Layout((0f, -1f), (0f, -1f), (1f, 40)),
                             color: Color.Grey(0.7f),

@@ -33,14 +33,7 @@
         public Gui(View view)
         {
             this.view = view;
-
-            view.Resized += (s, e) =>
-            {
-                foreach (var element in SubElements)
-                {
-                    element.OnPropertyChanged(nameof(element.Parent));
-                }
-            };
+            this.view.Resized += View_Resized;
 
             SubElements = new ElementCollection(this);
 
@@ -67,6 +60,12 @@
 
         /// <inheritdoc /> from IElementParent
         public Vector2 Size => new Vector2(view.Width, view.Height);
+
+        /// <inheritdoc />
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <inheritdoc />
+        public event EventHandler<Vector2> Clicked;
 
         /// <inheritdoc /> from IRenderable
         public void ContextCreated()
@@ -98,28 +97,9 @@
         {
             ThrowIfDisposed();
 
-            void visitElement(ElementBase element)
-            {
-                if (element.Contains(new Vector2(view.CursorPosition.X, -view.CursorPosition.Y)))
-                {
-                    element.OnClicked(view.CursorPosition);
-
-                    if (element is IElementParent parent)
-                    {
-                        foreach (var subElement in parent.SubElements)
-                        {
-                            visitElement(subElement);
-                        }
-                    }
-                }
-            }
-
             if (view.WasLeftMouseButtonReleased)
             {
-                foreach (var element in this.SubElements)
-                {
-                    visitElement(element);
-                }
+                Clicked?.Invoke(this, new Vector2(view.CursorPosition.X, -view.CursorPosition.Y));
             }
         }
 
@@ -139,8 +119,9 @@
 
         public void Dispose()
         {
+            this.view.Resized -= View_Resized;
             this.vertexBuffer?.Dispose();
-            isDisposed = true;
+            this.isDisposed = true;
         }
 
         private void ThrowIfDisposed()
@@ -149,6 +130,11 @@
             {
                 throw new ObjectDisposedException(GetType().FullName);
             }
+        }
+
+        private void View_Resized(object sender, Vector2 e)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Size)));
         }
     }
 }

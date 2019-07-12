@@ -8,7 +8,7 @@
     /// <summary>
     /// Base class for GUI elements. Provides for a nested element hierarchy, with elements being placed relative to their parents.
     /// </summary>
-    public abstract class ElementBase : INotifyPropertyChanged
+    public abstract class ElementBase : INotifyPropertyChanged, IDisposable 
     {
         private IElementParent parent;
         private Layout layout;
@@ -30,8 +30,17 @@
             get => parent;
             internal set
             {
+                if (parent != null)
+                {
+                    parent.PropertyChanged -= Parent_PropertyChanged;
+                    parent.Clicked -= Parent_Clicked;
+                }
+
                 parent = value;
                 OnPropertyChanged(nameof(Parent));
+
+                parent.PropertyChanged += Parent_PropertyChanged;
+                parent.Clicked += Parent_Clicked;
             }
         }
 
@@ -79,32 +88,50 @@
         public Vector2 PosTR => this.Center + this.Size / 2;
 
         /// <summary>
-        /// Gets the list of vertices to be rendered for this GUI element.
+        /// Gets the list of vertices to be rendered for this GUI element (not including any children).
         /// </summary>
-        public abstract IList<Vertex> Vertices { get; }
+        public virtual IList<Vertex> Vertices { get; } = new Vertex[0];
 
         /// <inheritdoc /> from INotifyPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public event EventHandler<Vector2> Clicked; 
-
-        public bool Contains(Vector2 position)
+        /// <inheritdoc />
+        public virtual void Dispose()
         {
-            return position.X > this.PosTL.X
-                && position.X < this.PosTR.X
-                && position.Y < this.PosTL.Y
-                && position.Y > this.PosBL.Y;
+            if (parent != null)
+            {
+                parent.PropertyChanged -= Parent_PropertyChanged;
+                parent.Clicked -= Parent_Clicked;
+            }
+
+            GC.SuppressFinalize(this);
         }
 
-        // TODO: Instead of this being public, IElementParent should inherit INotifyPropertyChanged
-        internal virtual void OnPropertyChanged(string propertyName)
+        protected virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        internal void OnClicked(Vector2 position)
+        protected virtual void OnClicked(Vector2 position)
         {
-            Clicked?.Invoke(this, position);
+        }
+
+        private void Parent_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            OnPropertyChanged(nameof(Parent));
+        }
+
+        private void Parent_Clicked(object sender, Vector2 e)
+        {
+            var isClickInBounds = e.X > this.PosTL.X
+                && e.X < this.PosTR.X
+                && e.Y < this.PosTL.Y
+                && e.Y > this.PosBL.Y;
+
+            if (isClickInBounds)
+            {
+                OnClicked(e);
+            }
         }
     }
 }

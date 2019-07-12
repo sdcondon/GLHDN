@@ -1,16 +1,20 @@
 ﻿namespace GLHDN.Views.Renderables.Gui
 {
+    using System;
+    using System.ComponentModel;
     using System.Numerics;
 
     /// <summary>
     /// Interface for types that contain GUI elements. This includes parent elements and the root GUI object.
     /// </summary>
-    public interface IElementParent
+    public interface IElementParent : INotifyPropertyChanged
     {
+        event EventHandler<Vector2> Clicked;
+
         /// <summary>
         /// Gets the elements that this object contains.
         /// </summary>
-       ElementCollection SubElements { get; }
+        ElementCollection SubElements { get; }
 
         /// <summary>
         /// Gets the position of the center of this object, in screen space.

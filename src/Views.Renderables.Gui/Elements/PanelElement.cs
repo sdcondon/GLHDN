@@ -6,7 +6,7 @@
     /// <summary>
     /// 
     /// </summary>
-    public class PanelElement : ElementBase, IElementParent
+    public class PanelElement : ContainerElementBase
     {
         private Vector4 color;
         private float borderWidth;
@@ -16,7 +16,6 @@
         {
             this.color = color;
             this.borderWidth = borderWidth;
-            this.SubElements = new ElementCollection(this);
         }
 
         /// <summary>
@@ -55,18 +54,5 @@
         };
 
         // TODO: handlers? - onclick, onmouseover, onmouseout etc
-
-        /// <inheritdoc /> from IElementParent
-        public ElementCollection SubElements { get; }
-
-        /// <inheritdoc />
-        internal override void OnPropertyChanged(string propertyName)
-        {
-            foreach (var subElement in SubElements)
-            {
-                subElement.OnPropertyChanged(nameof(Parent));
-            }
-            base.OnPropertyChanged(propertyName);
-        }
     }
 }
