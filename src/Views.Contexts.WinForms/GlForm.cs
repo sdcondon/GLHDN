@@ -16,14 +16,15 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="GlForm"/> class.
         /// </summary>
-        public GlForm()
+        public GlForm(string name)
         {
             this.SuspendLayout();
 
             this.FormBorderStyle = FormBorderStyle.None;
             this.WindowState = FormWindowState.Maximized;
-            this.Name = "OpenGl";
-            this.Text = "OpenGl";
+            this.Name = name;
+            this.Text = name;
+            this.Icon = SystemIcons.Application;
 
             this.glControl = new GlControl()
             {

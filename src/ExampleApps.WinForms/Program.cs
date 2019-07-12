@@ -23,7 +23,7 @@
             WinFormsApp.EnableVisualStyles();
             WinFormsApp.SetCompatibleTextRenderingDefault(false);
 
-            var form = new GlForm()
+            var form = new GlForm("GLHDN Example App")
             {
                 // WindowState = FormWindowState.Normal,
                 // FormBorderStyle = FormBorderStyle.Sizable
