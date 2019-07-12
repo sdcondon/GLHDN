@@ -12,13 +12,11 @@ namespace GLHDN.Views.Renderables.Gui
         public Button(Layout layout, Color color, Color textColor, string text, Action<Vector2> clickHandler)
             : base(layout)
         {
-            var fillLayout = new Layout((0f, 0f), (0f, 0f), (1f, 1f));
-
-            this.SubElements.Add(new PanelElement(fillLayout, color, 0)
+            this.SubElements.Add(new PanelElement(Layout.Fill, color, 0)
             {
                 SubElements =
                 {
-                    new TextElement(fillLayout, textColor, text)
+                    new TextElement(Layout.Fill, textColor, text)
                     {
                         HorizontalAlignment = 0.5f,
                         VerticalAlignment = 0.5f

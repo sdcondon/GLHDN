@@ -80,6 +80,7 @@
 
             private readonly ColoredLines lines;
             private readonly TextElement camTextElement;
+            private readonly TextStreamElement logElement;
 
             private Matrix4x4 cubeWorldMatrix = Matrix4x4.Identity;
             private Subject<IList<Primitive>> cubeSubject = new Subject<IList<Primitive>>();
@@ -129,6 +130,12 @@
                 camTextElement = new TextElement(
                     new Layout((-1f, 1f), (-1f, 1f), (1f, 0f)),
                     color: Color.White());
+
+                logElement = new TextStreamElement(
+                    new Layout((-1f, 1f), (-1f, 1f), (1f, 0f), new Vector2(0, -100)),
+                    textColor: Color.White(),
+                    10);
+
                 AddRenderable(new Gui(view)
                 {
                     SubElements =
@@ -141,6 +148,7 @@
                             SubElements =
                             {
                                 camTextElement,
+                                logElement
                             },
                         },
                     },
@@ -163,6 +171,7 @@
                 {
                     var ray = new Ray(camera, view);
                     lines.AddLine(ray.Origin, ray.Origin + ray.Direction * 10);
+                    logElement.PushMessage($"RAY FROM {ray.Origin:F2}");
                 }
 
                 if (view.KeysReleased.Contains(' '))

@@ -38,6 +38,8 @@ namespace GLHDN.Views.Renderables.Gui
         {
         }
 
+        public static Layout Fill { get; } = new Layout((0f, 0f), (0f, 0f), (1f, 1f));
+
         public Vector2 GetCenter(ElementBase element)
         {
             var parentOriginScreenSpace = new Vector2(
