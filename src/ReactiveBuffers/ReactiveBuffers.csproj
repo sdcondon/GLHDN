@@ -7,6 +7,7 @@
     
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Description>Open GL Helpers for .NET / reactive buffers: logic for managing Open GL buffers using Observables of vertex data</Description>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

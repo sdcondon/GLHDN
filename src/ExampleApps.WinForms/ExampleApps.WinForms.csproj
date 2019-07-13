@@ -8,6 +8,7 @@
     <AssemblyName>GLHDN.ExampleApps.WinForms</AssemblyName>
     <RootNamespace>GLHDN.Examples.WinForms</RootNamespace>
     <Platforms>AnyCPU;x86</Platforms>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

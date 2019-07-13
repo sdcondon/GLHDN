@@ -2,6 +2,7 @@
 {
     using OpenGL;
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Text;
 
@@ -14,6 +15,13 @@
         private const uint FOURCC_DXT3 = 0x33545844; // Equivalent to "DXT3" in ASCII
         private const uint FOURCC_DXT5 = 0x35545844; // Equivalent to "DXT5" in ASCII
 
+        private static readonly Dictionary<string, InternalFormat> DDSPixelFormats = new Dictionary<string, InternalFormat>()
+        {
+            { "DXT1", InternalFormat.CompressedRgbaS3tcDxt1Ext },
+            { "DXT3", InternalFormat.CompressedRgbaS3tcDxt3Ext },
+            { "DXT5", InternalFormat.CompressedRgbaS3tcDxt5Ext },
+        };
+
         /// <summary>
         /// Loads a DDS image from a given file path.
         /// </summary>
@@ -21,81 +29,61 @@
         /// <returns>The Open GL texture ID that the image has been loaded into.</returns>
         public static uint LoadDDS(string imagepath)
         {
-            // Read the file
             uint height;
             uint width;
             uint mipMapCount;
-            uint fourCC;
+            InternalFormat format;
             byte[] buffer;
             using (var file = File.Open(imagepath, FileMode.Open))
             {
-                /* verify the type of file */
-                var filecode = new byte[4];
-                file.Read(filecode, 0, 4);
-                if (Encoding.ASCII.GetString(filecode) != "DDS ")
+                // Read file header
+                var header = new byte[128];
+                file.Read(header, 0, 128);
+
+                if (Encoding.ASCII.GetString(header, 0, 4) != "DDS ")
                 {
-                    return 0;
+                    throw new ArgumentException("Specified file is not a DDS file", nameof(imagepath));
                 }
 
-                /* get the surface desc */
-                var header = new byte[124];
-                file.Read(header, 0, 124);
+                height = BitConverter.ToUInt32(header, 12);
+                width = BitConverter.ToUInt32(header, 16);
+                var linearSize = BitConverter.ToUInt32(header, 20);
+                mipMapCount = BitConverter.ToUInt32(header, 28);
+                var fourCC = Encoding.ASCII.GetString(header, 84, 4);
+                if (!DDSPixelFormats.TryGetValue(Encoding.ASCII.GetString(header, 84, 4), out format))
+                {
+                    throw new ArgumentException($"Specified file uses unsupported internal format {fourCC}", nameof(imagepath));
+                }
 
-                height = BitConverter.ToUInt32(header, 8);//*(unsigned int*)&(header[8]);
-                width = BitConverter.ToUInt32(header, 12);//*(unsigned int*)&(header[12]);
-                var linearSize = BitConverter.ToUInt32(header, 16);//*(unsigned int*)&(header[16]);
-                mipMapCount = BitConverter.ToUInt32(header, 24);//*(unsigned int*)&(header[24]);
-                fourCC = BitConverter.ToUInt32(header, 80);//*(unsigned int*)&(header[80]);
+                //uint components = (fourCC == FOURCC_DXT1) ? 3u : 4u;
 
-                /* how big is it going to be including all mipmaps? */
-                var bufsize = (int)(mipMapCount > 1 ? linearSize * 2 : linearSize);
-                buffer = new byte[bufsize];
-
-                file.Read(buffer, 0, bufsize);
+                // Read the rest of the file
+                var bufferSize = (int)(mipMapCount > 1 ? linearSize * 2 : linearSize);
+                buffer = new byte[bufferSize];
+                file.Read(buffer, 0, bufferSize);
             }
 
-            //uint components = (fourCC == FOURCC_DXT1) ? 3u : 4u;
-
-            InternalFormat format;
-	        switch(fourCC) 
-	        { 
-	            case FOURCC_DXT1:
-                    format = InternalFormat.CompressedRgbaS3tcDxt1Ext;
-		            break; 
-	            case FOURCC_DXT3: 
-		            format = InternalFormat.CompressedRgbaS3tcDxt3Ext;
-                    break; 
-	            case FOURCC_DXT5: 
-		            format = InternalFormat.CompressedRgbaS3tcDxt5Ext;
-                    break; 
-	            default:
-		            return 0; 
-	        }
-
-	        // Create one OpenGL texture
+	        // Create OpenGL texture
             var textureId = Gl.GenTexture();
-
-            // "Bind" the newly created texture : all future texture functions will modify this texture
-            Gl.BindTexture(TextureTarget.Texture2d, textureId);
-
+            Gl.BindTexture(TextureTarget.Texture2d, textureId); // "Bind" the newly created texture: all future texture functions will modify this texture
             Gl.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
 
-            /* load the mipmaps */
+            // Load the mipmaps
             uint blockSize = (format == InternalFormat.CompressedRgbaS3tcDxt1Ext) ? 8u : 16u;
             uint offset = 0;
             for (int level = 0; level < mipMapCount && (width > 0 || height > 0); ++level) 
 	        { 
-		        uint size = ((width + 3) / 4) * ((height + 3) / 4) * blockSize;
+		        uint levelSize = ((width + 3) / 4) * ((height + 3) / 4) * blockSize;
 
-                var buf = new byte[size];
-                Array.Copy(buffer, offset, buf, 0, size);
-                Gl.CompressedTexImage2D(TextureTarget.Texture2d, level, format, (int)width, (int)height, 0, (int)size, buf);
+                var levelBuffer = new byte[levelSize];
+                Array.Copy(buffer, offset, levelBuffer, 0, levelSize);
+                Gl.CompressedTexImage2D(TextureTarget.Texture2d, level, format, (int)width, (int)height, 0, (int)levelSize, levelBuffer);
 
-                offset += size; 
+                offset += levelSize; 
 		        width /= 2; 
 		        height /= 2; 
 
-		        // Deal with Non-Power-Of-Two textures. This code is not included in the webpage to reduce clutter.
+		        // Deal with non-power-of-two textures. This code is not included in the webpage to reduce clutter.
 		        if (width < 1) width = 1;
 		        if (height < 1) height = 1;
 	        } 

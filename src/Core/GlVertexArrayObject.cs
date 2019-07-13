@@ -25,6 +25,8 @@
             IList<(BufferUsage usage, Type elementType, int capacity, Array data)> attributeBufferSpecs,
             (int capacity, uint[] data) indexSpec)
         {
+            GlExt.ThrowIfNoCurrentContext();
+
             // Record primitive type for use in draw calls, create and bind the VAO
             this.primitiveType = primitiveType;
             this.id = Gl.GenVertexArray(); // superbible uses CreateVertexArray?
