@@ -16,6 +16,11 @@
         public TextElement(Layout layout, Vector4 color, string content = "")
             : base(layout)
         {
+            if (Font == null)
+            {
+                throw new InvalidOperationException($"{nameof(Font)} property must be set prior to creating any {nameof(TextElement)} instances");
+            }
+
             this.color = color;
             this.content = content;
         }

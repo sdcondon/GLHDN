@@ -138,7 +138,7 @@
 
             public void OnError(Exception error)
             {
-                throw new NotImplementedException();
+                throw new AggregateException("Reactive buffer source errored", error);
             }
 
             private void DeleteAtom(int atomIndex)
