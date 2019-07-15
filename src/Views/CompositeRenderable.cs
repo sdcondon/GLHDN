@@ -14,29 +14,29 @@ namespace GLHDN.Views
         {
             if (contextCreated)
             {
-                renderable.ContextCreated();
+                renderable.Load();
             }
 
             renderables.Add(renderable);
         }
 
         /// <inheritdoc />
-        public void ContextCreated()
+        public void Load()
         {
             for (int i = 0; i < renderables.Count; i++)
             {
-                renderables[i].ContextCreated();
+                renderables[i].Load();
             }
 
             contextCreated = true;
         }
 
         /// <inheritdoc />
-        public virtual void ContextUpdate(TimeSpan elapsed)
+        public virtual void Update(TimeSpan elapsed)
         {
             for (int i = 0; i < renderables.Count; i++)
             {
-                renderables[i].ContextUpdate(elapsed);
+                renderables[i].Update(elapsed);
             }
         }
 
@@ -54,10 +54,7 @@ namespace GLHDN.Views
         {
             for (int i = 0; i < renderables.Count; i++)
             {
-                if (renderables[i] is IDisposable disposable)
-                {
-                    disposable.Dispose();
-                }
+                renderables[i].Dispose();
             }
         }
     }

@@ -9,14 +9,14 @@
     public interface IRenderable : IDisposable
     {
         /// <summary>
-        /// Handler for render context creation.
+        /// Loads the instance, compiling any programs and populating any required buffers.
         /// </summary>
-        void ContextCreated();
+        void Load();
 
         /// <summary>
-        /// Handler for render context updates.
+        /// Performs an incremental update.
         /// </summary>
-        void ContextUpdate(TimeSpan elapsed);
+        void Update(TimeSpan elapsed);
 
         /// <summary>
         /// Render logic.

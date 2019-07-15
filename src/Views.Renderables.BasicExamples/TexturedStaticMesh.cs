@@ -59,7 +59,7 @@
         public Matrix4x4 Model { get; set; } = Matrix4x4.Identity;
 
         /// <inheritdoc />
-        public void ContextCreated()
+        public void Load()
         {
             ThrowIfDisposed();
 
@@ -73,7 +73,7 @@
         }
 
         /// <inheritdoc />
-        public void ContextUpdate(TimeSpan elapsed)
+        public void Update(TimeSpan elapsed)
         {
         }
 

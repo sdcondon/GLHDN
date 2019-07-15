@@ -155,9 +155,9 @@
                 });
             }
 
-            public override void ContextUpdate(TimeSpan elapsed)
+            public override void Update(TimeSpan elapsed)
             {
-                base.ContextUpdate(elapsed);
+                base.Update(elapsed);
 
                 camera.Update(elapsed, view);
 

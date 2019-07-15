@@ -68,7 +68,7 @@
         public event EventHandler<Vector2> Clicked;
 
         /// <inheritdoc /> from IRenderable
-        public void ContextCreated()
+        public void Load()
         {
             ThrowIfDisposed();
 
@@ -93,7 +93,7 @@
         }
 
         /// <inheritdoc />
-        public void ContextUpdate(TimeSpan elapsed)
+        public void Update(TimeSpan elapsed)
         {
             ThrowIfDisposed();
 

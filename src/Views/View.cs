@@ -153,7 +153,7 @@
             {
                 if (isContextCreated)
                 {
-                    value.ContextCreated();
+                    value.Load();
                 }
 
                 renderable = value;
@@ -192,10 +192,7 @@
                 context.GotFocus -= OnGotFocus;
             }
 
-            if (renderable is IDisposable disposable)
-            {
-                disposable.Dispose();
-            }
+            Renderable.Dispose();
         }
 
         private void OnGlContextCreated(object sender, DeviceContext context)
@@ -209,7 +206,7 @@
             Gl.Enable(EnableCap.Blend);
             Gl.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
-            renderable.ContextCreated();
+            renderable.Load();
             isContextCreated = true; // todo: re-entry safety
         }
 
@@ -235,7 +232,7 @@
                 if (elapsed > maxEffectiveElapsed) { elapsed = maxEffectiveElapsed; }
 
                 // Update the game world
-                renderable.ContextUpdate(elapsed);
+                renderable.Update(elapsed);
 
                 // Reset user input properties
                 this.MouseWheelDelta = 0;
