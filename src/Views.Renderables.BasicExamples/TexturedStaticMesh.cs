@@ -4,6 +4,7 @@
     using OpenGL;
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using System.Numerics;
 
@@ -64,7 +65,7 @@
             ThrowIfDisposed();
 
             this.textures = new uint[1];
-            this.textures[0] = TextureLoader.LoadDDS(textureFilePath);
+            this.textures[0] = Path.GetExtension(textureFilePath) == ".DDS" ? TextureLoader.LoadDDS(textureFilePath) : TextureLoader.LoadBMP(textureFilePath);
 
             this.program = this.programBuilder.Build();
             this.programBuilder = null;

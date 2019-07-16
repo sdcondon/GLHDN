@@ -116,7 +116,7 @@
                             new Vector3(0f, 0f, 1f)),
                     },
                     new uint[] { 0, 1, 2 },
-                    @"Assets\Textures\uvmap.DDS"));
+                    @"Assets\Textures\foo.bmp"));
 
                 AddRenderable(new PrimitiveRenderer(camera, Observable.Return(cubeSubject), 12)
                 {

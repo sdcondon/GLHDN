@@ -92,10 +92,13 @@
         /// </summary>
         /// <param name="filePath">The file path to load the image from.</param>
         /// <returns>The OpenGL texture ID that the image has been loaded into.</returns>
+        /// <remarks>
+        /// https://en.wikipedia.org/wiki/BMP_file_format
+        /// </remarks>
         public static uint LoadBMP(string filePath)
         {
             uint dataPos; // Position in the file where the actual data begins
-            uint width, height;
+            int width, height;
             uint imageSize; // = width*height*3           
             byte[] data; // Actual RGB data
             using (var file = File.Open(filePath, FileMode.Open))
@@ -106,25 +109,42 @@
 
                 if (Encoding.ASCII.GetString(header, 0, 2) != "BM")
                 {
-                    throw new ArgumentException("Specified file is not a BMP file", nameof(filePath));
+                    throw new ArgumentException("Specified file is not a Windows BMP file", nameof(filePath));
                 }
 
                 dataPos = BitConverter.ToUInt32(header, 10);
-                width = BitConverter.ToUInt32(header, 18);
-                height = BitConverter.ToUInt32(header, 22);
+                width = BitConverter.ToInt32(header, 18);
+                height = BitConverter.ToInt32(header, 22);
+
+                var bitsPerPixel = BitConverter.ToUInt16(header, 28);
+                if (bitsPerPixel != 24)
+                {
+                    throw new NotSupportedException($"Only 24BPP BMPs are supported - this BMP is {bitsPerPixel}BPP");
+                }
+
+                //var compressionMethod = BitConverter.ToUInt32(header, 30);
                 imageSize = BitConverter.ToUInt32(header, 34);
 
-                // Some BMP files are misformatted, guess missing information
-                if (imageSize == 0) imageSize = width * height * 3; // 3 : one byte for each Red, Green and Blue component
+                if (imageSize == 0) imageSize = (uint)width * (uint)height * bitsPerPixel / 8;
                 if (dataPos == 0) dataPos = 54; // The BMP header is done that way
 
-                // Create a buffer
+                // Read the pixel data
+                var rowSize = bitsPerPixel * width / 8;
+                var paddedRowSize = ((bitsPerPixel * width + 31) / 32) * 4; // Each row rounded up to multiple of 4 bytes
+                var offset = 0;
                 data = new byte[imageSize];
-                file.Read(data, 0, (int)imageSize);
+                file.Seek(dataPos, SeekOrigin.Begin);
+                for (int i = 0; i < height; i++)
+                {
+                    file.Read(data, offset, rowSize);
+                    offset += rowSize;
+                    file.Seek(paddedRowSize - rowSize, SeekOrigin.Current);
+                }
             }
 
             var textureId = Gl.GenTexture();
             Gl.BindTexture(TextureTarget.Texture2d, textureId); // "Bind" the newly created texture : all future texture functions will modify this texture
+            Gl.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
 
             // Give the image to OpenGL
             Gl.TexImage2D(
