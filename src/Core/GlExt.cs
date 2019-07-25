@@ -14,14 +14,6 @@ namespace GLHDN.Core
             }
         }
 
-        /*
-        public async static Task WaitForOpenGlContext()
-        {
-            // TODO: allow registering a callback, or just manual delays?
-            await Task.Yield();
-        }
-        */
-
         [Conditional("DEBUG")]
         public static void DebugWriteLine(string message)
         {

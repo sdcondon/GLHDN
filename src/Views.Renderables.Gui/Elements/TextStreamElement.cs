@@ -17,6 +17,12 @@
             this.lines = new string[lineCount];
         }
 
+        public float HorizontalAlignment
+        {
+            get => this.textElement.HorizontalAlignment;
+            set => this.textElement.HorizontalAlignment = value;
+        }
+
         public void PushMessage(string message)
         {
             if (++lastIndex >= lines.Length)

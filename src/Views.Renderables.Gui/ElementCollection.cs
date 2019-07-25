@@ -38,7 +38,11 @@
         /// <inheritdoc />
         public void Add(ElementBase element)
         {
-            // TODO: throw if parent != null?
+            if (element.Parent != null)
+            {
+                throw new ArgumentException("Can't add element that already has a parent");
+            }
+
             element.Parent = this.owner;
             if (element is IElementParent parent)
             {
@@ -58,7 +62,7 @@
         {
             if (removalCallbacks.TryGetValue(element, out var callback))
             {
-                // TODO: element.Parent = null?
+                element.Parent = null;
                 callback.Invoke();
                 removalCallbacks.Remove(element);
                 return true;

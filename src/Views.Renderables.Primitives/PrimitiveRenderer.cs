@@ -94,7 +94,7 @@
             this.coloredTriangleBuffer = new ReactiveBuffer<PrimitiveVertex>(
                 this.source.Select(pso => 
                     pso.Select(ps => 
-                        ps.Where(p => p.IsTrianglePrimitive).SelectMany(p => p.Vertices).ToList())),
+                        ps.Where(p => p.IsTrianglePrimitive).SelectMany(p => p.Vertices).ToList())), // TODO: Reduce GC pressure - don't use LINQ
                 PrimitiveType.Triangles,
                 this.capacity,
                 new[] { 0, 1, 2 },
@@ -103,7 +103,7 @@
             this.coloredLineBuffer = new ReactiveBuffer<PrimitiveVertex>(
                 this.source.Select(pso =>
                     pso.Select(ps =>
-                        ps.Where(p => !p.IsTrianglePrimitive).SelectMany(p => p.Vertices).ToList())),
+                        ps.Where(p => !p.IsTrianglePrimitive).SelectMany(p => p.Vertices).ToList())), // TODO: Reduce GC pressure - don't use LINQ
                 PrimitiveType.Lines,
                 this.capacity,
                 new[] { 0, 1, },

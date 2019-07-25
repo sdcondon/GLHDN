@@ -15,11 +15,13 @@
     {
         private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.BasicExamples";
 
+        private static object stateLock = new object();
+        private static GlProgramBuilder programBuilder;
+        private static GlProgram program;
+
         private readonly IViewProjection viewProjection;
         private readonly ObservableCollection<Line> lines;
 
-        private GlProgramBuilder programBuilder;
-        private GlProgram program;
         private ReactiveBuffer<Vertex> linesBuffer;
         private bool isDisposed;
 
@@ -32,11 +34,19 @@
             this.viewProjection = viewProjection;
             this.lines = new ObservableCollection<Line>();
 
-            // TODO: allow program to be shared..
-            this.programBuilder = new GlProgramBuilder()
-                .WithShaderFromEmbeddedResource(ShaderType.VertexShader, $"{ShaderResourceNamePrefix}.Colored.Vertex.glsl")
-                .WithShaderFromEmbeddedResource(ShaderType.FragmentShader, $"{ShaderResourceNamePrefix}.Colored.Fragment.glsl")
-                .WithUniforms("MVP", "V", "M", "LightPosition_worldspace", "LightColor", "LightPower", "AmbientLightColor");
+            if (program == null && programBuilder == null)
+            {
+                lock (stateLock)
+                {
+                    if (program == null && programBuilder == null)
+                    {
+                        programBuilder = new GlProgramBuilder()
+                            .WithShaderFromEmbeddedResource(ShaderType.VertexShader, $"{ShaderResourceNamePrefix}.Colored.Vertex.glsl")
+                            .WithShaderFromEmbeddedResource(ShaderType.FragmentShader, $"{ShaderResourceNamePrefix}.Colored.Fragment.glsl")
+                            .WithUniforms("MVP", "V", "M", "LightPosition_worldspace", "LightColor", "LightPower", "AmbientLightColor");
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -66,8 +76,18 @@
         {
             ThrowIfDisposed();
 
-            this.program = this.programBuilder.Build();
-            this.programBuilder = null;
+            if (program == null)
+            {
+                lock (stateLock)
+                {
+                    if (program == null)
+                    {
+                        program = programBuilder.Build();
+                        programBuilder = null;
+                    }
+                }
+            }
+
             this.linesBuffer = new ReactiveBuffer<Vertex>(
                 lines.ToObservable((Line a) => new[] { new Vertex(a.from, Vector3.One, a.from), new Vertex(a.to, Vector3.One, a.to) }),
                 PrimitiveType.Lines,
@@ -86,7 +106,7 @@
         {
             ThrowIfDisposed();
 
-            this.program.UseWithUniformValues(
+            program.UseWithUniformValues(
                 Matrix4x4.Transpose(this.viewProjection.View * this.viewProjection.Projection),
                 Matrix4x4.Transpose(this.viewProjection.View),
                 Matrix4x4.Identity,
@@ -101,7 +121,6 @@
         public void Dispose()
         {
             this.linesBuffer.Dispose();
-            this.program.Dispose();
             isDisposed = true;
         }
 

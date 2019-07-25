@@ -14,10 +14,12 @@
     {
         private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.BasicExamples";
 
+        private static object stateLock = new object();
+        private static GlProgramBuilder programBuilder;
+        private static GlProgram program;
+
         private readonly IViewProjection viewProjection;
 
-        private GlProgramBuilder programBuilder;
-        private GlProgram program;
         private GlVertexArrayObjectBuilder vertexArrayObjectBuilder;
         private GlVertexArrayObject vertexArrayObject;
         private bool isDisposed;
@@ -39,11 +41,19 @@
         {
             this.viewProjection = viewProjection;
 
-            // TODO: allow program to be shared..
-            this.programBuilder = new GlProgramBuilder()
-                .WithShaderFromEmbeddedResource(ShaderType.VertexShader, $"{ShaderResourceNamePrefix}.Colored.Vertex.glsl")
-                .WithShaderFromEmbeddedResource(ShaderType.FragmentShader, $"{ShaderResourceNamePrefix}.Colored.Fragment.glsl")
-                .WithUniforms("MVP", "V", "M", "LightPosition_worldspace", "LightColor", "LightPower", "AmbientLightColor");
+            if (program == null && programBuilder == null)
+            {
+                lock (stateLock)
+                {
+                    if (program == null && programBuilder == null)
+                    {
+                        programBuilder = new GlProgramBuilder()
+                            .WithShaderFromEmbeddedResource(ShaderType.VertexShader, $"{ShaderResourceNamePrefix}.Colored.Vertex.glsl")
+                            .WithShaderFromEmbeddedResource(ShaderType.FragmentShader, $"{ShaderResourceNamePrefix}.Colored.Fragment.glsl")
+                            .WithUniforms("MVP", "V", "M", "LightPosition_worldspace", "LightColor", "LightPower", "AmbientLightColor");
+                    }
+                }
+            }
 
             this.vertexArrayObjectBuilder = new GlVertexArrayObjectBuilder(PrimitiveType.Triangles)
                 .WithAttributeBuffer(BufferUsage.StaticDraw, vertexPositions.ToArray())
@@ -62,8 +72,18 @@
         {
             ThrowIfDisposed();
 
-            this.program = this.programBuilder.Build();
-            this.programBuilder = null;
+            if (program == null)
+            {
+                lock (stateLock)
+                {
+                    if (program == null)
+                    {
+                        program = programBuilder.Build();
+                        programBuilder = null;
+                    }
+                }
+            }
+
             this.vertexArrayObject = this.vertexArrayObjectBuilder.Build();
             this.vertexArrayObjectBuilder = null;
         }
@@ -78,7 +98,7 @@
         {
             ThrowIfDisposed();
 
-            this.program.UseWithUniformValues(
+            program.UseWithUniformValues(
                 Matrix4x4.Transpose(this.Model * this.viewProjection.View * this.viewProjection.Projection),
                 Matrix4x4.Transpose(this.viewProjection.View),
                 Matrix4x4.Transpose(this.Model),
@@ -93,7 +113,7 @@
         public void Dispose()
         {
             this.vertexArrayObject.Dispose();
-            this.program.Dispose();
+            isDisposed = true;
         }
 
         private void ThrowIfDisposed()
