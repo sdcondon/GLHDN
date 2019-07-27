@@ -89,6 +89,7 @@
             {
                 this.view = view;
                 camera = new FirstPersonCamera(
+                    view,
                     movementSpeed: 3.0f,
                     rotationSpeed: 0.005f,
                     fieldOfViewRadians: (float)Math.PI / 4.0f,
@@ -159,7 +160,7 @@
             {
                 base.Update(elapsed);
 
-                camera.Update(elapsed, view);
+                camera.Update(elapsed);
 
                 camTextElement.Content = $"Hello, world!\n\nCam: {camera.Position:F2}\n\nPress q to quit";
 

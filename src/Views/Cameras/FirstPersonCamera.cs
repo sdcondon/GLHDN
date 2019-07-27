@@ -8,6 +8,7 @@
     /// </summary>
     public class FirstPersonCamera : ICamera
     {
+        private readonly View view;
         private float horizontalAngle;
         private float verticalAngle;
 
@@ -15,6 +16,7 @@
         /// Initializes a new instance of the <see cref="FirstPersonCamera"/> class.
         /// </summary>
         public FirstPersonCamera(
+            View view,
             float movementSpeed,
             float rotationSpeed,
             float fieldOfViewRadians,
@@ -24,6 +26,7 @@
             float initialHorizontalAngleRadians,
             float initialVerticalAngleRadians)
         {
+            this.view = view;
             this.MovementSpeed = movementSpeed;
             this.RotationSpeed = rotationSpeed;
             this.FieldOfViewRadians = fieldOfViewRadians;
@@ -70,7 +73,7 @@
         public Matrix4x4 Projection { get; private set; }
 
         /// <inheritdoc />
-        public void Update(TimeSpan elapsed, View view)
+        public void Update(TimeSpan elapsed)
         {
             if (view.LockCursor)
             {

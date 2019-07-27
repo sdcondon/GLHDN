@@ -5,17 +5,21 @@
 
     public class OrbitCamera : ICamera
     {
+        private readonly View view;
+
         private Vector3 forward = new Vector3(0f, 0f, 1f);
         private Vector3 up = new Vector3(0f, 1f, 0f);
         private int zoomLevel = 0;
 
         public OrbitCamera(
+            View view,
             float rotationSpeedBase,
             float rollSpeed,
             float fieldOfViewRadians,
             float nearPlaneDistance,
             float farPlaneDistance)
         {
+            this.view = view;
             RotationSpeedBase = rotationSpeedBase;
             RollSpeed = rollSpeed;
             FieldOfViewRadians = fieldOfViewRadians;
@@ -52,7 +56,7 @@
         /// <inheritdoc />
         public Matrix4x4 Projection { get; private set; }
 
-        public void Update(TimeSpan elapsed, View view)
+        public void Update(TimeSpan elapsed)
         {
             // Pan up - rotate forward and up around their cross product
             if (view.KeysDown.Contains('W'))

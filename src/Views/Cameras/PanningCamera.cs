@@ -5,6 +5,7 @@
 
     public class PanningCamera : ICamera
     {
+        private readonly View view;
         private readonly float movementSpeed;
 
         private Vector3 target;
@@ -20,6 +21,7 @@
         /// <param name="movementSpeed">The movement speed of the camera, in units per update.</param>
         /// <param name="verticalAngle">The angle between the camera's view direction and the Z-axis.</param>
         public PanningCamera(
+            View view,
             float fieldOfViewRadians, // = (float)Math.PI / 4.0f;
             float nearPlaneDistance, // = 0.01f;
             float farPlaneDistance, // = 100f;
@@ -27,6 +29,7 @@
             float movementSpeed,
             float verticalAngle)
         {
+            this.view = view;
             FieldOfViewRadians = fieldOfViewRadians;
             NearPlaneDistance = nearPlaneDistance;
             FarPlaneDistance = farPlaneDistance;
@@ -67,7 +70,7 @@
         public Matrix4x4 Projection { get; private set; }
 
         /// <inheritdoc />
-        public void Update(TimeSpan elapsed, View view)
+        public void Update(TimeSpan elapsed)
         {
             if (view.KeysDown.Contains('W'))
             {

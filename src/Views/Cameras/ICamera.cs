@@ -17,7 +17,6 @@
         /// Updates the state of the camera.
         /// </summary>
         /// <param name="elapsed">The elapsed time since the last update.</param>
-        /// <param name="view">The which the camera is bound to (and should thus receive user input from).</param>
-        void Update(TimeSpan elapsed, View view);
+        void Update(TimeSpan elapsed);
     }
 }
