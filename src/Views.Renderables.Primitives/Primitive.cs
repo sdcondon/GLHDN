@@ -4,20 +4,36 @@
     using System.Collections.Generic;
     using System.Numerics;
 
+    /// <summary>
+    /// Container for primitive vertex data.
+    /// </summary>
     public sealed class Primitive
     {
-        private List<PrimitiveVertex> vertices = new List<PrimitiveVertex>();
+        private readonly List<PrimitiveVertex> vertices = new List<PrimitiveVertex>();
 
         private Primitive(bool isTrianglePrimitive)
         {
             IsTrianglePrimitive = isTrianglePrimitive;
         }
 
+        /// <summary>
+        /// Gets the list of vertices that comprise the primitive.
+        /// </summary>
         public IReadOnlyList<PrimitiveVertex> Vertices => vertices;
 
-        public bool IsTrianglePrimitive { get; private set; }
+        /// <summary>
+        /// Gets a value indicating whether the primitive is comprised of triangles (as opposed to lines).
+        /// </summary>
+        public bool IsTrianglePrimitive { get; }
 
-        public static Primitive Cuboid(Vector3 size, Matrix4x4 worldTransform, Vector4 color)
+        /// <summary>
+        /// Creates a cuboid primitive.
+        /// </summary>
+        /// <param name="size">The dimensions of the cuboid.</param>
+        /// <param name="worldTransform">The world transform of the cuboid.</param>
+        /// <param name="color">The color of the cuboid.</param>
+        /// <returns>The created primitive.</returns>
+        public static Primitive Cuboid(Vector3 size, Matrix4x4 worldTransform, Color color)
         {
             var xy = new Vector2(size.X, size.Y);
             var xz = new Vector2(size.X, size.Z);
@@ -36,19 +52,41 @@
             return primitive;
         }
 
-        public static Primitive Quad(Vector2 size, Matrix4x4 worldTransform, Vector4 color)
+        /// <summary>
+        /// Creates a quad primitive.
+        /// </summary>
+        /// <param name="size">The dimensions of the quad.</param>
+        /// <param name="worldTransform">The world transform of the quad.</param>
+        /// <param name="color">The color of the quad.</param>
+        /// <returns>The created primitive.</returns>
+        public static Primitive Quad(Vector2 size, Matrix4x4 worldTransform, Color color)
         {
             var primitive = new Primitive(true);
             primitive.AddQuad(size, worldTransform, color);
             return primitive;
         }
 
-        public static Primitive Line(Vector3 from, Vector3 to, Vector4 color)
+        /// <summary>
+        /// Creates a line primitive of constant color.
+        /// </summary>
+        /// <param name="from">The position of one end of the line.</param>
+        /// <param name="to">The position of the other end of the line.</param>
+        /// <param name="color">The color of the line.</param>
+        /// <returns>The created primitive.</returns>
+        public static Primitive Line(Vector3 from, Vector3 to, Color color)
         {
             return Line(from, to, color, color);
         }
 
-        public static Primitive Line(Vector3 from, Vector3 to, Vector4 colorFrom, Vector4 colorTo)
+        /// <summary>
+        /// Creates a line primitive of graduated color.
+        /// </summary>
+        /// <param name="from">The position of one end of the line.</param>
+        /// <param name="to">The position of the other end of the line.</param>
+        /// <param name="colorFrom">The color of one end of the line.</param>
+        /// <param name="colorTo">The color of the other end of the line.</param>
+        /// <returns>The created primitive.</returns>
+        public static Primitive Line(Vector3 from, Vector3 to, Color colorFrom, Color colorTo)
         {
             var primitive = new Primitive(false);
             primitive.AddVertex(from, colorFrom, Vector3.Zero);
@@ -56,12 +94,27 @@
             return primitive;
         }
 
-        public static Primitive LineCircle(float radius, Matrix4x4 worldTransform, Vector4 color)
+        /// <summary>
+        /// Creates a line circle primitive.
+        /// </summary>
+        /// <param name="radius">The radius of the circle.</param>
+        /// <param name="worldTransform">The world transform of the circle.</param>
+        /// <param name="color">The color of the circle.</param>
+        /// <returns>The created primitive.</returns>
+        public static Primitive LineCircle(float radius, Matrix4x4 worldTransform, Color color)
         {
             return LineEllipse(radius, radius, worldTransform, color);
         }
 
-        public static Primitive LineEllipse(float radiusX, float radiusY, Matrix4x4 worldTransform, Vector4 color)
+        /// <summary>
+        /// Creates a line ellipse primitive.
+        /// </summary>
+        /// <param name="radiusX">The X-axis radius of the ellipse.</param>
+        /// <param name="radiusY">The Y-axis radius of the ellipse.</param>
+        /// <param name="worldTransform">The world transform of the ellipse.</param>
+        /// <param name="color">The color of the ellipse.</param>
+        /// <returns>The created primitive.</returns>
+        public static Primitive LineEllipse(float radiusX, float radiusY, Matrix4x4 worldTransform, Color color)
         {
             var primitive = new Primitive(false);
 
@@ -82,7 +135,14 @@
             return primitive;
         }
 
-        public static Primitive LineSquare(float sideLength, Matrix4x4 worldTransform, Vector4 color)
+        /// <summary>
+        /// Creates a line square primitive.
+        /// </summary>
+        /// <param name="sideLength">The side length the square.</param>
+        /// <param name="worldTransform">The world transform of the square.</param>
+        /// <param name="color">The color of the square.</param>
+        /// <returns>The created primitive.</returns>
+        public static Primitive LineSquare(float sideLength, Matrix4x4 worldTransform, Color color)
         {
             var primitive = new Primitive(false);
             primitive.AddVertex(Vector3.Transform(new Vector3(-sideLength/2, -sideLength/2, 0), worldTransform), color, Vector3.Zero);
@@ -96,7 +156,14 @@
             return primitive;
         }
 
-        public static Primitive LinePolygon(Vector2[] positions, Matrix4x4 worldTransform, Vector4 color)
+        /// <summary>
+        /// Creates a line polygon primitive.
+        /// </summary>
+        /// <param name="positions">The positions of the vertices of the polygon.</param>
+        /// <param name="worldTransform">The world transform of the polygon.</param>
+        /// <param name="color">The color of the polygon.</param>
+        /// <returns>The created primitive.</returns>
+        public static Primitive LinePolygon(Vector2[] positions, Matrix4x4 worldTransform, Color color)
         {
             var primitive = new Primitive(false);
 
@@ -109,7 +176,7 @@
             return primitive;
         }
 
-        private void AddQuad(Vector2 size, Matrix4x4 worldTransform, Vector4 color)
+        private void AddQuad(Vector2 size, Matrix4x4 worldTransform, Color color)
         {
             var normal = Vector3.TransformNormal(Vector3.UnitZ, worldTransform);
             var vertexPositions = new[]
@@ -129,7 +196,7 @@
             }
         }
 
-        private void AddVertex(Vector3 position, Vector4 color, Vector3 normal)
+        private void AddVertex(Vector3 position, Color color, Vector3 normal)
         {
             vertices.Add(new PrimitiveVertex(position, color, normal));
         }

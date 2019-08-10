@@ -49,11 +49,11 @@
                     Gl.EnableVertexAttribArray(k);
                     Gl.VertexAttribPointer(
                         index: k, // must match the layout in the shader
-                        size: attribute.multiple,
-                        type: attribute.type,
+                        size: attribute.Multiple,
+                        type: attribute.Type,
                         normalized: false,
-                        stride: attribute.stride,
-                        pointer: attribute.offset);
+                        stride: attribute.Stride,
+                        pointer: attribute.Offset);
                 }
             }
 
@@ -105,7 +105,7 @@
             }
             else
             {
-                // No index - so draw directly from index data
+                // No index - so draw directly from attribute data
                 Gl.DrawArrays(
                     mode: this.primitiveType,
                     first: 0,

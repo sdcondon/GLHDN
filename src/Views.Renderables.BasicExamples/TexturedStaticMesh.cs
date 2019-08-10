@@ -15,7 +15,7 @@
     {
         private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.BasicExamples";
 
-        private static object stateLock = new object();
+        private static readonly object stateLock = new object();
         private static GlProgramBuilder programBuilder;
         private static GlProgram program;
 
@@ -27,6 +27,13 @@
         private GlVertexArrayObject vertexArrayObject;
         private bool isDisposed;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TexturedStaticMesh"/> class.
+        /// </summary>
+        /// <param name="viewProjection">Provider for view and projection matrices.</param>
+        /// <param name="vertices"></param>
+        /// <param name="indices"></param>
+        /// <param name="textureFilePath"></param>
         public TexturedStaticMesh(
             IViewProjection viewProjection,
             IEnumerable<Vertex> vertices,
@@ -136,18 +143,38 @@
             }
         }
 
+        /// <summary>
+        /// Container struct for the attributes of a vertex.
+        /// </summary>
         public struct Vertex
         {
-            public readonly Vector3 Position;
-            public readonly Vector2 UV;
-            public readonly Vector3 Normal;
-
+            /// <summary>
+            /// Initializes a new instance of the <see cref="Vertex"/> struct.
+            /// </summary>
+            /// <param name="position">The position of the vertex.</param>
+            /// <param name="uv">The texture coordinate of the vertex.</param>
+            /// <param name="normal">The normal vector of the vertex.</param>
             public Vertex(Vector3 position, Vector2 uv, Vector3 normal)
             {
                 Position = position;
                 UV = uv;
                 Normal = normal;
             }
+
+            /// <summary>
+            /// Gets the position of the vertex.
+            /// </summary>
+            public Vector3 Position { get; }
+
+            /// <summary>
+            /// Gets the texture coordinate of the vertex.
+            /// </summary>
+            public Vector2 UV { get; }
+
+            /// <summary>
+            /// Gets the normal vector of the vertex.
+            /// </summary>
+            public Vector3 Normal { get; }
         }
     }
 }

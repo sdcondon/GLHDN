@@ -17,7 +17,7 @@
     {
         private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.Primitives";
 
-        private static object stateLock = new object();
+        private static readonly object stateLock = new object();
         private static GlProgramBuilder programBuilder;
         private static GlProgram program;
 
@@ -28,21 +28,6 @@
         private ReactiveBuffer<PrimitiveVertex> coloredTriangleBuffer;
         private ReactiveBuffer<PrimitiveVertex> coloredLineBuffer;
         private bool isDisposed;
-
-        /// <summary>
-        /// The ambient light color, applied as a minimum to every fragment.
-        /// </summary>
-        public Vector3 AmbientLightColor { get; set; } = Vector3.Zero;
-
-        public Vector3 DirectedLightDirection { get; set; } = Vector3.Zero;
-
-        public Vector3 DirectedLightColor { get; set; } = Vector3.Zero;
-
-        public Vector3 PointLightPosition { get; set; } = Vector3.Zero;
-
-        public Vector3 PointLightColor { get; set; } = Vector3.Zero;
-
-        public float PointLightPower { get; set; } = 0f;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PrimitiveRenderer"/> class.
@@ -73,6 +58,36 @@
                 }
             }
         }
+
+        /// <summary>
+        /// Gets the lighting applied as a minimum to every fragment.
+        /// </summary>
+        public Color AmbientLightColor { get; set; } = Color.Transparent;
+
+        /// <summary>
+        /// Gets the directed light direction. Fragments facing this direction are lit with the directed light color.
+        /// </summary>
+        public Vector3 DirectedLightDirection { get; set; } = Vector3.Zero;
+
+        /// <summary>
+        /// Gets the directed light color, applied to fragments facing the directed light direction.
+        /// </summary>
+        public Color DirectedLightColor { get; set; } = Color.Transparent;
+
+        /// <summary>
+        /// Gets the point light position. Fragments facing this position are lit with the point light color.
+        /// </summary>
+        public Vector3 PointLightPosition { get; set; } = Vector3.Zero;
+
+        /// <summary>
+        /// Gets the point light color, applied to fragments facing the point light position.
+        /// </summary>
+        public Color PointLightColor { get; set; } = Color.Transparent;
+
+        /// <summary>
+        /// Gets the point light power. Affects the intensity with which fragments are lit by the point light.
+        /// </summary>
+        public float PointLightPower { get; set; } = 0f;
 
         /// <inheritdoc />
         public void Load()

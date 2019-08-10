@@ -12,7 +12,7 @@
     /// </summary>
     public sealed class GlControlAdapter : IViewContext
     {
-        private GlControl glControl;
+        private readonly GlControl glControl;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GlControlAdapter"/> class.

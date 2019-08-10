@@ -10,7 +10,7 @@
     /// </summary>
     internal sealed class GlVertexBufferObject : IVertexBufferObject
     {
-        private ConcurrentQueue<Action> actions = new ConcurrentQueue<Action>();
+        private readonly ConcurrentQueue<Action> actions = new ConcurrentQueue<Action>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GlVertexBufferObject"/> class. SIDE EFFECT: New buffer will be bound to the given target.

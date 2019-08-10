@@ -75,7 +75,7 @@
         private class ItemObserver : IObserver<IList<TVertex>>
         {
             private readonly ReactiveBuffer<TVertex> parent;
-            private SortedList<int, int> bufferIndices = new SortedList<int, int>();
+            private readonly SortedList<int, int> bufferIndices = new SortedList<int, int>();
 
             public ItemObserver(ReactiveBuffer<TVertex> parent)
             {

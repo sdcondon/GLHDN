@@ -10,6 +10,12 @@
     /// </summary>
     public class MemoryVertexArrayObject : IVertexArrayObject
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MemoryVertexArrayObject"/> class.
+        /// </summary>
+        /// <param name="primitiveType">OpenGL primitive type.</param>
+        /// <param name="attributeBufferSpecs">Specs for the buffers in this VAO.</param>
+        /// <param name="indexSpec">The data to populate the index buffer with, or null if there should be no index.</param>
         public MemoryVertexArrayObject(
             PrimitiveType primitiveType,
             IList<(BufferUsage, Type, int, Array)> attributeBufferSpecs,

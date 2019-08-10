@@ -70,7 +70,10 @@
         /// Gets the cursor position, with the origin being at the centre of the view, X increasing from left to right and Y increasing from top to bottom.
         /// </summary>
         public Vector2 CursorPosition { get; private set; }
-         
+        
+        /// <summary>
+        /// Gets or sets a value indicating whether the cursor is placed back at the center of the view during each update.
+        /// </summary>
         public bool LockCursor
         {
             get => lockCursor;
@@ -146,6 +149,9 @@
         /// </summary>
         public float AspectRatio => (float)context.Width / context.Height;
 
+        /// <summary>
+        /// Gets or sets the root renderable of the view.
+        /// </summary>
         public IRenderable Renderable
         {
             get => renderable;
@@ -165,11 +171,15 @@
         /// </summary>
         public event EventHandler<Vector2> Resized;
 
+        /// <summary>
+        /// Closes the view.
+        /// </summary>
         public void Exit()
         {
             context.Exit();
         }
 
+        /// <inheritdoc />
         public void Dispose()
         {
             context.GlContextCreated -= OnGlContextCreated;

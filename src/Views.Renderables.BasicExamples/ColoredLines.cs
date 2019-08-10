@@ -15,7 +15,7 @@
     {
         private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.BasicExamples";
 
-        private static object stateLock = new object();
+        private static readonly object stateLock = new object();
         private static GlProgramBuilder programBuilder;
         private static GlProgram program;
 

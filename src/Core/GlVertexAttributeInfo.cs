@@ -23,18 +23,33 @@
             { typeof(uint), (VertexAttribType.UnsignedInt, 1) }
         };
 
-        public readonly IntPtr offset;
-        public readonly int stride;
-        public readonly VertexAttribType type;
-        public readonly int multiple;
-
         internal GlVertexAttributeInfo(VertexAttribType type, int multiple, int offset, int stride)
         {
-            this.offset = new IntPtr(offset);
-            this.stride = stride;
-            this.type = type;
-            this.multiple = multiple;
+            this.Type = type;
+            this.Multiple = multiple;
+            this.Offset = new IntPtr(offset);
+            this.Stride = stride;
         }
+
+        /// <summary>
+        /// Gets the OpenGL type for the vertex attribute.
+        /// </summary>
+        public VertexAttribType Type { get; }
+
+        /// <summary>
+        /// Gets the multiple (of the OpenGL type) for the attribute
+        /// </summary>
+        public int Multiple { get; }
+
+        /// <summary>
+        /// Gets the offset from the start of the buffer to the attribute for the first vertex in the buffer.
+        /// </summary>
+        public IntPtr Offset { get; }
+
+        /// <summary>
+        /// Gets the offset from the attribute for one vertex in the buffer to the next.
+        /// </summary>
+        public int Stride { get; }
 
         /// <summary>
         /// Returns attribute info for a given (blittable) type.

@@ -16,7 +16,7 @@
         private readonly uint id;
         private readonly int[] uniformIds;
 
-        internal GlProgram(IList<ShaderType> shaderTypes, IList<string> shaderSources, string[] uniforms)
+        internal GlProgram(IEnumerable<(ShaderType Type, string Source)> shaderSpecs, string[] uniforms)
         {
             GlExt.ThrowIfNoCurrentContext();
 
@@ -25,14 +25,14 @@
 
             // Compile shaders
             var shaderIds = new List<uint>();
-            for (int i = 0; i < shaderTypes.Count; i++)
+            foreach (var shaderSpec in shaderSpecs)
             {
                 // Create shader
-                var shaderId = Gl.CreateShader(shaderTypes[i]);
+                var shaderId = Gl.CreateShader(shaderSpec.Type);
 
                 // Compile shader
                 GlExt.DebugWriteLine("Compiling shader");
-                Gl.ShaderSource(shaderId, new[] { shaderSources[i] });
+                Gl.ShaderSource(shaderId, new[] { shaderSpec.Source });
                 Gl.CompileShader(shaderId);
 
                 // Check shader

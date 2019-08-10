@@ -10,8 +10,7 @@
     /// </summary>
     public sealed class GlProgramBuilder
     {
-        private List<ShaderType> shaderTypes = new List<ShaderType>();
-        private List<string> shaderSources = new List<string>();
+        private readonly List<(ShaderType Type, string Source)> shaderSpecs = new List<(ShaderType, string)>();
         private string[] uniformNames;
 
         /// <summary>
@@ -24,10 +23,9 @@
         {
             using (var reader = new StreamReader(sourceStream))
             {
-                shaderSources.Add(reader.ReadToEnd());
+                shaderSpecs.Add((shaderType, reader.ReadToEnd()));
             }
 
-            shaderTypes.Add(shaderType);
             return this;
         }
 
@@ -79,7 +77,7 @@
         /// <returns>The built program.</returns>
         public GlProgram Build()
         {
-            return new GlProgram(shaderTypes, shaderSources, uniformNames);
+            return new GlProgram(shaderSpecs, uniformNames);
         }
     }
 }

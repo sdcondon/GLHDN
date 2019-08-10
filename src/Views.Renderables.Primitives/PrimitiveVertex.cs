@@ -2,17 +2,37 @@
 {
     using System.Numerics;
 
+    /// <summary>
+    /// Container struct for the attributes of a vertex of a primitive.
+    /// </summary>
     public struct PrimitiveVertex
     {
-        public readonly Vector3 Position;
-        public readonly Vector4 Color;
-        public readonly Vector3 Normal;
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PrimitiveVertex"/> struct.
+        /// </summary>
+        /// <param name="position">The position of the vertex.</param>
+        /// <param name="color">The color of the vertex.</param>
+        /// <param name="normal">The normal vector of the vertex.</param>
         public PrimitiveVertex(Vector3 position, Vector4 color, Vector3 normal)
         {
-            this.Position = position;
-            this.Color = color;
-            this.Normal = normal;
+            Position = position;
+            Color = color;
+            Normal = normal;
         }
+
+        /// <summary>
+        /// Gets the position of the vertex.
+        /// </summary>
+        public Vector3 Position { get; }
+
+        /// <summary>
+        /// Gets the color of the vertex.
+        /// </summary>
+        public Vector4 Color { get; }
+
+        /// <summary>
+        /// Gets the normal vector of the vertex.
+        /// </summary>
+        public Vector3 Normal { get; }
     }
 }

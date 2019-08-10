@@ -10,7 +10,6 @@
     using System.Numerics;
     using System.Reactive.Linq;
     using System.Reactive.Subjects;
-    using WinFormsApp = System.Windows.Forms.Application;
 
     static class Program
     {
@@ -20,9 +19,6 @@
         [STAThread]
         static void Main()
         {
-            WinFormsApp.EnableVisualStyles();
-            WinFormsApp.SetCompatibleTextRenderingDefault(false);
-
             var form = new GlForm("GLHDN Example App")
             {
                 // WindowState = FormWindowState.Normal,
@@ -34,7 +30,7 @@
             var view = new View(form.ViewContext, false, Color.Black());
             view.Renderable = new MenuRenderable(view);
 
-            WinFormsApp.Run(form);
+            System.Windows.Forms.Application.Run(form);
         }
 
         private class MenuRenderable : CompositeRenderable
@@ -82,8 +78,8 @@
             private readonly TextElement camTextElement;
             private readonly TextStreamElement logElement;
 
+            private readonly Subject<IList<Primitive>> cubeSubject = new Subject<IList<Primitive>>();
             private Matrix4x4 cubeWorldMatrix = Matrix4x4.Identity;
-            private Subject<IList<Primitive>> cubeSubject = new Subject<IList<Primitive>>();
 
             public DemoRenderable(View view)
             {
@@ -162,11 +158,11 @@
 
                 camera.Update(elapsed);
 
-                camTextElement.Content = $"Hello, world!\n\nCam: {camera.Position:F2}\n\nPress q to quit";
+                camTextElement.Content = $"Hello, world!\n\nCam: {camera.Position:F2}\n\nPress SPACE to toggle cam mode\nPress q to quit";
 
                 cubeWorldMatrix *= Matrix4x4.CreateRotationZ((float)elapsed.TotalSeconds);
                 cubeWorldMatrix *= Matrix4x4.CreateRotationY((float)elapsed.TotalSeconds / 2);
-                cubeSubject.OnNext(new[] { Primitive.Cuboid(new Vector3(.5f, 1f, 0.75f), cubeWorldMatrix, Color.Red()) }); // todo: no new array each time
+                cubeSubject.OnNext(new[] { Primitive.Cuboid(new Vector3(.5f, 1f, 0.75f), cubeWorldMatrix, Color.Red()) }); // TODO: no new array each time
 
                 if (view.WasLeftMouseButtonReleased)
                 {

@@ -3,8 +3,14 @@
     using System;
     using System.Numerics;
 
+    /// <summary>
+    /// Implementation of <see cref="ICamera"/> that moves in the XY plane.
+    /// </summary>
     public class PanningCamera : ICamera
     {
+        private const float ZoomDefaultDistance = 600f;
+        private const float ZoomBase = 0.999f;
+
         private readonly View view;
         private readonly float movementSpeed;
 
@@ -14,12 +20,13 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="PanningCamera"/> class.
         /// </summary>
+        /// <param name="view">The view from which to retrieve input and aspect ratio.</param>
         /// <param name="fieldOfViewRadians">The camera's field of view, in radians.</param>
         /// <param name="nearPlaneDistance">The distance of the near plane from the camera.</param>
         /// <param name="farPlaneDistance">The ditance of the far plane from the camera.</param>
         /// <param name="initialTarget">The initial position at which the camera should point.</param>
-        /// <param name="movementSpeed">The movement speed of the camera, in units per update.</param>
-        /// <param name="verticalAngle">The angle between the camera's view direction and the Z-axis.</param>
+        /// <param name="movementSpeed">The movement speed of the camera, in units per second per unit distance from target.</param>
+        /// <param name="verticalAngle">The initial angle, in radians, between the camera's view direction and the Z-axis.</param>
         public PanningCamera(
             View view,
             float fieldOfViewRadians, // = (float)Math.PI / 4.0f;
@@ -38,26 +45,49 @@
             this.VerticalAngle = verticalAngle;
         }
 
+        /// <summary>
+        /// Gets or sets the camera's field of view, in radians.
+        /// </summary>
         public float FieldOfViewRadians { get; set; }
 
+        /// <summary>
+        /// Gets or sets the distance of the near plane from the camera.
+        /// </summary>
         public float NearPlaneDistance { get; set; }
 
+        /// <summary>
+        /// Gets or sets the distance of the far plane from the camera.
+        /// </summary>
         public float FarPlaneDistance { get; set; }
 
-        private float ZoomDefaultDistance { get; set; } = 600f;
-
-        private float ZoomBase { get; set; } = 0.999f;
-
+        /// <summary>
+        /// Gets or sets the current angle, in radians, between the camera's view direction and the Z-axis.
+        /// </summary>
         public float VerticalAngle { get; set; }
 
+        /// <summary>
+        /// Gets or sets the maximum angle, in radians, between the camera's view direction and the Z-axis.
+        /// </summary>
         public float VerticalAngleMax { get; set; } = 0.49f * (float)Math.PI;
 
+        /// <summary>
+        /// Gets or sets the vertical rotation speed of the camera, in radians per second.
+        /// </summary>
         public float VerticalRotationSpeed { get; set; } = 1.0f;
 
+        /// <summary>
+        /// Gets or sets the current angle, in radians, between the camera's view direction and the X-axis.
+        /// </summary>
         public float HorizontalAngle { get; set; }
 
+        /// <summary>
+        /// Gets or sets the horizontal rotation speed of the camera, in radians per second.
+        /// </summary>
         public float HorizontalRotationSpeed { get; set; } = 1.0f;
 
+        /// <summary>
+        /// Gets the current distance between the camera and the target.
+        /// </summary>
         public float Distance => (float)(ZoomDefaultDistance * Math.Pow(ZoomBase, zoomLevel));
 
         /// <inheritdoc />
