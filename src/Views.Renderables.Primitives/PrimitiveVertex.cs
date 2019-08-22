@@ -8,6 +8,21 @@
     public struct PrimitiveVertex
     {
         /// <summary>
+        /// Gets the position of the vertex.
+        /// </summary>
+        public readonly Vector3 Position;
+
+        /// <summary>
+        /// Gets the color of the vertex.
+        /// </summary>
+        public readonly Vector4 Color;
+
+        /// <summary>
+        /// Gets the normal vector of the vertex.
+        /// </summary>
+        public readonly Vector3 Normal;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="PrimitiveVertex"/> struct.
         /// </summary>
         /// <param name="position">The position of the vertex.</param>
@@ -19,20 +34,5 @@
             Color = color;
             Normal = normal;
         }
-
-        /// <summary>
-        /// Gets the position of the vertex.
-        /// </summary>
-        public Vector3 Position { get; }
-
-        /// <summary>
-        /// Gets the color of the vertex.
-        /// </summary>
-        public Vector4 Color { get; }
-
-        /// <summary>
-        /// Gets the normal vector of the vertex.
-        /// </summary>
-        public Vector3 Normal { get; }
     }
 }

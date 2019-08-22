@@ -149,6 +149,21 @@
         public struct Vertex
         {
             /// <summary>
+            /// Gets the position of the vertex.
+            /// </summary>
+            public readonly Vector3 Position;
+
+            /// <summary>
+            /// Gets the texture coordinate of the vertex.
+            /// </summary>
+            public readonly Vector2 UV;
+
+            /// <summary>
+            /// Gets the normal vector of the vertex.
+            /// </summary>
+            public readonly Vector3 Normal;
+
+            /// <summary>
             /// Initializes a new instance of the <see cref="Vertex"/> struct.
             /// </summary>
             /// <param name="position">The position of the vertex.</param>
@@ -160,21 +175,6 @@
                 UV = uv;
                 Normal = normal;
             }
-
-            /// <summary>
-            /// Gets the position of the vertex.
-            /// </summary>
-            public Vector3 Position { get; }
-
-            /// <summary>
-            /// Gets the texture coordinate of the vertex.
-            /// </summary>
-            public Vector2 UV { get; }
-
-            /// <summary>
-            /// Gets the normal vector of the vertex.
-            /// </summary>
-            public Vector3 Normal { get; }
         }
     }
 }
