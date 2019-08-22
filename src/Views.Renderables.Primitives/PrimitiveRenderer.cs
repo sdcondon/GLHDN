@@ -139,11 +139,11 @@
                 Matrix4x4.Transpose(this.camera.View * this.camera.Projection),
                 Matrix4x4.Transpose(this.camera.View),
                 Matrix4x4.Transpose(Matrix4x4.Identity),
-                AmbientLightColor,
+                (Vector3)AmbientLightColor,
                 DirectedLightDirection,
-                DirectedLightColor,
+                (Vector3)DirectedLightColor,
                 PointLightPosition,
-                PointLightColor,
+                (Vector3)PointLightColor,
                 PointLightPower);
             this.coloredTriangleBuffer.Draw();
             this.coloredLineBuffer.Draw();

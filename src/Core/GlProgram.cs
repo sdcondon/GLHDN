@@ -117,7 +117,7 @@
                         Gl.Uniform1(uniformIds[i], l);
                         break;
                     default:
-                        throw new ArgumentException("Contains value of unsupported type", nameof(values));
+                        throw new ArgumentException($"Contains value of unsupported type {values[i].GetType()} at index {i}", nameof(values));
                 }
             }
         }
