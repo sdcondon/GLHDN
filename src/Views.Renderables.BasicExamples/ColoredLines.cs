@@ -22,6 +22,7 @@
         private readonly IViewProjection viewProjection;
         private readonly ObservableCollection<Line> lines;
 
+        private GlVertexArrayObjectBuilder linesBufferBuilder;
         private ReactiveBuffer<Vertex> linesBuffer;
         private bool isDisposed;
 
@@ -47,6 +48,9 @@
                     }
                 }
             }
+
+            this.linesBufferBuilder = new GlVertexArrayObjectBuilder(PrimitiveType.Lines)
+                .ForReactiveBuffer<Vertex>(100, new[] { 0, 1 });
         }
 
         /// <summary>
@@ -90,10 +94,9 @@
 
             this.linesBuffer = new ReactiveBuffer<Vertex>(
                 lines.ToObservable((Line a) => new[] { new Vertex(a.from, Vector3.One, a.from), new Vertex(a.to, Vector3.One, a.to) }),
-                PrimitiveType.Lines,
-                100,
                 new[] { 0, 1 },
-                GlVertexArrayObject.MakeVertexArrayObject);
+                linesBufferBuilder.Build());
+            this.linesBufferBuilder = null;
         }
 
         /// <inheritdoc />

@@ -23,6 +23,7 @@
 
         private readonly View view;
 
+        private GlVertexArrayObjectBuilder vertexBufferBuilder;
         private ReactiveBuffer<Vertex> vertexBuffer;
         private bool isDisposed;
 
@@ -30,12 +31,12 @@
         /// Initializes a new instance of the <see cref="Gui"/> class, 
         /// </summary>
         /// <param name="view">The view from which to derive size and input.</param>
-        public Gui(View view)
+        public Gui(View view, int initialCapacity)
         {
             this.view = view;
             this.view.Resized += View_Resized;
 
-            SubElements = new ElementCollection(this);
+            this.SubElements = new ElementCollection(this);
 
             if (program == null && programBuilder == null)
             {
@@ -50,6 +51,9 @@
                     }
                 }
             }
+
+            this.vertexBufferBuilder = new GlVertexArrayObjectBuilder(PrimitiveType.Triangles)
+                .ForReactiveBuffer<Vertex>(initialCapacity, new[] { 0, 2, 3, 0, 3, 1 });
         }
 
         /// <inheritdoc /> from IElementParent
@@ -86,10 +90,9 @@
 
             this.vertexBuffer = new ReactiveBuffer<Vertex>(
                 this.SubElements.Flatten(),
-                PrimitiveType.Triangles,
-                1000,
                 new[] { 0, 2, 3, 0, 3, 1 },
-                GlVertexArrayObject.MakeVertexArrayObject);
+                this.vertexBufferBuilder.Build());
+            this.vertexBufferBuilder = null;
         }
 
         /// <inheritdoc />

@@ -25,7 +25,9 @@
         private readonly IObservable<IObservable<IList<Primitive>>> source;
         private readonly int capacity;
 
+        private GlVertexArrayObjectBuilder coloredTriangleBufferBuilder;
         private ReactiveBuffer<PrimitiveVertex> coloredTriangleBuffer;
+        private GlVertexArrayObjectBuilder coloredLineBufferBuilder;
         private ReactiveBuffer<PrimitiveVertex> coloredLineBuffer;
         private bool isDisposed;
 
@@ -57,6 +59,12 @@
                     }
                 }
             }
+
+            this.coloredTriangleBufferBuilder = new GlVertexArrayObjectBuilder(PrimitiveType.Triangles)
+                .ForReactiveBuffer<PrimitiveVertex>(capacity, new[] { 0, 1, 2 });
+
+            this.coloredLineBufferBuilder = new GlVertexArrayObjectBuilder(PrimitiveType.Lines)
+                .ForReactiveBuffer<PrimitiveVertex>(capacity, new[] { 0, 1 });
         }
 
         /// <summary>
@@ -109,20 +117,16 @@
             this.coloredTriangleBuffer = new ReactiveBuffer<PrimitiveVertex>(
                 this.source.Select(pso => 
                     pso.Select(ps => 
-                        ps.Where(p => p.IsTrianglePrimitive).SelectMany(p => p.Vertices).ToList())), // TODO: Reduce GC pressure - don't use LINQ
-                PrimitiveType.Triangles,
-                this.capacity,
+                        ps.Where(p => p.IsTrianglePrimitive).SelectMany(p => p.Vertices).ToList())),
                 new[] { 0, 1, 2 },
-                GlVertexArrayObject.MakeVertexArrayObject);
+                this.coloredTriangleBufferBuilder.Build());
 
             this.coloredLineBuffer = new ReactiveBuffer<PrimitiveVertex>(
                 this.source.Select(pso =>
                     pso.Select(ps =>
-                        ps.Where(p => !p.IsTrianglePrimitive).SelectMany(p => p.Vertices).ToList())), // TODO: Reduce GC pressure - don't use LINQ
-                PrimitiveType.Lines,
-                this.capacity,
+                        ps.Where(p => !p.IsTrianglePrimitive).SelectMany(p => p.Vertices).ToList())),
                 new[] { 0, 1, },
-                GlVertexArrayObject.MakeVertexArrayObject);
+                this.coloredLineBufferBuilder.Build());
         }
 
         /// <inheritdoc />

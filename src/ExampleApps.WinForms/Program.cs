@@ -37,7 +37,7 @@
         {
             public MenuRenderable(View view)
             {
-                AddRenderable(new Gui(view)
+                AddRenderable(new Gui(view, 1000)
                 {
                     SubElements =
                     {
@@ -133,7 +133,7 @@
                     textColor: Color.White(),
                     10);
 
-                AddRenderable(new Gui(view)
+                AddRenderable(new Gui(view, 1000)
                 {
                     SubElements =
                     {

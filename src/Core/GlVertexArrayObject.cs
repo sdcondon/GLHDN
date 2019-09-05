@@ -80,14 +80,6 @@
         /// <inheritdoc />
         public IReadOnlyList<IVertexBufferObject> AttributeBuffers => this.attributeBuffers;
 
-        public static IVertexArrayObject MakeVertexArrayObject(
-            PrimitiveType primitiveType,
-            IList<(BufferUsage, Type, int, Array)> attributeBufferSpecs,
-            (int capacity, uint[] data) indexSpec)
-        {
-            return new GlVertexArrayObject(primitiveType, attributeBufferSpecs, indexSpec);
-        }
-
         /// <inheritdoc />
         public void Draw(int count = -1)
         {

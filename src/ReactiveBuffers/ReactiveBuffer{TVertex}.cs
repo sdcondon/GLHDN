@@ -1,7 +1,6 @@
 ﻿namespace GLHDN.ReactiveBuffers
 {
     using GLHDN.Core;
-    using OpenGL;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -12,7 +11,7 @@
     /// </summary>
     /// <typeparam name="TVertex">The vertex data type.</typeparam>
     /// <remarks>
-    /// TODO: probably best to remove the buffer creation stuff from here and turn this into an IObserver.
+    /// TODO: probably best to turn this into an IObserver.
     /// </remarks>
     public class ReactiveBuffer<TVertex> : IDisposable
     {
@@ -31,26 +30,19 @@
         /// The outer observable should push a new inner observable whenever a new item is added.
         /// The inner observables should push a new list of vertices whenever the item's state changes, and complete when they are removed.
         /// </param>
-        /// <param name="primitiveType">The type of primitive to be drawn.</param>
-        /// <param name="atomCapacity">The capacity for the buffer, in atoms.</param>
         /// <param name="indices"></param>
-        /// <param name="makeVertexArrayObject"></param>
+        /// <param name="vertexArrayObject"></param>
         public ReactiveBuffer(
             IObservable<IObservable<IList<TVertex>>> vertexSource,
-            PrimitiveType primitiveType,
-            int atomCapacity,
             IList<int> indices,
-            Func<PrimitiveType, IList<(BufferUsage, Type, int, Array)>, (int, uint[]), IVertexArrayObject> makeVertexArrayObject)
+            IVertexArrayObject vertexArrayObject)
         {
             this.vertexSource = vertexSource;
             this.verticesPerAtom = indices.Max() + 1; // Perhaps should throw if has unused indices..
             this.indices = indices;  // TODO: Perhaps change so optional?
-            this.atomCapacity = atomCapacity;
-            this.vao = makeVertexArrayObject(
-                primitiveType,
-                new[] { (BufferUsage.DynamicDraw, typeof(TVertex), atomCapacity * verticesPerAtom, (Array)null) },
-                (atomCapacity * indices.Count, null));
-
+            this.vao = vertexArrayObject;
+            this.atomCapacity = vao.AttributeBuffers[0].Count / verticesPerAtom;
+            
             // todo: store subscription to unsubscribe on dispose
             this.vertexSource.Subscribe(i => i.Subscribe(new ItemObserver(this)));
         }
