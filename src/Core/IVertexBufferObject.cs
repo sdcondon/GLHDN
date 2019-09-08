@@ -44,13 +44,5 @@
         /// <param name="index">The object index to retrieve.</param>
         /// <returns>The buffer content at the requested index.</returns>
         T Get<T>(int index);
-
-        /// <summary>
-        /// Flush any changes to the underlying buffer.
-        /// </summary>
-        /// <remarks>
-        /// TODO: this is a hacky, slow way to synchronise. Look into streaming.
-        /// </remarks>
-        void Flush();
     }
 }

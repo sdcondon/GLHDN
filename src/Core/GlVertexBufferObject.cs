@@ -2,7 +2,6 @@
 {
     using OpenGL;
     using System;
-    using System.Collections.Concurrent;
     using System.Runtime.InteropServices;
 
     /// <summary>
@@ -10,8 +9,6 @@
     /// </summary>
     internal sealed class GlVertexBufferObject : IVertexBufferObject
     {
-        private readonly ConcurrentQueue<Action> actions = new ConcurrentQueue<Action>();
-
         /// <summary>
         /// Initializes a new instance of the <see cref="GlVertexBufferObject"/> class. SIDE EFFECT: New buffer will be bound to the given target.
         /// </summary>
@@ -36,13 +33,13 @@
         ~GlVertexBufferObject() => Dispose(false);
 
         /// <inheritdoc />
-        public uint Id { get; private set; }
+        public uint Id { get; }
 
         /// <inheritdoc />
-        public GlVertexAttributeInfo[] Attributes { get; private set; }
+        public GlVertexAttributeInfo[] Attributes { get; }
 
         /// <inheritdoc />
-        public int Count { get; private set; }
+        public int Count { get; }
 
         /// <inheritdoc />
         public object this[int index]
@@ -57,12 +54,11 @@
             //}
             set
             {
-                actions.Enqueue(() =>
                     Gl.NamedBufferSubData(
                         buffer: Id,
                         offset: new IntPtr(index * Marshal.SizeOf(value)),
                         size: (uint)Marshal.SizeOf(value),
-                        data: value));
+                        data: value);
             }
         }
 
@@ -70,13 +66,12 @@
         public void Copy<T>(int readIndex, int writeIndex, int count)
         {
             var elementSize = Marshal.SizeOf(typeof(T));
-            actions.Enqueue(() =>
-                Gl.CopyNamedBufferSubData(
-                    readBuffer: Id,
-                    writeBuffer: Id,
-                    readOffset: new IntPtr(readIndex * elementSize),
-                    writeOffset: new IntPtr(writeIndex * elementSize),
-                    size: (uint)(count * elementSize)));
+            Gl.CopyNamedBufferSubData(
+                readBuffer: Id,
+                writeBuffer: Id,
+                readOffset: new IntPtr(readIndex * elementSize),
+                writeOffset: new IntPtr(writeIndex * elementSize),
+                size: (uint)(count * elementSize));
         }
 
         /// <inheritdoc />
@@ -96,17 +91,6 @@
             finally
             {
                 Marshal.FreeHGlobal(ptr);
-            }
-        }
-
-        /// <inheritdoc />
-        public void Flush()
-        {
-            // Only process the actions in the queue at the outset in case they are being continually added.
-            for (int i = actions.Count; i > 0; i--)
-            {
-                actions.TryDequeue(out var action);
-                action?.Invoke();
             }
         }
 

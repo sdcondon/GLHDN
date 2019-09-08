@@ -1,6 +1,7 @@
 ﻿namespace GLHDN.Views.Renderables.Gui
 {
     using GLHDN.Core;
+    using GLHDN.Core.VaoDecorators;
     using GLHDN.ReactiveBuffers;
     using OpenGL;
     using System;
@@ -91,7 +92,7 @@
             this.vertexBuffer = new ReactiveBuffer<Vertex>(
                 this.SubElements.Flatten(),
                 new[] { 0, 2, 3, 0, 3, 1 },
-                this.vertexBufferBuilder.Build());
+                new SynchronizedVao(this.vertexBufferBuilder.Build()));
             this.vertexBufferBuilder = null;
         }
 

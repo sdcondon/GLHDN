@@ -1,6 +1,7 @@
 ﻿namespace GLHDN.Views.Renderables.Primitives
 {
     using GLHDN.Core;
+    using GLHDN.Core.VaoDecorators;
     using GLHDN.ReactiveBuffers;
     using GLHDN.Views;
     using OpenGL;
@@ -119,14 +120,14 @@
                     pso.Select(ps => 
                         ps.Where(p => p.IsTrianglePrimitive).SelectMany(p => p.Vertices).ToList())),
                 new[] { 0, 1, 2 },
-                this.coloredTriangleBufferBuilder.Build());
+                new SynchronizedVao(this.coloredTriangleBufferBuilder.Build()));
 
             this.coloredLineBuffer = new ReactiveBuffer<PrimitiveVertex>(
                 this.source.Select(pso =>
                     pso.Select(ps =>
                         ps.Where(p => !p.IsTrianglePrimitive).SelectMany(p => p.Vertices).ToList())),
                 new[] { 0, 1, },
-                this.coloredLineBufferBuilder.Build());
+                new SynchronizedVao(this.coloredLineBufferBuilder.Build()));
         }
 
         /// <inheritdoc />
