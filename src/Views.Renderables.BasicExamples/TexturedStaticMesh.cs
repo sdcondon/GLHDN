@@ -15,7 +15,7 @@
     {
         private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.BasicExamples";
 
-        private static readonly object stateLock = new object();
+        private static readonly object programStateLock = new object();
         private static GlProgramBuilder programBuilder;
         private static GlProgram program;
 
@@ -44,7 +44,7 @@
 
             if (program == null && programBuilder == null)
             {
-                lock (stateLock)
+                lock (programStateLock)
                 {
                     if (program == null && programBuilder == null)
                     {
@@ -86,7 +86,7 @@
 
             if (program == null)
             {
-                lock (stateLock)
+                lock (programStateLock)
                 {
                     if (program == null)
                     {

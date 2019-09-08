@@ -18,7 +18,7 @@
     {
         private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.Primitives";
 
-        private static readonly object stateLock = new object();
+        private static readonly object programStateLock = new object();
         private static GlProgramBuilder programBuilder;
         private static GlProgram program;
 
@@ -26,9 +26,9 @@
         private readonly IObservable<IObservable<IList<Primitive>>> source;
         private readonly int capacity;
 
-        private GlVertexArrayObjectBuilder coloredTriangleBufferBuilder;
+        private ReactiveBufferBuilder<PrimitiveVertex> coloredTriangleBufferBuilder;
         private ReactiveBuffer<PrimitiveVertex> coloredTriangleBuffer;
-        private GlVertexArrayObjectBuilder coloredLineBufferBuilder;
+        private ReactiveBufferBuilder<PrimitiveVertex> coloredLineBufferBuilder;
         private ReactiveBuffer<PrimitiveVertex> coloredLineBuffer;
         private bool isDisposed;
 
@@ -49,7 +49,7 @@
 
             if (program == null && programBuilder == null)
             {
-                lock (stateLock)
+                lock (programStateLock)
                 {
                     if (program == null && programBuilder == null)
                     {
@@ -61,11 +61,21 @@
                 }
             }
 
-            this.coloredTriangleBufferBuilder = new GlVertexArrayObjectBuilder(PrimitiveType.Triangles)
-                .ForReactiveBuffer<PrimitiveVertex>(capacity, new[] { 0, 1, 2 });
+            this.coloredTriangleBufferBuilder = new ReactiveBufferBuilder<PrimitiveVertex>(
+                PrimitiveType.Triangles,
+                capacity,
+                new[] { 0, 1, 2 },
+                this.source.Select(pso =>
+                    pso.Select(ps =>
+                        ps.Where(p => p.IsTrianglePrimitive).SelectMany(p => p.Vertices).ToList())));
 
-            this.coloredLineBufferBuilder = new GlVertexArrayObjectBuilder(PrimitiveType.Lines)
-                .ForReactiveBuffer<PrimitiveVertex>(capacity, new[] { 0, 1 });
+            this.coloredLineBufferBuilder = new ReactiveBufferBuilder<PrimitiveVertex>(
+                PrimitiveType.Lines,
+                capacity,
+                new[] { 0, 1 },
+                this.source.Select(pso =>
+                    pso.Select(ps =>
+                        ps.Where(p => !p.IsTrianglePrimitive).SelectMany(p => p.Vertices).ToList())));
         }
 
         /// <summary>
@@ -105,7 +115,7 @@
 
             if (program == null)
             {
-                lock (stateLock)
+                lock (programStateLock)
                 {
                     if (program == null)
                     {
@@ -115,19 +125,11 @@
                 }
             }
 
-            this.coloredTriangleBuffer = new ReactiveBuffer<PrimitiveVertex>(
-                this.source.Select(pso => 
-                    pso.Select(ps => 
-                        ps.Where(p => p.IsTrianglePrimitive).SelectMany(p => p.Vertices).ToList())),
-                new[] { 0, 1, 2 },
-                new SynchronizedVao(this.coloredTriangleBufferBuilder.Build()));
+            this.coloredTriangleBuffer = coloredTriangleBufferBuilder.Build();
+            this.coloredTriangleBufferBuilder = null;
 
-            this.coloredLineBuffer = new ReactiveBuffer<PrimitiveVertex>(
-                this.source.Select(pso =>
-                    pso.Select(ps =>
-                        ps.Where(p => !p.IsTrianglePrimitive).SelectMany(p => p.Vertices).ToList())),
-                new[] { 0, 1, },
-                new SynchronizedVao(this.coloredLineBufferBuilder.Build()));
+            this.coloredLineBuffer = coloredLineBufferBuilder.Build();
+            this.coloredLineBufferBuilder = null;
         }
 
         /// <inheritdoc />

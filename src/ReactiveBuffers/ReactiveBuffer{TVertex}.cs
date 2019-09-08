@@ -26,16 +26,16 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="ReactiveBuffer{TVertex}"/> class.
         /// </summary>
+        /// <param name="vertexArrayObject"></param>
         /// <param name="vertexSource">
         /// The outer observable should push a new inner observable whenever a new item is added.
         /// The inner observables should push a new list of vertices whenever the item's state changes, and complete when they are removed.
         /// </param>
         /// <param name="indices"></param>
-        /// <param name="vertexArrayObject"></param>
         public ReactiveBuffer(
+            IVertexArrayObject vertexArrayObject,
             IObservable<IObservable<IList<TVertex>>> vertexSource,
-            IList<int> indices,
-            IVertexArrayObject vertexArrayObject)
+            IList<int> indices)
         {
             this.vertexSource = vertexSource;
             this.verticesPerAtom = indices.Max() + 1; // Perhaps should throw if has unused indices..

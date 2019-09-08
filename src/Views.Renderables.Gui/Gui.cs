@@ -18,13 +18,13 @@
     {
         private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.Gui.Shaders";
 
-        private static object stateLock = new object();
+        private static object programStateLock = new object();
         private static GlProgramBuilder programBuilder;
         private static GlProgram program;
 
         private readonly View view;
 
-        private GlVertexArrayObjectBuilder vertexBufferBuilder;
+        private ReactiveBufferBuilder<Vertex> vertexBufferBuilder;
         private ReactiveBuffer<Vertex> vertexBuffer;
         private bool isDisposed;
 
@@ -41,7 +41,7 @@
 
             if (program == null && programBuilder == null)
             {
-                lock (stateLock)
+                lock (programStateLock)
                 {
                     if (program == null && programBuilder == null)
                     {
@@ -53,8 +53,11 @@
                 }
             }
 
-            this.vertexBufferBuilder = new GlVertexArrayObjectBuilder(PrimitiveType.Triangles)
-                .ForReactiveBuffer<Vertex>(initialCapacity, new[] { 0, 2, 3, 0, 3, 1 });
+            this.vertexBufferBuilder = new ReactiveBufferBuilder<Vertex>(
+                PrimitiveType.Triangles,
+                initialCapacity,
+                new[] { 0, 2, 3, 0, 3, 1 },
+                this.SubElements.Flatten());
         }
 
         /// <inheritdoc /> from IElementParent
@@ -79,7 +82,7 @@
 
             if (program == null)
             {
-                lock (stateLock)
+                lock (programStateLock)
                 {
                     if (program == null)
                     {
@@ -89,10 +92,7 @@
                 }
             }
 
-            this.vertexBuffer = new ReactiveBuffer<Vertex>(
-                this.SubElements.Flatten(),
-                new[] { 0, 2, 3, 0, 3, 1 },
-                new SynchronizedVao(this.vertexBufferBuilder.Build()));
+            this.vertexBuffer = this.vertexBufferBuilder.Build();
             this.vertexBufferBuilder = null;
         }
 

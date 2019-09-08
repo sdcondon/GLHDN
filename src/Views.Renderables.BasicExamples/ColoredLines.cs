@@ -15,14 +15,14 @@
     {
         private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.BasicExamples";
 
-        private static readonly object stateLock = new object();
+        private static readonly object programStateLock = new object();
         private static GlProgramBuilder programBuilder;
         private static GlProgram program;
 
         private readonly IViewProjection viewProjection;
         private readonly ObservableCollection<Line> lines;
 
-        private GlVertexArrayObjectBuilder linesBufferBuilder;
+        private ReactiveBufferBuilder<Vertex> linesBufferBuilder;
         private ReactiveBuffer<Vertex> linesBuffer;
         private bool isDisposed;
 
@@ -37,7 +37,7 @@
 
             if (program == null && programBuilder == null)
             {
-                lock (stateLock)
+                lock (programStateLock)
                 {
                     if (program == null && programBuilder == null)
                     {
@@ -49,8 +49,11 @@
                 }
             }
 
-            this.linesBufferBuilder = new GlVertexArrayObjectBuilder(PrimitiveType.Lines)
-                .ForReactiveBuffer<Vertex>(100, new[] { 0, 1 });
+            this.linesBufferBuilder = new ReactiveBufferBuilder<Vertex>(
+                PrimitiveType.Lines,
+                100,
+                new[] { 0, 1 },
+                lines.ToObservable((Line a) => new[] { new Vertex(a.from, Vector3.One, a.from), new Vertex(a.to, Vector3.One, a.to) }));
         }
 
         /// <summary>
@@ -82,7 +85,7 @@
 
             if (program == null)
             {
-                lock (stateLock)
+                lock (programStateLock)
                 {
                     if (program == null)
                     {
@@ -92,10 +95,7 @@
                 }
             }
 
-            this.linesBuffer = new ReactiveBuffer<Vertex>(
-                lines.ToObservable((Line a) => new[] { new Vertex(a.from, Vector3.One, a.from), new Vertex(a.to, Vector3.One, a.to) }),
-                new[] { 0, 1 },
-                linesBufferBuilder.Build());
+            this.linesBuffer = linesBufferBuilder.Build();
             this.linesBufferBuilder = null;
         }
 

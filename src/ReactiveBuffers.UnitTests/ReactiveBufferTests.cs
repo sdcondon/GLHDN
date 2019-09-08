@@ -75,12 +75,12 @@
             var source = new ObservableCollection<In>(); // todo: use a subject instead. this is causing test failures atm
             var target = new MemoryVertexArrayObject(
                 PrimitiveType.Points,
-                new[] { (BufferUsage.DynamicDraw, typeof((int, int)), 5, null) },
+                new(BufferUsage, Type, int, Array)[] { (BufferUsage.DynamicDraw, typeof((int, int)), 5, null) },
                 (2, null)); // atomcap 5
             var subject = new ReactiveBuffer<(int elementId, int vertexId)>(
+                target,
                 source.ToObservable((In a) => Enumerable.Range(1, a.vertexCount).Select(b => (a.id, b)).ToArray()),
-                new[] { 0, 1 },
-                target);
+                new[] { 0, 1 });
 
             // Act 
             action(source);
