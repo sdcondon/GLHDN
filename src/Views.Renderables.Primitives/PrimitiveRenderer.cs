@@ -1,7 +1,6 @@
 ﻿namespace GLHDN.Views.Renderables.Primitives
 {
     using GLHDN.Core;
-    using GLHDN.Core.VaoDecorators;
     using GLHDN.ReactiveBuffers;
     using GLHDN.Views;
     using OpenGL;
@@ -24,7 +23,6 @@
 
         private readonly IViewProjection camera;
         private readonly IObservable<IObservable<IList<Primitive>>> source;
-        private readonly int capacity;
 
         private ReactiveBufferBuilder<PrimitiveVertex> coloredTriangleBufferBuilder;
         private ReactiveBuffer<PrimitiveVertex> coloredTriangleBuffer;
@@ -45,7 +43,6 @@
         {
             this.camera = camera;
             this.source = source;
-            this.capacity = capacity;
 
             if (program == null && programBuilder == null)
             {

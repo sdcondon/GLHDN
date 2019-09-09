@@ -119,7 +119,7 @@
         private IEnumerable<IList<Vertex>> GetLines(float scale)
         {
             List<Vertex> currentLine;
-            float lineLength = 0f;
+            float lineLength;
 
             void startNewLine()
             {

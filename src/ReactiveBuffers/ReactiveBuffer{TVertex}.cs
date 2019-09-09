@@ -21,7 +21,7 @@
         private readonly IVertexArrayObject vao;
         private readonly List<ItemObserver> linksByBufferIndex = new List<ItemObserver>();
 
-        private int atomCapacity;
+        private readonly int atomCapacity;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ReactiveBuffer{TVertex}"/> class.

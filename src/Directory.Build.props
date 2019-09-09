@@ -6,7 +6,7 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/sdcondon/GLHDN</RepositoryUrl>
     <PackageProjectUrl>https://github.com/sdcondon/GLHDN</PackageProjectUrl>
-    <PackageLicenseUrl>https://github.com/sdcondon/GLHDN/blob/master/LICENSE.txt</PackageLicenseUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <Version>0.1.0</Version>
