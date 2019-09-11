@@ -74,7 +74,7 @@ namespace GLHDN.Core.VaoDecorators
 
             public GlVertexAttributeInfo[] Attributes => vertexBufferObject.Attributes;
 
-            public int Count => vertexBufferObject.Count;
+            public int Capacity => vertexBufferObject.Capacity;
 
             public void Copy<T>(int readIndex, int writeIndex, int count)
             {

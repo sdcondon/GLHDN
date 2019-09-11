@@ -72,7 +72,7 @@
         /// <summary>
         /// Gets the number of vertices to be rendered.
         /// </summary>
-        public int VertexCount => indexBuffer?.Count ?? attributeBuffers[0].Count;
+        public int VertexCount => indexBuffer?.Capacity ?? attributeBuffers[0].Capacity;
 
         /// <inheritdoc />
         public IVertexBufferObject IndexBuffer => this.indexBuffer;

@@ -10,66 +10,49 @@
     public class MemoryVertexBufferObject : IVertexBufferObject
     {
         private static int nextId = 0;
+        private readonly object[] content;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MemoryVertexBufferObject"/> class.
         /// </summary>
-        public MemoryVertexBufferObject()
+        public MemoryVertexBufferObject(int capacity, Array data)
         {
             Id = (uint)Interlocked.Increment(ref nextId);
+            content = new object[capacity];
+            data?.CopyTo(content, 0);
         }
 
         /// <summary>
-        /// Gets the contents of the buffer.
+        /// Gets the content of the buffer.
         /// </summary>
-        public List<object> Contents { get; private set; } = new List<object>();
+        public IReadOnlyList<object> Content => content;
 
         /// <inheritdoc />
-        public uint Id { get; private set; }
+        public uint Id { get; }
 
         /// <inheritdoc />
         public object this[int index]
         {
-            get => Contents[index];
-            set
-            {
-                while (index >= Contents.Count)
-                {
-                    Contents.Add(null);
-                }
-                Contents[index] = value;
-            }
+            get => content[index];
+            set => content[index] = value;
         }
 
         /// <inheritdoc />
-        public void Copy<T>(int readIndex, int writeIndex, int count)
-        {
-            for (var i = 0; i < count; i++)
-            {
-                Contents[writeIndex + i] = Contents[readIndex + i];
-            }
-        }
+        public void Copy<T>(int readIndex, int writeIndex, int count) => Array.Copy(content, readIndex, content, writeIndex, count);
 
         /// <inheritdoc />
-        public T Get<T>(int index)
-        {
-            return (T)Contents[index];
-        }
-
-        /// <inheritdoc />
-        public void Flush()
-        {
-        }
+        public T Get<T>(int index) => (T)Content[index];
 
         /// <inheritdoc />
         public GlVertexAttributeInfo[] Attributes => throw new NotImplementedException();
 
         /// <inheritdoc />
-        public int Count => Contents.Count;
+        public int Capacity => Content.Count;
 
         /// <inheritdoc />
         public void Dispose()
         {
+            //// Nothing to do!
         }
     }
 }

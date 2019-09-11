@@ -14,9 +14,12 @@
         /// Initializes a new instance of the <see cref="MemoryVertexArrayObject"/> class.
         /// </summary>
         /// <param name="attributeBufferSpecs">Specs for the buffers in this VAO.</param>
-        public MemoryVertexArrayObject(IList<(BufferUsage, Type, int, Array)> attributeBufferSpecs)
+        public MemoryVertexArrayObject(
+            IList<(BufferUsage usage, Type elementType, int capacity, Array data)> attributeBufferSpecs,
+            (int capacity, uint[] data) indexSpec)
         {
-            AttributeBuffers = attributeBufferSpecs.Select(a => new MemoryVertexBufferObject()).ToArray();
+            AttributeBuffers = attributeBufferSpecs.Select(a => new MemoryVertexBufferObject(a.capacity, a.data)).ToArray();
+            IndexBuffer = new MemoryVertexBufferObject(indexSpec.capacity, indexSpec.data);
         }
 
         /// <inheritdoc />
@@ -25,7 +28,7 @@
         /// <summary>
         /// Gets the <see cref="MemoryVertexBufferObject"/> that serves as the index buffer for this VAO.
         /// </summary>
-        public MemoryVertexBufferObject IndexBuffer { get; private set; } = new MemoryVertexBufferObject();
+        public MemoryVertexBufferObject IndexBuffer { get; }
 
         /// <inheritdoc />
         IReadOnlyList<IVertexBufferObject> IVertexArrayObject.AttributeBuffers => AttributeBuffers;
@@ -33,7 +36,7 @@
         /// <summary>
         ///  Gets the list of <see cref="MemoryVertexBufferObject"/> instances that serve as the attribute buffers for this VAO.
         /// </summary>
-        public IReadOnlyList<MemoryVertexBufferObject> AttributeBuffers { get; private set; }
+        public IReadOnlyList<MemoryVertexBufferObject> AttributeBuffers { get; }
 
         /// <inheritdoc />
         public void Draw(int count)
@@ -44,6 +47,7 @@
         /// <inheritdoc />
         public void Dispose()
         {
+            //// Nothing to do!
         }
     }
 }

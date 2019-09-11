@@ -20,7 +20,7 @@
         /// <summary>
         /// Gets the number of vertices that the buffer has the capacity for.
         /// </summary>
-        int Count { get; }
+        int Capacity { get; }
 
         /// <summary>
         /// Sets data for the vertex at a particular index.

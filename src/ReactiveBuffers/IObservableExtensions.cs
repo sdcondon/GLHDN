@@ -82,32 +82,5 @@
                     }
                 });
         }
-
-        /// <summary>
-        /// Creates an flat observable of (observables of) leaves from a hierarchical structure.
-        /// </summary>
-        public static IObservable<IObservable<TLeaf>> FlattenComposite<TIn, TLeaf>(
-            this IObservable<TIn> rootObs,
-            Func<TIn, IObservable<IObservable<TIn>>> getChildren,
-            Func<TIn, TLeaf> getLeafData)
-        {
-            IDisposable subscribeToNode(IObservable<TIn> node, IObserver<IObservable<TLeaf>> observer, CompositeDisposable disposable)
-            {
-                var disposed = new Subject<TLeaf>();
-                observer.OnNext(node.Select(getLeafData).TakeUntil(disposed));
-                disposable.Add(Disposable.Create(() => disposed.OnNext(default)));
-
-                var nodeRemoval = node.TakeLast(1);
-                var childSubscription = node
-                    .SelectMany(n => getChildren(n))
-                    .TakeUntil(nodeRemoval)
-                    .Subscribe(child => subscribeToNode(child.TakeUntil(nodeRemoval),  observer, disposable));
-                disposable.Add(childSubscription);
-
-                return disposable;
-            }
-
-            return Observable.Create<IObservable<TLeaf>>(o => subscribeToNode(rootObs, o, new CompositeDisposable()));
-        }
     }
 }

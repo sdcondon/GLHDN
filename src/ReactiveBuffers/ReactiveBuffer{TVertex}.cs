@@ -41,7 +41,7 @@
             this.verticesPerAtom = indices.Max() + 1; // Perhaps should throw if has unused indices..
             this.indices = indices;  // TODO: Perhaps change so optional?
             this.vao = vertexArrayObject;
-            this.atomCapacity = vao.AttributeBuffers[0].Count / verticesPerAtom;
+            this.atomCapacity = vao.AttributeBuffers[0].Capacity / verticesPerAtom;
             
             // todo: store subscription to unsubscribe on dispose
             this.vertexSource.Subscribe(i => i.Subscribe(new ItemObserver(this)));

@@ -73,7 +73,9 @@
         {
             // Arrange
             var source = new ObservableCollection<In>(); // todo: use a subject instead. this is causing test failures atm
-            var target = new MemoryVertexArrayObject(new(BufferUsage, Type, int, Array)[] { (BufferUsage.DynamicDraw, typeof((int, int)), 5, null) }); // atomcap 5
+            var target = new MemoryVertexArrayObject(
+                new(BufferUsage, Type, int, Array)[] { (BufferUsage.DynamicDraw, typeof((int, int)), 5, null) },
+                (10, null));
             var subject = new ReactiveBuffer<(int elementId, int vertexId)>(
                 target,
                 source.ToObservable((In a) => Enumerable.Range(1, a.vertexCount).Select(b => (a.id, b)).ToArray()),
@@ -83,8 +85,8 @@
             action(source);
 
             // Assert
-            target.AttributeBuffers[0].Contents.Take(expectedVertices.Count).Should().BeEquivalentTo(expectedVertices, opts => opts.WithStrictOrdering());
-            target.IndexBuffer.Contents.Take(expectedIndices.Count).Should().BeEquivalentTo(expectedIndices, opts => opts.WithStrictOrdering());
+            target.AttributeBuffers[0].Content.Take(expectedVertices.Count).Should().BeEquivalentTo(expectedVertices, opts => opts.WithStrictOrdering());
+            target.IndexBuffer.Content.Take(expectedIndices.Count).Should().BeEquivalentTo(expectedIndices, opts => opts.WithStrictOrdering());
         }
 
         public class In : INotifyPropertyChanged
