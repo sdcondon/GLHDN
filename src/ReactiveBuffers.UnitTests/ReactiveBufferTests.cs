@@ -4,10 +4,13 @@
     using GLHDN.Core;
     using OpenGL;
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Linq;
+    using System.Reactive.Linq;
+    using System.Reactive.Subjects;
     using Xunit;
 
     public class ReactiveBufferTests
@@ -16,7 +19,7 @@
         {
             get
             {
-                object[] makeTestCase(Action<ObservableCollection<In>> action, ICollection<(int, int)> expectedVertices) =>
+                object[] makeTestCase(Action<TestSource> action, ICollection<(int, int)> expectedVertices) =>
                     new object[] { action, expectedVertices, Enumerable.Range(0, expectedVertices.Count).ToArray() };
 
                 return new List<object[]>()
@@ -67,19 +70,16 @@
         [Theory]
         [MemberData(nameof(TestCases))]
         public void Test(
-            Action<ObservableCollection<In>> action,
+            Action<TestSource> action,
             ICollection<(int, int)> expectedVertices,
             ICollection<int> expectedIndices)
         {
             // Arrange
-            var source = new ObservableCollection<In>(); // todo: use a subject instead. this is causing test failures atm
+            var source = new TestSource();
             var target = new MemoryVertexArrayObject(
-                new(BufferUsage, Type, int, Array)[] { (BufferUsage.DynamicDraw, typeof((int, int)), 5, null) },
-                (10, null));
-            var subject = new ReactiveBuffer<(int elementId, int vertexId)>(
-                target,
-                source.ToObservable((In a) => Enumerable.Range(1, a.vertexCount).Select(b => (a.id, b)).ToArray()),
-                new[] { 0, 1 });
+                new(BufferUsage, Type, int, Array)[] { (BufferUsage.DynamicDraw, typeof((int, int)), 100, null) },
+                (100, null));
+            var subject = new ReactiveBuffer<(int, int)>(target, source, new[] { 0, 1 });
 
             // Act 
             action(source);
@@ -89,31 +89,44 @@
             target.IndexBuffer.Content.Take(expectedIndices.Count).Should().BeEquivalentTo(expectedIndices, opts => opts.WithStrictOrdering());
         }
 
-        public class In : INotifyPropertyChanged
+        public class TestSource : IObservable<IObservable<IList<(int, int)>>>
         {
-            public readonly int id;
-            public readonly int vertexCount;
+            private readonly Subject<Subject<IList<(int, int)>>> outerSubject = new Subject<Subject<IList<(int, int)>>>();
+            private readonly List<Subject<IList<(int, int)>>> innerSubjects = new List<Subject<IList<(int, int)>>>();
 
-            public In(int id, int vertexCount)
+            public (int, int) this[int index]
             {
-                this.id = id;
-                this.vertexCount = vertexCount;
+                set
+                {
+                    innerSubjects[index].OnNext(
+                        Enumerable.Range(1, value.Item2).Select(i => (value.Item1, i)).ToArray());
+                }
             }
 
-            public static implicit operator In((int id, int vertexCount) tuple)
+            public void Add(int id, int count)
             {
-                return new In(tuple.id, tuple.vertexCount);
+                var innerSubject = new Subject<IList<(int, int)>>();
+                outerSubject.OnNext(innerSubject);
+                innerSubjects.Add(innerSubject);
+                this[innerSubjects.Count - 1] = (id, count);
             }
 
-            public event PropertyChangedEventHandler PropertyChanged;
-        }
-    }
+            public void RemoveAt(int index)
+            {
+                innerSubjects[index].OnCompleted();
+                innerSubjects.RemoveAt(index);
+            }
 
-    internal static class ReactiveBufferTestExtensions
-    {
-        public static void Add(this ObservableCollection<ReactiveBufferTests.In> collection, int id, int vertexCount)
-        {
-            collection.Add(new ReactiveBufferTests.In(id, vertexCount));
+            public void Clear()
+            {
+                innerSubjects.ForEach(s => s.OnCompleted());
+                innerSubjects.Clear();
+            }
+
+            public IDisposable Subscribe(IObserver<IObservable<IList<(int, int)>>> observer)
+            {
+                return outerSubject.Subscribe(observer);
+            }
         }
     }
 }
