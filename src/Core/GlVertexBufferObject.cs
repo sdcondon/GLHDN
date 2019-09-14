@@ -101,7 +101,7 @@
             GC.SuppressFinalize(this);
         }
 
-        private void Dispose(bool disposing)
+        private void Dispose(bool _)
         {
             if (DeviceContext.GetCurrentContext() != IntPtr.Zero)
             {

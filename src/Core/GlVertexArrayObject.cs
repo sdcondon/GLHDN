@@ -19,7 +19,7 @@
         /// </summary>
         /// <param name="primitiveType">OpenGL primitive type.</param>
         /// <param name="attributeBufferSpecs">Specs for the buffers in this VAO.</param>
-        /// <param name="indexSpec">The data to populate the index buffer with, or null if there should be no index.</param>
+        /// <param name="indexSpec">The spec for the index of this VAO.</param>
         internal GlVertexArrayObject(
             PrimitiveType primitiveType,
             IList<(BufferUsage usage, Type elementType, int capacity, Array data)> attributeBufferSpecs,

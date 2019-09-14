@@ -14,6 +14,7 @@
         /// Initializes a new instance of the <see cref="MemoryVertexArrayObject"/> class.
         /// </summary>
         /// <param name="attributeBufferSpecs">Specs for the buffers in this VAO.</param>
+        /// <param name="indexSpec">Spec for the index of this VAO.</param>
         public MemoryVertexArrayObject(
             IList<(BufferUsage usage, Type elementType, int capacity, Array data)> attributeBufferSpecs,
             (int capacity, uint[] data) indexSpec)

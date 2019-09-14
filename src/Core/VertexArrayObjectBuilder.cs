@@ -75,10 +75,10 @@
         }
 
         /// <summary>
-        /// Specifies that the built VAO should be synchronized, with any pending changes flushed on each draw call.
+        /// Specifies that the built VAO should be synchronized, with any pending changes flushed on each draw call. TODO: Hacky and needlessly bad for performance - look into streaming..
         /// </summary>
         /// <returns>The updated builder.</returns>
-        public VertexArrayObjectBuilder Synchronize()
+        public VertexArrayObjectBuilder Synchronized()
         {
             var innerBuild = build;
             build = (primType, bufferSpecs, indexSpec) => new SynchronizedVao(innerBuild(primType, bufferSpecs, indexSpec));

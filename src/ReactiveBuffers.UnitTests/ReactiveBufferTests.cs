@@ -75,18 +75,20 @@
             ICollection<int> expectedIndices)
         {
             // Arrange
-            var source = new TestSource();
-            var target = new MemoryVertexArrayObject(
+            var sourceObservable = new TestSource();
+            var targetVao = new MemoryVertexArrayObject(
                 new(BufferUsage, Type, int, Array)[] { (BufferUsage.DynamicDraw, typeof((int, int)), 100, null) },
                 (100, null));
-            var subject = new ReactiveBuffer<(int, int)>(target, source, new[] { 0, 1 });
 
-            // Act 
-            action(source);
+            using (var sut = new ReactiveBuffer<(int, int)>(targetVao, sourceObservable, new[] { 0, 1 }))
+            {
+                // Act 
+                action(sourceObservable);
+            }
 
             // Assert
-            target.AttributeBuffers[0].Content.Take(expectedVertices.Count).Should().BeEquivalentTo(expectedVertices, opts => opts.WithStrictOrdering());
-            target.IndexBuffer.Content.Take(expectedIndices.Count).Should().BeEquivalentTo(expectedIndices, opts => opts.WithStrictOrdering());
+            targetVao.AttributeBuffers[0].Content.Take(expectedVertices.Count).Should().BeEquivalentTo(expectedVertices, opts => opts.WithStrictOrdering());
+            targetVao.IndexBuffer.Content.Take(expectedIndices.Count).Should().BeEquivalentTo(expectedIndices, opts => opts.WithStrictOrdering());
         }
 
         public class TestSource : IObservable<IObservable<IList<(int, int)>>>
