@@ -40,9 +40,6 @@
         public IReadOnlyList<MemoryVertexBufferObject> AttributeBuffers { get; }
 
         /// <inheritdoc />
-        public void Draw(int count)
-        {
-            throw new NotImplementedException();
-        }
+        public void Draw(int count) => throw new NotImplementedException();
     }
 }
