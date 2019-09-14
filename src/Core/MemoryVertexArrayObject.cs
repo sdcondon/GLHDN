@@ -44,11 +44,5 @@
         {
             throw new NotImplementedException();
         }
-
-        /// <inheritdoc />
-        public void Dispose()
-        {
-            //// Nothing to do!
-        }
     }
 }

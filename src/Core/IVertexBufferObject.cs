@@ -5,7 +5,7 @@
     /// <summary>
     /// Interface for types representing an OpenGL vertex buffer object.
     /// </summary>
-    public interface IVertexBufferObject : IDisposable
+    public interface IVertexBufferObject
     {
         /// <summary>
         /// Gets the ID of the buffer object.

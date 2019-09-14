@@ -51,7 +51,13 @@
         public void Dispose()
         {
             // todo: unsubscribe
-            this.vao.Dispose();
+
+            // TODO LIFETIME MGMT: aggregated, not component - thus ideally not our responsibility
+            // to Dispose (and thus no need for this class to be IDisposable)
+            if (this.vao is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
         }
 
         /// <summary>

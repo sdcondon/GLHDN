@@ -123,7 +123,7 @@
         /// <inheritdoc />
         public void Dispose()
         {
-            this.linesBuffer.Dispose();
+            this.linesBuffer?.Dispose();
             isDisposed = true;
         }
 

@@ -7,7 +7,7 @@
     /// <summary>
     /// A OpenGL vertex buffer object.
     /// </summary>
-    internal sealed class GlVertexBufferObject : IVertexBufferObject
+    internal sealed class GlVertexBufferObject : IVertexBufferObject, IDisposable
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="GlVertexBufferObject"/> class. SIDE EFFECT: New buffer will be bound to the given target.

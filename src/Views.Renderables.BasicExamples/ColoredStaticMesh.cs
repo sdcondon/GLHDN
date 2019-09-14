@@ -21,7 +21,7 @@
         private readonly IViewProjection viewProjection;
 
         private VertexArrayObjectBuilder vertexArrayObjectBuilder;
-        private IVertexArrayObject vertexArrayObject;
+        private GlVertexArrayObject vertexArrayObject;
         private bool isDisposed;
 
         /// <summary>
@@ -84,7 +84,7 @@
                 }
             }
 
-            this.vertexArrayObject = this.vertexArrayObjectBuilder.Build();
+            this.vertexArrayObject = (GlVertexArrayObject)this.vertexArrayObjectBuilder.Build();
             this.vertexArrayObjectBuilder = null;
         }
 
@@ -112,7 +112,7 @@
         /// <inheritdoc />
         public void Dispose()
         {
-            this.vertexArrayObject.Dispose();
+            this.vertexArrayObject?.Dispose();
             isDisposed = true;
         }
 

@@ -11,7 +11,7 @@
     /// <summary>
     /// Renderable class for static 3D geometry.
     /// </summary>
-    public class TexturedStaticMesh : IRenderable
+    public sealed class TexturedStaticMesh : IRenderable
     {
         private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.BasicExamples";
 
@@ -24,7 +24,7 @@
 
         private uint[] textures;
         private VertexArrayObjectBuilder vertexArrayObjectBuilder;
-        private IVertexArrayObject vertexArrayObject;
+        private GlVertexArrayObject vertexArrayObject;
         private bool isDisposed;
 
         /// <summary>
@@ -66,10 +66,7 @@
         /// <summary>
         /// Finalizes an instance of the <see cref="TexturedStaticMesh"/> class.
         /// </summary>
-        ~TexturedStaticMesh()
-        {
-            Gl.DeleteTextures(textures);
-        }
+        ~TexturedStaticMesh() => Dispose(false);
 
         /// <summary>
         /// Gets or sets the model transform for this mesh.
@@ -96,7 +93,7 @@
                 }
             }
 
-            this.vertexArrayObject = this.vertexArrayObjectBuilder.Build();
+            this.vertexArrayObject = (GlVertexArrayObject)this.vertexArrayObjectBuilder.Build();
             this.vertexArrayObjectBuilder = null;
         }
 
@@ -129,9 +126,19 @@
         /// <inheritdoc />
         public void Dispose()
         {
-            this.vertexArrayObject.Dispose();
-            Gl.DeleteTextures(textures);
+            Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                this.vertexArrayObject?.Dispose();
+            }
+
+            Gl.DeleteTextures(textures);
+
             isDisposed = true;
         }
 

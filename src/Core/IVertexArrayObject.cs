@@ -6,7 +6,7 @@
     /// <summary>
     /// Interface for types representing an OpenGL vertex array object.
     /// </summary>
-    public interface IVertexArrayObject : IDisposable
+    public interface IVertexArrayObject
     {
         /// <summary>
         /// Gets the index buffer object for this VAO, if there is one.
@@ -21,7 +21,7 @@
         /// <summary>
         /// Draw with the active program.
         /// </summary>
-        /// <param name="count">The number of vertices to draw.</param>
+        /// <param name="count">The number of vertices to draw, or -1 to draw all vertices.</param>
         void Draw(int count);
     }
 }

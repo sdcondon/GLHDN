@@ -7,7 +7,7 @@
     /// <summary>
     /// Represents an OpenGL vertex array object.
     /// </summary>
-    public sealed class GlVertexArrayObject : IVertexArrayObject
+    public sealed class GlVertexArrayObject : IVertexArrayObject, IDisposable
     {
         private readonly uint id;
         private readonly PrimitiveType primitiveType;

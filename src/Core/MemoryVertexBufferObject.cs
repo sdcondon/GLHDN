@@ -48,11 +48,5 @@
 
         /// <inheritdoc />
         public int Capacity => Content.Count;
-
-        /// <inheritdoc />
-        public void Dispose()
-        {
-            //// Nothing to do!
-        }
     }
 }

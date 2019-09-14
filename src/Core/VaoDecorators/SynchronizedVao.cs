@@ -10,7 +10,7 @@ namespace GLHDN.Core.VaoDecorators
     /// <remarks>
     /// TODO: this is a hacky, slow way to co-ordinate. Look into streaming.
     /// </remarks>
-    public sealed class SynchronizedVao : IVertexArrayObject
+    public sealed class SynchronizedVao : IVertexArrayObject, IDisposable
     {
         private readonly IVertexArrayObject vertexArrayObject;
         private readonly SynchronizedVertexBufferObject indexBuffer;
@@ -40,7 +40,12 @@ namespace GLHDN.Core.VaoDecorators
         /// <inheritdoc />
         public void Dispose()
         {
-            vertexArrayObject?.Dispose();
+            // TODO LIFETIME MGMT: aggregated, not component - thus ideally not our responsibility
+            // to Dispose (and thus no need for this class to be IDisposable)
+            if (vertexArrayObject is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
         }
 
         /// <inheritdoc />
@@ -79,11 +84,6 @@ namespace GLHDN.Core.VaoDecorators
             public void Copy<T>(int readIndex, int writeIndex, int count)
             {
                 actions.Enqueue(() => vertexBufferObject.Copy<T>(readIndex, writeIndex, count));
-            }
-
-            public void Dispose()
-            {
-                // No action: the inner VAO still owns the individual buffers
             }
 
             /// <summary>
