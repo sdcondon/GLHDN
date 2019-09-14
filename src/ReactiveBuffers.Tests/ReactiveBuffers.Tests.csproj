@@ -5,9 +5,9 @@
 
     <IsPackable>false</IsPackable>
 
-    <AssemblyName>GLHDN.ReactiveBuffers.UnitTests</AssemblyName>
+    <AssemblyName>GLHDN.ReactiveBuffers.Tests</AssemblyName>
 
-    <RootNamespace>GLHDN.ReactiveBuffers.UnitTests</RootNamespace>
+    <RootNamespace>GLHDN.ReactiveBuffers</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

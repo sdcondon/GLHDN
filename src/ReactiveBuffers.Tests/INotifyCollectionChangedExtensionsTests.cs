@@ -1,4 +1,4 @@
-﻿namespace GLHDN.ReactiveBuffers.UnitTests
+﻿namespace GLHDN.ReactiveBuffers
 {
     using System;
     using System.Collections.Generic;
@@ -8,7 +8,7 @@
     using System.Text;
     using Xunit;
 
-    public partial class IObservableExtensionsTests
+    public partial class INotifyCollectionChangedExtensionsTests
     {
         public static IEnumerable<object[]> ObservableCollectionToObservableTestCases
         {

@@ -1,3 +1,3 @@
 ﻿using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("GLHDN.ReactiveBuffers.UnitTests")]
+[assembly: InternalsVisibleTo("GLHDN.ReactiveBuffers.Tests")]

@@ -1,19 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27004.2009
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29306.81
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Core\Core.csproj", "{AF5DC9F2-FFF2-442B-9B2A-4B935CE4E4F2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core.Tests", "Core.Tests\Core.Tests.csproj", "{DB4E3705-79B6-42D2-96B1-2A67FABA6EC7}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Example Apps", "Example Apps", "{4AFA3865-7E06-4CB0-84BD-4B5E8B9BE9ED}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExampleApps.WinForms", "ExampleApps.WinForms\ExampleApps.WinForms.csproj", "{969ECA8B-E0DF-487C-A65E-AF08C5AB1064}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Core\Core.csproj", "{AF5DC9F2-FFF2-442B-9B2A-4B935CE4E4F2}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core.UnitTests", "Core.UnitTests\Core.UnitTests.csproj", "{DB4E3705-79B6-42D2-96B1-2A67FABA6EC7}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactiveBuffers", "ReactiveBuffers\ReactiveBuffers.csproj", "{8AF535C2-F6EB-4446-BE51-AB07A08EFCCE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactiveBuffers.UnitTests", "ReactiveBuffers.UnitTests\ReactiveBuffers.UnitTests.csproj", "{E2937C17-CC25-4AA5-AB41-28F26E726A9F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactiveBuffers.Tests", "ReactiveBuffers.Tests\ReactiveBuffers.Tests.csproj", "{E2937C17-CC25-4AA5-AB41-28F26E726A9F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Views", "Views\Views.csproj", "{CD34FEE4-C4D8-4915-B150-722BB0C1BD2D}"
 EndProject

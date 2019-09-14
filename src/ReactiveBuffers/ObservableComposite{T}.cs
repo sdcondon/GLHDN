@@ -16,7 +16,7 @@ namespace GLHDN.ReactiveBuffers
         private readonly Subject<TData> removed;
         private readonly Subject<ObservableComposite<TData>> children;
         private readonly HashSet<ObservableComposite<TData>> currentChildren;
-
+          
         /// <summary>
         /// Initializes a new instance of the <see cref="ObservableComposite{TData}"/> class.
         /// </summary>

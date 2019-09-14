@@ -1,4 +1,4 @@
-﻿namespace GLHDN.Core.UnitTests
+﻿namespace GLHDN.Core
 {
     using FluentAssertions;
     using OpenGL;

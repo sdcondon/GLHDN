@@ -7,7 +7,7 @@ using System.Reactive.Subjects;
 using System.Text;
 using Xunit;
 
-namespace GLHDN.ReactiveBuffers.UnitTests
+namespace GLHDN.ReactiveBuffers
 {
     public class ObservableCompositeTests
     {

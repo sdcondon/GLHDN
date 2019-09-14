@@ -4,14 +4,13 @@
     using System.Collections.Generic;
     using System.Collections.Specialized;
     using System.ComponentModel;
-    using System.Reactive.Disposables;
     using System.Reactive.Linq;
     using System.Reactive.Subjects;
 
     /// <summary>
-    /// Extension methods for IObservable instances.
+    /// Extension methods for <see cref="INotifyCollectionChanged"/> instances.
     /// </summary>
-    public static class IObservableExtensions
+    public static class INotifyCollectionChangedExtensions
     {
         /// <summary>
         /// Creates an observable from an <see cref="INotifyCollectionChanged"/> of <see cref="INotifyPropertyChanged"/> objects.
