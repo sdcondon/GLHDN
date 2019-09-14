@@ -10,7 +10,7 @@ namespace GLHDN.ReactiveBuffers
 {
     public class ReactiveBufferBuilder<TVertex>
     {
-        private readonly GlVertexArrayObjectBuilder builder;
+        private readonly VertexArrayObjectBuilder builder;
         private readonly IObservable<IObservable<IList<TVertex>>> vertexSource;
         private readonly IList<int> indices;
 
@@ -22,9 +22,10 @@ namespace GLHDN.ReactiveBuffers
         {
             var verticesPerAtom = indices.Max() + 1; // Perhaps should throw if has unused indices..
 
-            builder = new GlVertexArrayObjectBuilder(primitiveType)
+            builder = new VertexArrayObjectBuilder(primitiveType)
                 .WithAttributeBuffer<TVertex>(BufferUsage.DynamicDraw, atomCapacity * verticesPerAtom)
-                .WithIndex(atomCapacity * indices.Count);
+                .WithIndex(atomCapacity * indices.Count)
+                .Synchronize();
 
             this.vertexSource = vertexSource;
             this.indices = indices;
@@ -32,7 +33,7 @@ namespace GLHDN.ReactiveBuffers
 
         public ReactiveBuffer<TVertex> Build()
         {
-            var vao = new SynchronizedVao(builder.Build());
+            var vao = builder.Build();
             return new ReactiveBuffer<TVertex>(vao, vertexSource, indices);
         }
     }

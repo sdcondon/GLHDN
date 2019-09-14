@@ -1,5 +1,6 @@
 ﻿namespace GLHDN.Core
 {
+    using GLHDN.Core.VaoDecorators;
     using OpenGL;
     using System;
     using System.Collections.Generic;
@@ -10,40 +11,42 @@
     /// <remarks>
     /// Useful for setting up a VAO before the OpenGL context has initialized.
     /// </remarks>
-    public sealed class GlVertexArrayObjectBuilder
+    public sealed class VertexArrayObjectBuilder
     {
         private readonly PrimitiveType primitiveType;
         private readonly List<(BufferUsage usage, Type elementType, int elementCount, Array data)> bufferSpecs = new List<(BufferUsage, Type, int, Array)>();
         private (int count, uint[] data) indexSpec;
+        private Func<PrimitiveType, List<(BufferUsage, Type, int, Array)>, (int count, uint[] data), IVertexArrayObject> build;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="GlVertexArrayObjectBuilder"/> class.
+        /// Initializes a new instance of the <see cref="VertexArrayObjectBuilder"/> class.
         /// </summary>
         /// <param name="primitiveType">The type of primitive data to be stored in the built VAO.</param>
-        public GlVertexArrayObjectBuilder(PrimitiveType primitiveType)
+        public VertexArrayObjectBuilder(PrimitiveType primitiveType)
         {
             this.primitiveType = primitiveType;
+            this.build = (primType, bufferSpecs, indexSpec) => new GlVertexArrayObject(primType, bufferSpecs, indexSpec);
         }
 
         /// <summary>
-        /// Adds an attribute buffer to be included in the built VAO.
+        /// Adds a new populated attribute buffer to be included in the built VAO.
         /// </summary>
         /// <param name="bufferUsage">The usage type for the buffer.</param>
         /// <param name="data">The data with which to populate the buffer.</param>
         /// <returns>The updated builder.</returns>
-        public GlVertexArrayObjectBuilder WithAttributeBuffer(BufferUsage bufferUsage, Array data)
+        public VertexArrayObjectBuilder WithAttributeBuffer(BufferUsage bufferUsage, Array data)
         {
             this.bufferSpecs.Add((bufferUsage, data.GetType().GetElementType(), data.Length, data));
             return this;
         }
 
         /// <summary>
-        /// Adds an attribute buffer to be included in the built VAO.
+        /// Adds a new empty attribute buffer to be included in the built VAO.
         /// </summary>
         /// <param name="bufferUsage">The usage type for the buffer.</param>
         /// <param name="size">The size of the buffer, in bytes.</param>
         /// <returns>The updated builder.</returns>
-        public GlVertexArrayObjectBuilder WithAttributeBuffer<T>(BufferUsage bufferUsage, int size)
+        public VertexArrayObjectBuilder WithAttributeBuffer<T>(BufferUsage bufferUsage, int size)
         {
             this.bufferSpecs.Add((bufferUsage, typeof(T), size, null));
             return this;
@@ -54,7 +57,7 @@
         /// </summary>
         /// <param name="data">The data with which to populate the buffer.</param>
         /// <returns>The updated builder.</returns>
-        public GlVertexArrayObjectBuilder WithIndex(uint[] data)
+        public VertexArrayObjectBuilder WithIndex(uint[] data)
         {
             this.indexSpec = (data.Length, data);
             return this;
@@ -65,9 +68,20 @@
         /// </summary>
         /// <param name="capacity">The size of the index buffer.</param>
         /// <returns>The updated builder.</returns>
-        public GlVertexArrayObjectBuilder WithIndex(int capacity)
+        public VertexArrayObjectBuilder WithIndex(int capacity)
         {
             this.indexSpec = (capacity, null);
+            return this;
+        }
+
+        /// <summary>
+        /// Specifies that the built VAO should be synchronized, with any pending changes flushed on each draw call.
+        /// </summary>
+        /// <returns>The updated builder.</returns>
+        public VertexArrayObjectBuilder Synchronize()
+        {
+            var innerBuild = build;
+            build = (primType, bufferSpecs, indexSpec) => new SynchronizedVao(innerBuild(primType, bufferSpecs, indexSpec));
             return this;
         }
 
@@ -75,9 +89,9 @@
         /// Builds a new <see cref="GlVertexArrayObject"/> instance based on the state of the builder.
         /// </summary>
         /// <returns>The built VAO.</returns>
-        public GlVertexArrayObject Build()
+        public IVertexArrayObject Build()
         {
-            return new GlVertexArrayObject(primitiveType, bufferSpecs, indexSpec);
+            return build(primitiveType, bufferSpecs, indexSpec);
         }
     }
 }

@@ -19,7 +19,7 @@
         private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.Gui.Shaders";
 
         private static readonly object programStateLock = new object();
-        private static GlProgramBuilder programBuilder;
+        private static ProgramBuilder programBuilder;
         private static GlProgram program;
 
         private readonly View view;
@@ -45,7 +45,7 @@
                 {
                     if (program == null && programBuilder == null)
                     {
-                        programBuilder = new GlProgramBuilder()
+                        programBuilder = new ProgramBuilder()
                             .WithShaderFromEmbeddedResource(ShaderType.VertexShader, $"{ShaderResourceNamePrefix}.Gui.Vertex.glsl")
                             .WithShaderFromEmbeddedResource(ShaderType.FragmentShader, $"{ShaderResourceNamePrefix}.Gui.Fragment.glsl")
                             .WithUniforms("P", "text");

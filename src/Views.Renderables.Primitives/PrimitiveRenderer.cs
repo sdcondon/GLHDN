@@ -18,7 +18,7 @@
         private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.Primitives";
 
         private static readonly object programStateLock = new object();
-        private static GlProgramBuilder programBuilder;
+        private static ProgramBuilder programBuilder;
         private static GlProgram program;
 
         private readonly IViewProjection camera;
@@ -50,7 +50,7 @@
                 {
                     if (program == null && programBuilder == null)
                     {
-                        programBuilder = new GlProgramBuilder()
+                        programBuilder = new ProgramBuilder()
                             .WithShaderFromEmbeddedResource(ShaderType.VertexShader, $"{ShaderResourceNamePrefix}.Colored.Vertex.glsl")
                             .WithShaderFromEmbeddedResource(ShaderType.FragmentShader, $"{ShaderResourceNamePrefix}.Colored.Fragment.glsl")
                             .WithUniforms("MVP", "V", "M", "AmbientLightColor", "DirectedLightDirection", "DirectedLightColor", "LightPosition_worldspace", "LightColor", "LightPower");

@@ -15,13 +15,13 @@
         private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.BasicExamples";
 
         private static readonly object programStateLock = new object();
-        private static GlProgramBuilder programBuilder;
+        private static ProgramBuilder programBuilder;
         private static GlProgram program;
 
         private readonly IViewProjection viewProjection;
 
-        private GlVertexArrayObjectBuilder vertexArrayObjectBuilder;
-        private GlVertexArrayObject vertexArrayObject;
+        private VertexArrayObjectBuilder vertexArrayObjectBuilder;
+        private IVertexArrayObject vertexArrayObject;
         private bool isDisposed;
 
         /// <summary>
@@ -47,7 +47,7 @@
                 {
                     if (program == null && programBuilder == null)
                     {
-                        programBuilder = new GlProgramBuilder()
+                        programBuilder = new ProgramBuilder()
                             .WithShaderFromEmbeddedResource(ShaderType.VertexShader, $"{ShaderResourceNamePrefix}.Colored.Vertex.glsl")
                             .WithShaderFromEmbeddedResource(ShaderType.FragmentShader, $"{ShaderResourceNamePrefix}.Colored.Fragment.glsl")
                             .WithUniforms("MVP", "V", "M", "LightPosition_worldspace", "LightColor", "LightPower", "AmbientLightColor");
@@ -55,7 +55,7 @@
                 }
             }
 
-            this.vertexArrayObjectBuilder = new GlVertexArrayObjectBuilder(PrimitiveType.Triangles)
+            this.vertexArrayObjectBuilder = new VertexArrayObjectBuilder(PrimitiveType.Triangles)
                 .WithAttributeBuffer(BufferUsage.StaticDraw, vertexPositions.ToArray())
                 .WithAttributeBuffer(BufferUsage.StaticDraw, vertexColors.ToArray())
                 .WithAttributeBuffer(BufferUsage.StaticDraw, vertexNormals.ToArray())
@@ -106,7 +106,7 @@
                 new Vector3(1, 1, 1),
                 30f,
                 new Vector3(0.3f, 0.3f, 0.3f));
-            this.vertexArrayObject.Draw();
+            this.vertexArrayObject.Draw(-1);
         }
 
         /// <inheritdoc />
