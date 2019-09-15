@@ -9,16 +9,16 @@
     public struct Ray
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="Ray"/> class that originates from a given camera position,
+        /// Initializes a new instance of the <see cref="Ray"/> struct that originates from a given camera position,
         /// and points in the direction as indicated by the current mouse cursor position in a view.
         /// </summary>
-        /// <param name="camera">The camera</param>
-        /// <param name="view">The view</param>
+        /// <param name="camera">The camera to project the ray from.</param>
+        /// <param name="view">The view from which to retrieve the mouse position to determine the ray's direction.</param>
         public Ray(ICamera camera, View view)
         {
             // http://antongerdelan.net/opengl/raycasting.html
             float x = (2.0f * view.CursorPosition.X) / view.Width;
-            float y = - (2.0f * view.CursorPosition.Y) / view.Height;
+            float y = -(2.0f * view.CursorPosition.Y) / view.Height;
             var ray_clip = new Vector3(x, y, -1.0f);
 
             Matrix4x4.Invert(camera.Projection, out var projInverse);
@@ -80,7 +80,7 @@
         /// <returns>The position of the intersection of the ray with the plane, or null if no such intersection exists.</returns>
         public static Vector3? GetIntersection(Ray ray, Plane plane)
         {
-            var numerator = Plane.DotNormal(plane, (plane.Normal * plane.D - ray.Origin));
+            var numerator = Plane.DotNormal(plane, plane.Normal * plane.D - ray.Origin);
             var denominator = Plane.DotNormal(plane, ray.Direction);
 
             if (denominator != 0)

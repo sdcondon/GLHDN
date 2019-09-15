@@ -11,13 +11,16 @@
     using System.Reactive.Linq;
     using System.Reactive.Subjects;
 
-    static class Program
+    /// <summary>
+    /// The main entry point for the application.
+    /// </summary>
+    public static class Program
     {
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main()
+        public static void Main()
         {
             var form = new GlForm("GLHDN Example App")
             {
@@ -62,8 +65,8 @@
                             color: Color.Grey(0.7f),
                             content: "Here is a footer. Hello!")
                         {
-                            HorizontalAlignment = 0.5f
-                        }
+                            HorizontalAlignment = 0.5f,
+                        },
                     },
                 });
             }
@@ -95,23 +98,24 @@
                     initialHorizontalAngleRadians: (float)Math.PI,
                     initialVerticalAngleRadians: 0f);
 
+                var triangleVertices = new[]
+                {
+                    new TexturedStaticMesh.Vertex(
+                        new Vector3(-1f, -1f, -2f),
+                        new Vector2(0f, 0f),
+                        new Vector3(0f, 0f, 1f)),
+                    new TexturedStaticMesh.Vertex(
+                        new Vector3(1f, -1f, -2f),
+                        new Vector2(1f, 0f),
+                        new Vector3(0f, 0f, 1f)),
+                    new TexturedStaticMesh.Vertex(
+                        new Vector3(0f, 1f, -2f),
+                        new Vector2(0.5f, 1f),
+                        new Vector3(0f, 0f, 1f)),
+                };
                 AddRenderable(new TexturedStaticMesh(
                     camera,
-                    new[]
-                    {
-                        new TexturedStaticMesh.Vertex(
-                            new Vector3(-1f, -1f, -2f),
-                            new Vector2(0f, 0f),
-                            new Vector3(0f, 0f, 1f)),
-                        new TexturedStaticMesh.Vertex(
-                            new Vector3(1f, -1f, -2f),
-                            new Vector2(1f, 0f),
-                            new Vector3(0f, 0f, 1f)),
-                        new TexturedStaticMesh.Vertex(
-                            new Vector3(0f, 1f, -2f),
-                            new Vector2(0.5f, 1f),
-                            new Vector3(0f, 0f, 1f)),
-                    },
+                    triangleVertices,
                     new uint[] { 0, 1, 2 },
                     @"Assets\Textures\foo.bmp"));
 
@@ -119,7 +123,7 @@
                 {
                     AmbientLightColor = Color.Grey(0.1f),
                     DirectedLightDirection = new Vector3(0, 1f, 0f),
-                    DirectedLightColor = Color.Grey()
+                    DirectedLightColor = Color.Grey(),
                 });
 
                 AddRenderable(lines = new ColoredLines(camera));
@@ -145,7 +149,7 @@
                             SubElements =
                             {
                                 camTextElement,
-                                logElement
+                                logElement,
                             },
                         },
                     },

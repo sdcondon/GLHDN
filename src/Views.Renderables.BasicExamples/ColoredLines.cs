@@ -5,8 +5,10 @@
     using OpenGL;
     using System;
     using System.Collections.ObjectModel;
+    using System.Collections.Specialized;
     using System.ComponentModel;
     using System.Numerics;
+    using System.Reactive.Linq;
 
     /// <summary>
     /// Renderable class for 3D lines. For debug utilities.
@@ -15,7 +17,7 @@
     {
         private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.BasicExamples";
 
-        private static readonly object programStateLock = new object();
+        private static readonly object ProgramStateLock = new object();
         private static ProgramBuilder programBuilder;
         private static GlProgram program;
 
@@ -37,7 +39,7 @@
 
             if (program == null && programBuilder == null)
             {
-                lock (programStateLock)
+                lock (ProgramStateLock)
                 {
                     if (program == null && programBuilder == null)
                     {
@@ -53,7 +55,7 @@
                 PrimitiveType.Lines,
                 100,
                 new[] { 0, 1 },
-                lines.ToObservable((Line a) => new[] { new Vertex(a.from, Vector3.One, a.from), new Vertex(a.to, Vector3.One, a.to) }));
+                ((INotifyCollectionChanged)lines).ToObservable<Line>().Select(o => o.Select(i => new[] { new Vertex(i.From, Vector3.One, i.From), new Vertex(i.To, Vector3.One, i.To) })));
         }
 
         /// <summary>
@@ -85,7 +87,7 @@
 
             if (program == null)
             {
-                lock (programStateLock)
+                lock (ProgramStateLock)
                 {
                     if (program == null)
                     {
@@ -135,32 +137,33 @@
             }
         }
 
-        private class Line : INotifyPropertyChanged
-        {
-            public readonly Vector3 from;
-            public readonly Vector3 to;
-
-            public Line(Vector3 from, Vector3 to)
-            {
-                this.from = from;
-                this.to = to;
-            }
-
-            public event PropertyChangedEventHandler PropertyChanged;
-        }
-
         private struct Vertex
         {
-            public readonly Vector3 position;
-            public readonly Vector3 color;
-            public readonly Vector3 normal;
+            public readonly Vector3 Position;
+            public readonly Vector3 Color;
+            public readonly Vector3 Normal;
 
             public Vertex(Vector3 position, Vector3 color, Vector3 normal)
             {
-                this.position = position;
-                this.color = color;
-                this.normal = normal;
+                this.Position = position;
+                this.Color = color;
+                this.Normal = normal;
             }
+        }
+
+        private class Line : INotifyPropertyChanged
+        {
+            public Line(Vector3 from, Vector3 to)
+            {
+                this.From = from;
+                this.To = to;
+            }
+
+            public event PropertyChangedEventHandler PropertyChanged;
+
+            public Vector3 From { get; }
+
+            public Vector3 To { get; }
         }
     }
 }

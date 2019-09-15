@@ -13,24 +13,24 @@
         {
             get
             {
-                object[] makeTestCase(Type type, params GlVertexAttributeInfo[] expectedAttributeInfo)
+                object[] MakeTestCase(Type type, params GlVertexAttributeInfo[] expectedAttributeInfo)
                     => new object[] { type, expectedAttributeInfo };
 
                 return new[]
                 {
-                    makeTestCase(
+                    MakeTestCase(
                         type: typeof(Vector4),
                         expectedAttributeInfo: new GlVertexAttributeInfo(VertexAttribType.Float, 4, 0, 16)),
-                    makeTestCase(
+                    MakeTestCase(
                         type: typeof(Vector3),
                         expectedAttributeInfo: new GlVertexAttributeInfo(VertexAttribType.Float, 3, 0, 12)),
-                    makeTestCase(
+                    MakeTestCase(
                         type: typeof(Vector2),
                         expectedAttributeInfo: new GlVertexAttributeInfo(VertexAttribType.Float, 2, 0, 8)),
-                    makeTestCase(
+                    MakeTestCase(
                         type: typeof(float),
                         expectedAttributeInfo: new GlVertexAttributeInfo(VertexAttribType.Float, 1, 0, 4)),
-                    makeTestCase(
+                    MakeTestCase(
                         type: typeof(uint),
                         expectedAttributeInfo: new GlVertexAttributeInfo(VertexAttribType.UnsignedInt, 1, 0, 4)),
                 };

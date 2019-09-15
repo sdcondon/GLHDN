@@ -8,14 +8,14 @@
 
     /// <summary>
     /// Very, VERY simple OBJ loader (nabbed from an OpenGL tutorial)
-    /// Here is a short list of features a real function would provide : 
+    /// Here is a short list of features a real function would provide :
     /// - Binary files. Reading a model should be just a few memcpy's away, not parsing a file at runtime. In short : OBJ is not very great.
     /// - Animations and bones (includes bones weights)
     /// - Multiple UVs
     /// - All attributes should be optional, not "forced"
     /// - More stable. Change a line in the OBJ file and it crashes.
     /// - More secure. Change another line and you can inject code.
-    /// - Loading from memory, stream, etc
+    /// - Loading from memory, stream, etc.
     /// </summary>
     public static class ObjLoader
     {
@@ -57,7 +57,7 @@
                     else if (line.StartsWith("vt "))
                     {
                         var coords = line.Split(' ').Skip(1).Select(f => float.Parse(f)).ToArray();
-                        // Invert V coordinate since we will only use DDS texture, which are inverted. Remove if you want to use TGA or BMP loaders.
+                        //// Invert V coordinate since we will only use DDS texture, which are inverted. Remove if you want to use TGA or BMP loaders.
                         temp_uvs.Add(new Vector2(coords[0], -coords[1]));
                     }
                     else if (line.StartsWith("vn "))
@@ -83,7 +83,7 @@
                         normalIndices.Add(values[1][2]);
                         normalIndices.Add(values[2][2]);
                     }
-                    // Else probably a comment, just ignore
+                    //// Else probably a comment, just ignore
                 }
 
                 // For each vertex of each triangle
@@ -106,7 +106,7 @@
                 }
             }
 
-	        return true;
+            return true;
         }
     }
 }

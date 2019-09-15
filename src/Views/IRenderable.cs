@@ -16,6 +16,7 @@
         /// <summary>
         /// Performs an incremental update. Invoked regularly.
         /// </summary>
+        /// <param name="elapsed">The elapsed time since the last update.</param>
         void Update(TimeSpan elapsed);
 
         /// <summary>

@@ -15,11 +15,11 @@
         private int zoomLevel = 0;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PanningCamera"/> class.
+        /// Initializes a new instance of the <see cref="OrbitCamera"/> class.
         /// </summary>
         /// <param name="view">The view from which to retrieve input and aspect ratio.</param>
-        /// <param name="rotationSpeedBase"></param>
-        /// <param name="rollSpeed"></param>
+        /// <param name="rotationSpeedBase">The base (i.e. at default zoom distance) rotation speed of the camera, in radians per per update.</param>
+        /// <param name="rollSpeed">The roll speed of the camera, in radians per update.</param>
         /// <param name="fieldOfViewRadians">The camera's field of view, in radians.</param>
         /// <param name="nearPlaneDistance">The distance of the near plane from the camera.</param>
         /// <param name="farPlaneDistance">The ditance of the far plane from the camera.</param>
@@ -40,7 +40,7 @@
         }
 
         /// <summary>
-        /// Gets the base (i.e. at default zoom distance) rotation speed of the camera in radians per per update.
+        /// Gets or sets the base (i.e. at default zoom distance) rotation speed of the camera in radians per update.
         /// </summary>
         public float RotationSpeedBase { get; set; } // = 0.01f;
 
@@ -74,12 +74,6 @@
         /// </summary>
         public float RotationSpeed => RotationSpeedBase * (Distance - ZoomMinDistance) / ZoomDefaultDistance;
 
-        private float ZoomDefaultDistance { get; set; } = 1.5f;
-
-        private float ZoomBase { get; set; } = 0.999f;
-
-        private float ZoomMinDistance => 1f + NearPlaneDistance;
-
         /// <inheritdoc />
         public Vector3 Position => -forward * Distance;
 
@@ -89,44 +83,50 @@
         /// <inheritdoc />
         public Matrix4x4 Projection { get; private set; }
 
+        private float ZoomDefaultDistance { get; set; } = 1.5f;
+
+        private float ZoomBase { get; set; } = 0.999f;
+
+        private float ZoomMinDistance => 1f + NearPlaneDistance;
+
         /// <inheritdoc />
         public void Update(TimeSpan elapsed)
         {
-            // Pan up - rotate forward and up around their cross product
+            //// Pan up - rotate forward and up around their cross product
             if (view.KeysDown.Contains('W'))
             {
                 var t = Matrix4x4.CreateFromAxisAngle(Vector3.Cross(forward, up), -RotationSpeed);
                 forward = Vector3.Transform(forward, t);
                 up = Vector3.Transform(up, t);
             }
-            // Pan down - rotate forward and up around their cross product
+            //// Pan down - rotate forward and up around their cross product
             if (view.KeysDown.Contains('S'))
             {
                 var t = Matrix4x4.CreateFromAxisAngle(Vector3.Cross(forward, up), RotationSpeed);
                 forward = Vector3.Normalize(Vector3.Transform(forward, t));
                 up = Vector3.Normalize(Vector3.Transform(up, t));
             }
-            // Pan right - rotate forward around up
+            //// Pan right - rotate forward around up
             if (view.KeysDown.Contains('D'))
             {
                 forward = Vector3.Normalize(Vector3.Transform(forward, Matrix4x4.CreateFromAxisAngle(up, RotationSpeed)));
             }
-            // Pan left - rotate forward around up
+            //// Pan left - rotate forward around up
             if (view.KeysDown.Contains('A'))
             {
                 forward = Vector3.Normalize(Vector3.Transform(forward, Matrix4x4.CreateFromAxisAngle(up, -RotationSpeed)));
             }
-            // Roll right - rotate up around forward
+            //// Roll right - rotate up around forward
             if (view.KeysDown.Contains('Q'))
             {
                 up = Vector3.Normalize(Vector3.Transform(up, Matrix4x4.CreateFromAxisAngle(forward, -RollSpeed)));
             }
-            // Roll left - rotate up around forward
+            //// Roll left - rotate up around forward
             if (view.KeysDown.Contains('E'))
             {
                 up = Vector3.Normalize(Vector3.Transform(up, Matrix4x4.CreateFromAxisAngle(forward, RollSpeed)));
             }
-            // Zoom
+            //// Zoom
             zoomLevel += view.MouseWheelDelta;
 
             // Projection matrix

@@ -19,7 +19,7 @@ namespace GLHDN.Core.VaoDecorators
         /// <summary>
         /// Initializes a new instance of the <see cref="SynchronizedVao"/> class.
         /// </summary>
-        /// <param name="vertexArrayObject"></param>
+        /// <param name="vertexArrayObject">The VAO to apply synchromization to.</param>
         public SynchronizedVao(IVertexArrayObject vertexArrayObject)
         {
             this.vertexArrayObject = vertexArrayObject;
@@ -70,16 +70,16 @@ namespace GLHDN.Core.VaoDecorators
                 this.vertexBufferObject = vertexBufferObject;
             }
 
-            public object this[int index]
-            {
-                set => actions.Enqueue(() => vertexBufferObject[index] = value);
-            }
-
             public uint Id => vertexBufferObject.Id;
 
             public GlVertexAttributeInfo[] Attributes => vertexBufferObject.Attributes;
 
             public int Capacity => vertexBufferObject.Capacity;
+
+            public object this[int index]
+            {
+                set => actions.Enqueue(() => vertexBufferObject[index] = value);
+            }
 
             public void Copy<T>(int readIndex, int writeIndex, int count)
             {

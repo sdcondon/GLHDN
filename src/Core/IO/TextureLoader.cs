@@ -51,7 +51,7 @@
                     throw new ArgumentException($"Specified file uses unsupported internal format {fourCC}", nameof(filePath));
                 }
 
-                //uint components = (fourCC == FOURCC_DXT1) ? 3u : 4u;
+                ////uint components = (fourCC == FOURCC_DXT1) ? 3u : 4u;
 
                 // Read the rest of the file
                 var bufferSize = (int)(mipMapCount > 1 ? linearSize * 2 : linearSize);
@@ -80,8 +80,8 @@
                 height /= 2;
 
                 // Deal with non-power-of-two textures. This code is not included in the webpage to reduce clutter.
-                if (width < 1) width = 1;
-                if (height < 1) height = 1;
+                width = Math.Max(width, 1);
+                height = Math.Max(height, 1);
             }
 
             return textureId;
@@ -93,13 +93,13 @@
         /// <param name="filePath">The file path to load the image from.</param>
         /// <returns>The OpenGL texture ID that the image has been loaded into.</returns>
         /// <remarks>
-        /// https://en.wikipedia.org/wiki/BMP_file_format
+        /// Also see https://en.wikipedia.org/wiki/BMP_file_format.
         /// </remarks>
         public static uint LoadBMP(string filePath)
         {
             uint dataPos; // Position in the file where the actual data begins
             int width, height;
-            uint imageSize; // = width*height*3           
+            uint imageSize; // = width*height*3
             byte[] data; // Actual RGB data
             using (var file = File.Open(filePath, FileMode.Open))
             {
@@ -122,11 +122,18 @@
                     throw new NotSupportedException($"Only 24BPP BMPs are supported - this BMP is {bitsPerPixel}BPP");
                 }
 
-                //var compressionMethod = BitConverter.ToUInt32(header, 30);
+                ////var compressionMethod = BitConverter.ToUInt32(header, 30);
                 imageSize = BitConverter.ToUInt32(header, 34);
 
-                if (imageSize == 0) imageSize = (uint)width * (uint)height * bitsPerPixel / 8;
-                if (dataPos == 0) dataPos = 54; // The BMP header is done that way
+                if (imageSize == 0)
+                {
+                    imageSize = (uint)width * (uint)height * bitsPerPixel / 8;
+                }
+
+                if (dataPos == 0)
+                {
+                    dataPos = 54; // The BMP header is done that way
+                }
 
                 // Read the pixel data
                 var rowSize = bitsPerPixel * width / 8;

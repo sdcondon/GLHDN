@@ -43,6 +43,7 @@
         /// <summary>
         /// Adds a new empty attribute buffer to be included in the built VAO.
         /// </summary>
+        /// <typeparam name="T">The type of data to be stored in the buffer.</typeparam>
         /// <param name="bufferUsage">The usage type for the buffer.</param>
         /// <param name="size">The size of the buffer, in bytes.</param>
         /// <returns>The updated builder.</returns>

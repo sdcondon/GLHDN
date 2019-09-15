@@ -4,8 +4,14 @@ using System.Diagnostics;
 
 namespace GLHDN.Core
 {
+    /// <summary>
+    /// Static OpenGL helper methods.
+    /// </summary>
     internal static class GlExt
     {
+        /// <summary>
+        /// Throws an <see cref="InvalidOperationException"/> if there is no OpenGL context current on the calling thread.
+        /// </summary>
         public static void ThrowIfNoCurrentContext()
         {
             if (DeviceContext.GetCurrentContext() == null)
@@ -14,6 +20,10 @@ namespace GLHDN.Core
             }
         }
 
+        /// <summary>
+        /// Records a debug message, prefixed by the calling type and method.
+        /// </summary>
+        /// <param name="message">The message to be recorded.</param>
         [Conditional("DEBUG")]
         public static void DebugWriteLine(string message)
         {

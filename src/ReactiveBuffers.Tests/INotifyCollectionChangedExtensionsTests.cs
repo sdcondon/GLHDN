@@ -8,41 +8,43 @@
     using System.Text;
     using Xunit;
 
-    public partial class INotifyCollectionChangedExtensionsTests
+    public class INotifyCollectionChangedExtensionsTests
     {
         public static IEnumerable<object[]> ObservableCollectionToObservableTestCases
         {
             get
             {
-                object[] makeTestCase(Action<ObservableCollection<In>> action, ICollection<string> expectedObservations) =>
+                object[] MakeTestCase(Action<ObservableCollection<In>> action, ICollection<string> expectedObservations) =>
                     new object[] { action, expectedObservations };
 
+#pragma warning disable SA1107
                 return new List<object[]>()
                 {
-                    makeTestCase( // addition
+                    MakeTestCase( // addition
                         a => { a.Add(new In(1)); a.Add(new In(2)); },
                         new[] { "new:1", "val:1:1", "new:2", "val:2:2" }),
 
-                    makeTestCase( // update
+                    MakeTestCase( // update
                         a => { var i = new In(1); a.Add(i); i.Value = 2; },
                         new[] { "new:1", "val:1:1", "val:1:2" }),
 
-                    makeTestCase( // removal at start
+                    MakeTestCase( // removal at start
                         a => { a.Add(new In(1)); a.Add(new In(2)); a.RemoveAt(0); },
                         new[] { "new:1", "val:1:1", "new:2", "val:2:2", "del:1" }),
 
-                    makeTestCase( // removal at end
+                    MakeTestCase( // removal at end
                         a => { a.Add(new In(1)); a.Add(new In(2)); a.RemoveAt(1); },
                         new[] { "new:1", "val:1:1", "new:2", "val:2:2", "del:2" }),
 
-                    makeTestCase( // replacement
+                    MakeTestCase( // replacement
                         a => { a.Add(new In(1)); a.Add(new In(2)); a[0] = new In(3); },
                         new[] { "new:1", "val:1:1", "new:2", "val:2:2", "del:1", "new:3", "val:3:3" }),
 
-                    makeTestCase( // clear
+                    MakeTestCase( // clear
                         a => { a.Add(new In(1)); a.Add(new In(2)); a.Clear(); a.Add(new In(3)); },
-                        new[] { "new:1", "val:1:1", "new:2", "val:2:2", "del:1", "del:2", "new:3", "val:3:3" })
+                        new[] { "new:1", "val:1:1", "new:2", "val:2:2", "del:1", "del:2", "new:3", "val:3:3" }),
                 };
+#pragma warning restore SA1107
             }
         }
 
@@ -54,18 +56,21 @@
             var collection = new ObservableCollection<In>();
             var observed = new StringBuilder();
             var itemCount = 0;
-            var subscription = collection.ToObservable((In a) => a.Value).Subscribe(
-                obs =>
-                {
-                    var thisItem = ++itemCount;
-                    observed.AppendLine($"new:{thisItem}");
-                    obs.Subscribe(
-                        i => observed.AppendLine($"val:{thisItem}:{i}"),
-                        e => observed.AppendLine($"err:{thisItem}"),
-                        () => observed.AppendLine($"del:{thisItem}"));
-                },
-                e => observed.AppendLine("Error"),
-                () => observed.AppendLine("Complete"));
+            var subscription = collection
+                .ToObservable<In>()
+                .Select(o => o.Select(i => i.Value))
+                .Subscribe(
+                    obs =>
+                    {
+                        var thisItem = ++itemCount;
+                        observed.AppendLine($"new:{thisItem}");
+                        obs.Subscribe(
+                            i => observed.AppendLine($"val:{thisItem}:{i}"),
+                            e => observed.AppendLine($"err:{thisItem}"),
+                            () => observed.AppendLine($"del:{thisItem}"));
+                    },
+                    e => observed.AppendLine("Error"),
+                    () => observed.AppendLine("Complete"));
             try
             {
                 // Act
@@ -89,6 +94,8 @@
                 this.value = value;
             }
 
+            public event PropertyChangedEventHandler PropertyChanged;
+
             public int Value
             {
                 get => value;
@@ -98,8 +105,6 @@
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Value)));
                 }
             }
-
-            public event PropertyChangedEventHandler PropertyChanged;
         }
     }
 }

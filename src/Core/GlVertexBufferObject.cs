@@ -23,7 +23,7 @@
             this.Capacity = elementCapacity;
 
             this.Id = Gl.GenBuffer();
-            Gl.BindBuffer(target, this.Id); // NB: Side effect - leaves this buffer bound. 
+            Gl.BindBuffer(target, this.Id); // NB: Side effect - leaves this buffer bound.
             Gl.BufferData(target, (uint)(Marshal.SizeOf(elementType) * elementCapacity), elementData, usage);
         }
 
@@ -44,14 +44,14 @@
         /// <inheritdoc />
         public object this[int index]
         {
-            //get
-            //{
-            //    Gl.GetNamedBufferSubData(
-            //        buffer: Id,
-            //        offset: new IntPtr(index * Marshal.SizeOf(value)),
-            //        size: (uint)Marshal.SizeOf(value),
-            //        data: null);
-            //}
+            ////get
+            ////{
+            ////    Gl.GetNamedBufferSubData(
+            ////        buffer: Id,
+            ////        offset: new IntPtr(index * Marshal.SizeOf(value)),
+            ////        size: (uint)Marshal.SizeOf(value),
+            ////        data: null);
+            ////}
             set
             {
                     Gl.NamedBufferSubData(

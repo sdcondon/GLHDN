@@ -16,51 +16,53 @@
         {
             get
             {
-                object[] makeTestCase(Action<TestSource> action, ICollection<(int, int)> expectedVertices) =>
+                object[] MakeTestCase(Action<TestSource> action, ICollection<(int, int)> expectedVertices) =>
                     new object[] { action, expectedVertices, Enumerable.Range(0, expectedVertices.Count).ToArray() };
 
+#pragma warning disable SA1107
                 return new List<object[]>()
                 {
-                    makeTestCase( // addition, const size
+                    MakeTestCase( // addition, const size
                         a => { a.Add(1, 2); a.Add(2, 2); },
                         new[] { (1, 1), (1, 2), (2, 1), (2, 2) }),
 
-                    makeTestCase( // removal from middle, const size
+                    MakeTestCase( // removal from middle, const size
                         a => { a.Add(1, 2); a.Add(2, 2); a.RemoveAt(0); },
                         new[] { (2, 1), (2, 2) }),
 
-                    makeTestCase( // removal from end, const size
+                    MakeTestCase( // removal from end, const size
                         a => { a.Add(1, 2); a.Add(2, 2); a.RemoveAt(1); },
                         new[] { (1, 1), (1, 2) }),
 
-                    makeTestCase( // replacement, const size
+                    MakeTestCase( // replacement, const size
                         a => { a.Add(1, 2); a.Add(2, 2); a[0] = (3, 2); },
                         new[] { (3, 1), (3, 2), (2, 1), (2, 2) }),
 
-                    makeTestCase( // clear
+                    MakeTestCase( // clear
                         a => { a.Add(1, 2); a.Add(2, 2); a.Clear(); a.Add(3, 2); },
                         new[] { (3, 1), (3, 2) }),
 
-                    makeTestCase( // addition, varying sizes
+                    MakeTestCase( // addition, varying sizes
                         a => { a.Add(1, 4); a.Add(2, 2); },
                         new[] { (1, 1), (1, 2), (1, 3), (1, 4), (2, 1), (2, 2) }),
 
-                    makeTestCase( // removal, varying sizes
+                    MakeTestCase( // removal, varying sizes
                         a => { a.Add(1, 2); a.Add(2, 4); a.RemoveAt(0); },
                         new[] { (2, 3), (2, 4), (2, 1), (2, 2) }),
 
-                    makeTestCase( // replacement, varying sizes - bigger
+                    MakeTestCase( // replacement, varying sizes - bigger
                         a => { a.Add(1, 2); a.Add(2, 2); a[0] = (3, 4); },
                         new[] { (3, 1), (3, 2), (2, 1), (2, 2), (3, 3), (3, 4) }),
 
-                    makeTestCase( // replacement, varying sizes - smaller
+                    MakeTestCase( // replacement, varying sizes - smaller
                         a => { a.Add(1, 4); a.Add(2, 2); a[0] = (3, 2); },
                         new[] { (3, 1), (3, 2), (2, 1), (2, 2) }),
 
-                    makeTestCase( // replacement at end, varying sizes - smaller
+                    MakeTestCase( // replacement at end, varying sizes - smaller
                         a => { a.Add(1, 2); a.Add(2, 4); a[1] = (3, 2); },
-                        new[] { (1, 1), (1, 2), (3, 1), (3, 2) })
+                        new[] { (1, 1), (1, 2), (3, 1), (3, 2) }),
                 };
+#pragma warning restore SA1107
             }
         }
 
@@ -74,12 +76,12 @@
             // Arrange
             var sourceObservable = new TestSource();
             var targetVao = new MemoryVertexArrayObject(
-                new(BufferUsage, Type, int, Array)[] { (BufferUsage.DynamicDraw, typeof((int, int)), 100, null) },
+                new (BufferUsage, Type, int, Array)[] { (BufferUsage.DynamicDraw, typeof((int, int)), 100, null) },
                 (100, null));
 
             using (var sut = new ReactiveBuffer<(int, int)>(targetVao, sourceObservable, new[] { 0, 1 }))
             {
-                // Act 
+                // Act
                 action(sourceObservable);
             }
 

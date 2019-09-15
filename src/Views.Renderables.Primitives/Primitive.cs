@@ -38,9 +38,9 @@
             var xy = new Vector2(size.X, size.Y);
             var xz = new Vector2(size.X, size.Z);
             var zy = new Vector2(size.Z, size.Y);
-            var xOffset = Matrix4x4.CreateTranslation(0, 0, size.X/2);
-            var yOffset = Matrix4x4.CreateTranslation(0, 0, size.Y/2);
-            var zOffset = Matrix4x4.CreateTranslation(0, 0, size.Z/2);
+            var xOffset = Matrix4x4.CreateTranslation(0, 0, size.X / 2);
+            var yOffset = Matrix4x4.CreateTranslation(0, 0, size.Y / 2);
+            var zOffset = Matrix4x4.CreateTranslation(0, 0, size.Z / 2);
 
             var primitive = new Primitive(true);
             primitive.AddQuad(xy, zOffset * worldTransform, color);
@@ -120,7 +120,7 @@
 
             var segments = 16;
 
-            Vector3 getPos(int i)
+            Vector3 GetPos(int i)
             {
                 var rads = (i % segments) * 2 * Math.PI / segments;
                 return new Vector3((float)Math.Sin(rads) * radiusX, (float)Math.Cos(rads) * radiusY, 0);
@@ -128,8 +128,8 @@
 
             for (var i = 0; i < segments; i++)
             {
-                primitive.AddVertex(Vector3.Transform(getPos(i), worldTransform), color, Vector3.Zero);
-                primitive.AddVertex(Vector3.Transform(getPos(i + 1), worldTransform), color, Vector3.Zero);
+                primitive.AddVertex(Vector3.Transform(GetPos(i), worldTransform), color, Vector3.Zero);
+                primitive.AddVertex(Vector3.Transform(GetPos(i + 1), worldTransform), color, Vector3.Zero);
             }
 
             return primitive;
@@ -145,14 +145,14 @@
         public static Primitive LineSquare(float sideLength, Matrix4x4 worldTransform, Color color)
         {
             var primitive = new Primitive(false);
-            primitive.AddVertex(Vector3.Transform(new Vector3(-sideLength/2, -sideLength/2, 0), worldTransform), color, Vector3.Zero);
-            primitive.AddVertex(Vector3.Transform(new Vector3(-sideLength/2, +sideLength/2, 0), worldTransform), color, Vector3.Zero);
-            primitive.AddVertex(Vector3.Transform(new Vector3(+sideLength/2, -sideLength/2, 0), worldTransform), color, Vector3.Zero);
-            primitive.AddVertex(Vector3.Transform(new Vector3(+sideLength/2, +sideLength/2, 0), worldTransform), color, Vector3.Zero);
-            primitive.AddVertex(Vector3.Transform(new Vector3(-sideLength/2, -sideLength/2, 0), worldTransform), color, Vector3.Zero);
-            primitive.AddVertex(Vector3.Transform(new Vector3(+sideLength/2, -sideLength/2, 0), worldTransform), color, Vector3.Zero);
-            primitive.AddVertex(Vector3.Transform(new Vector3(-sideLength/2, +sideLength/2, 0), worldTransform), color, Vector3.Zero);
-            primitive.AddVertex(Vector3.Transform(new Vector3(+sideLength/2, +sideLength/2, 0), worldTransform), color, Vector3.Zero);
+            primitive.AddVertex(Vector3.Transform(new Vector3(-sideLength / 2, -sideLength / 2, 0), worldTransform), color, Vector3.Zero);
+            primitive.AddVertex(Vector3.Transform(new Vector3(-sideLength / 2, +sideLength / 2, 0), worldTransform), color, Vector3.Zero);
+            primitive.AddVertex(Vector3.Transform(new Vector3(+sideLength / 2, -sideLength / 2, 0), worldTransform), color, Vector3.Zero);
+            primitive.AddVertex(Vector3.Transform(new Vector3(+sideLength / 2, +sideLength / 2, 0), worldTransform), color, Vector3.Zero);
+            primitive.AddVertex(Vector3.Transform(new Vector3(-sideLength / 2, -sideLength / 2, 0), worldTransform), color, Vector3.Zero);
+            primitive.AddVertex(Vector3.Transform(new Vector3(+sideLength / 2, -sideLength / 2, 0), worldTransform), color, Vector3.Zero);
+            primitive.AddVertex(Vector3.Transform(new Vector3(-sideLength / 2, +sideLength / 2, 0), worldTransform), color, Vector3.Zero);
+            primitive.AddVertex(Vector3.Transform(new Vector3(+sideLength / 2, +sideLength / 2, 0), worldTransform), color, Vector3.Zero);
             return primitive;
         }
 
@@ -189,7 +189,7 @@
                 new Vector3(-size.X / 2, +size.Y / 2, 0),
                 new Vector3(+size.X / 2, -size.Y / 2, 0),
             };
-            
+
             for (int i = 0; i < vertexPositions.Length; i++)
             {
                 AddVertex(Vector3.Transform(vertexPositions[i], worldTransform), color, normal);

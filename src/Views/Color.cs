@@ -3,7 +3,7 @@
 namespace GLHDN.Views
 {
     /// <summary>
-    /// Structure that represents a color. Can be implicitly converted to a RGB <see cref="Vector3"/> or RGBA <see cref="Vector4"/>
+    /// Structure that represents a color. Can be implicitly converted to a RGB <see cref="Vector3"/> or RGBA <see cref="Vector4"/>.
     /// </summary>
     public struct Color
     {
@@ -37,9 +37,28 @@ namespace GLHDN.Views
         public float A { get; }
 
         /// <summary>
+        /// Defines the implicit conversion of a color to a <see cref="Vector3"/> value.
+        /// </summary>
+        /// <param name="color">The color instance to convert.</param>
+        public static implicit operator Vector3(Color color)
+        {
+            return new Vector3(color.R, color.G, color.B);
+        }
+
+        /// <summary>
+        /// Defines the implicit conversion of a color to a <see cref="Vector4"/> value.
+        /// </summary>
+        /// <param name="color">The color instance to convert.</param>
+        public static implicit operator Vector4(Color color)
+        {
+            return new Vector4(color.R, color.G, color.B, color.A);
+        }
+
+        /// <summary>
         /// Gets a completely transparent 'color'.
         /// </summary>
-        public static Color Transparent => new Color(0, 0, 0, 0);
+        /// <returns>An appropriate <see cref="Color"/> instance.</returns>
+        public static Color Transparent() => new Color(0, 0, 0, 0);
 
         /// <summary>
         /// Returns white.
@@ -76,7 +95,7 @@ namespace GLHDN.Views
         /// </summary>
         /// <param name="brightness">The brightness of the returned color.</param>
         /// <param name="alpha">The alpha of the returned color.</param>
-        /// <returns></returns>
+        /// <returns>An appropriate <see cref="Color"/> instance.</returns>
         public static Color Green(float brightness = 1, float alpha = 1) => new Color(0, brightness, 0, alpha);
 
         /// <summary>
@@ -84,7 +103,7 @@ namespace GLHDN.Views
         /// </summary>
         /// <param name="brightness">The brightness of the returned color.</param>
         /// <param name="alpha">The alpha of the returned color.</param>
-        /// <returns></returns>
+        /// <returns>An appropriate <see cref="Color"/> instance.</returns>
         public static Color Blue(float brightness = 1, float alpha = 1) => new Color(0, 0, brightness, alpha);
 
         /// <summary>
@@ -92,7 +111,7 @@ namespace GLHDN.Views
         /// </summary>
         /// <param name="brightness">The brightness of the returned color.</param>
         /// <param name="alpha">The alpha of the returned color.</param>
-        /// <returns></returns>
+        /// <returns>An appropriate <see cref="Color"/> instance.</returns>
         public static Color Brown(float brightness = 1, float alpha = 1) => new Color(0.65f * brightness, 0.16f * brightness, 0.16f * brightness, alpha);
 
         /// <summary>
@@ -100,25 +119,7 @@ namespace GLHDN.Views
         /// </summary>
         /// <param name="brightness">The brightness of the returned color.</param>
         /// <param name="alpha">The alpha of the returned color.</param>
-        /// <returns></returns>
+        /// <returns>An appropriate <see cref="Color"/> instance.</returns>
         public static Color Orange(float brightness = 1, float alpha = 1) => new Color(brightness, 0.65f * brightness, 0, alpha);
-
-        /// <summary>
-        /// Defines the implicit conversion of a color to a <see cref="Vector3"/> value.
-        /// </summary>
-        /// <param name="color">The color instance to convert.</param>
-        public static implicit operator Vector3(Color color)
-        {
-            return new Vector3(color.R, color.G, color.B);
-        }
-
-        /// <summary>
-        /// Defines the implicit conversion of a color to a <see cref="Vector4"/> value.
-        /// </summary>
-        /// <param name="color">The color instance to convert.</param>
-        public static implicit operator Vector4(Color color)
-        {
-            return new Vector4(color.R, color.G, color.B, color.A);
-        }
     }
 }

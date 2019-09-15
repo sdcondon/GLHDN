@@ -12,8 +12,11 @@
     public sealed class View : IDisposable
     {
         private readonly IViewContext context;
-        private readonly Stopwatch modelUpdateIntervalStopwatch = new Stopwatch();
         private readonly Color clearColor;
+        private readonly Stopwatch modelUpdateIntervalStopwatch = new Stopwatch();
+        private readonly HashSet<char> keysPressed = new HashSet<char>();
+        private readonly HashSet<char> keysDown = new HashSet<char>();
+        private readonly HashSet<char> keysReleased = new HashSet<char>();
 
         private IRenderable renderable;
         private bool lockCursor;
@@ -22,9 +25,9 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="View"/> class.
         /// </summary>
-        /// <param name="context"></param>
-        /// <param name="lockCursor"></param>
-        /// <param name="clearColor"></param>
+        /// <param name="context">The <see cref="IViewContext"/> to use.</param>
+        /// <param name="lockCursor">A value indicating whether the cursor is placed back at the center of the view during each update.</param>
+        /// <param name="clearColor">The color to clear the view with on each render call.</param>
         public View(IViewContext context, bool lockCursor, Color clearColor)
         {
             Debug.WriteLine("Registering OpenGL debug handler");
@@ -52,25 +55,30 @@
         }
 
         /// <summary>
-        /// Gets the set of keys pressed since the last update. TODO: should be readonly
+        /// An event that is fired when the size of the view changes. TODO: should be readonly.
         /// </summary>
-        public HashSet<char> KeysPressed { get; } = new HashSet<char>();
+        public event EventHandler<Vector2> Resized;
 
         /// <summary>
-        /// Gets the set of currently pressed keys. TODO: should be readonly
+        /// Gets the set of keys pressed since the last update. TODO: should be readonly.
         /// </summary>
-        public HashSet<char> KeysDown { get; } = new HashSet<char>();
+        public HashSet<char> KeysPressed => keysPressed;
 
         /// <summary>
-        /// Gets the set of keys released since the last update. TODO: should be readonly
+        /// Gets the set of currently pressed keys. TODO: should be readonly.
         /// </summary>
-        public HashSet<char> KeysReleased { get; } = new HashSet<char>();
+        public HashSet<char> KeysDown => keysDown;
+
+        /// <summary>
+        /// Gets the set of keys released since the last update.
+        /// </summary>
+        public HashSet<char> KeysReleased => keysReleased;
 
         /// <summary>
         /// Gets the cursor position, with the origin being at the centre of the view, X increasing from left to right and Y increasing from top to bottom.
         /// </summary>
         public Vector2 CursorPosition { get; private set; }
-        
+
         /// <summary>
         /// Gets or sets a value indicating whether the cursor is placed back at the center of the view during each update.
         /// </summary>
@@ -167,11 +175,6 @@
         }
 
         /// <summary>
-        /// An event that is fired when the size of the view changes.
-        /// </summary>
-        public event EventHandler<Vector2> Resized;
-
-        /// <summary>
         /// Closes the view.
         /// </summary>
         public void Exit()
@@ -239,7 +242,10 @@
                 var elapsed = modelUpdateIntervalStopwatch.Elapsed;
                 modelUpdateIntervalStopwatch.Restart();
                 var maxEffectiveElapsed = TimeSpan.FromSeconds(0.1);
-                if (elapsed > maxEffectiveElapsed) { elapsed = maxEffectiveElapsed; }
+                if (elapsed > maxEffectiveElapsed)
+                {
+                    elapsed = maxEffectiveElapsed;
+                }
 
                 // Update the game world
                 renderable.Update(elapsed);
@@ -252,8 +258,8 @@
                 this.WasRightMouseButtonReleased = false;
                 this.WasMiddleMouseButtonPressed = false;
                 this.WasMiddleMouseButtonReleased = false;
-                this.KeysPressed.Clear();
-                this.KeysReleased.Clear();
+                this.keysPressed.Clear();
+                this.keysReleased.Clear();
                 if (this.lockCursor)
                 {
                     context.CursorPosition = context.GetCenter();
@@ -266,23 +272,55 @@
             Dispose();
         }
 
-        private void OnKeyDown(object sender, char a) { KeysPressed.Add(a); KeysDown.Add(a); }
+        private void OnKeyDown(object sender, char a)
+        {
+            keysPressed.Add(a);
+            keysDown.Add(a);
+        }
 
-        private void OnKeyUp(object sender, char a) { KeysReleased.Add(a); KeysDown.Remove(a); }
+        private void OnKeyUp(object sender, char a)
+        {
+            keysReleased.Add(a);
+            keysDown.Remove(a);
+        }
 
         private void OnMouseWheel(object s, int a) => MouseWheelDelta = a; // SO much is wrong with this approach..;
 
-        private void OnLeftMouseDown(object s, EventArgs a) { WasLeftMouseButtonPressed = true; IsLeftMouseButtonDown = true; }
+        private void OnLeftMouseDown(object s, EventArgs a)
+        {
+            WasLeftMouseButtonPressed = true;
+            IsLeftMouseButtonDown = true;
+        }
 
-        private void OnLeftMouseUp(object s, EventArgs a) { WasLeftMouseButtonReleased = true; IsLeftMouseButtonDown = false; }
+        private void OnLeftMouseUp(object s, EventArgs a)
+        {
+            WasLeftMouseButtonReleased = true;
+            IsLeftMouseButtonDown = false;
+        }
 
-        private void OnRightMouseDown(object s, EventArgs a) { WasRightMouseButtonPressed = true; IsRightMouseButtonDown = true; }
+        private void OnRightMouseDown(object s, EventArgs a)
+        {
+            WasRightMouseButtonPressed = true;
+            IsRightMouseButtonDown = true;
+        }
 
-        private void OnRightMouseUp(object s, EventArgs a) { WasRightMouseButtonReleased = true; IsRightMouseButtonDown = false; }
+        private void OnRightMouseUp(object s, EventArgs a)
+        {
+            WasRightMouseButtonReleased = true;
+            IsRightMouseButtonDown = false;
+        }
 
-        private void OnMiddleMouseDown(object s, EventArgs a) { WasMiddleMouseButtonPressed = true; IsMiddleMouseButtonDown = true; }
+        private void OnMiddleMouseDown(object s, EventArgs a)
+        {
+            WasMiddleMouseButtonPressed = true;
+            IsMiddleMouseButtonDown = true;
+        }
 
-        private void OnMiddleMouseUp(object s, EventArgs a) { WasMiddleMouseButtonReleased = true; IsMiddleMouseButtonDown = false; }
+        private void OnMiddleMouseUp(object s, EventArgs a)
+        {
+            WasMiddleMouseButtonReleased = true;
+            IsMiddleMouseButtonDown = false;
+        }
 
         private void OnResize(object sender, Vector2 size)
         {

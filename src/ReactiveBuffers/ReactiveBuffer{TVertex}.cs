@@ -26,23 +26,23 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="ReactiveBuffer{TVertex}"/> class.
         /// </summary>
-        /// <param name="vertexArrayObject"></param>
-        /// <param name="vertexSource">
-        /// The outer observable should push a new inner observable whenever a new item is added.
-        /// The inner observables should push a new list of vertices whenever the item's state changes, and complete when they are removed.
+        /// <param name="vertexArrayObject">The VAO to populate.</param>
+        /// <param name="atomSource">
+        /// The outer observable should push an inner observable (atom) for each new renderable.
+        /// The atoms should push a new list of vertices whenever the atom's state changes, and complete when it is removed.
         /// </param>
-        /// <param name="indices"></param>
+        /// <param name="atomIndices">The vertex indices to use when rendering each atom.</param>
         public ReactiveBuffer(
             IVertexArrayObject vertexArrayObject,
-            IObservable<IObservable<IList<TVertex>>> vertexSource,
-            IList<int> indices)
+            IObservable<IObservable<IList<TVertex>>> atomSource,
+            IList<int> atomIndices)
         {
-            this.vertexSource = vertexSource;
-            this.verticesPerAtom = indices.Max() + 1; // Perhaps should throw if has unused indices..
-            this.indices = indices;  // TODO: Perhaps change so optional?
+            this.vertexSource = atomSource;
+            this.verticesPerAtom = atomIndices.Max() + 1; // Perhaps should throw if has unused indices..
+            this.indices = atomIndices;  // TODO: Perhaps change so optional?
             this.vao = vertexArrayObject;
             this.atomCapacity = vao.AttributeBuffers[0].Capacity / verticesPerAtom;
-            
+
             // todo: store subscription to unsubscribe on dispose
             this.vertexSource.Subscribe(i => i.Subscribe(new ItemObserver(this)));
         }
@@ -141,7 +141,7 @@
             {
                 var index = bufferIndices.Values[atomIndex];
 
-                // Grab the last link by buffer index, remove its last 
+                // Grab the last link by buffer index, remove its last
                 var finalBufferIndex = this.parent.linksByBufferIndex.Count - 1;
                 var lastLink = this.parent.linksByBufferIndex[finalBufferIndex];
                 lastLink.bufferIndices.RemoveAt(lastLink.bufferIndices.Count - 1);

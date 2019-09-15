@@ -106,14 +106,17 @@
             {
                 target += movementSpeed * (float)elapsed.TotalSeconds * Distance * Vector3.UnitY;
             }
+
             if (view.KeysDown.Contains('S'))
             {
                 target -= movementSpeed * (float)elapsed.TotalSeconds * Distance * Vector3.UnitY;
             }
+
             if (view.KeysDown.Contains('D'))
             {
                 target += movementSpeed * (float)elapsed.TotalSeconds * Distance * Vector3.UnitX;
             }
+
             if (view.KeysDown.Contains('A'))
             {
                 target -= movementSpeed * (float)elapsed.TotalSeconds * Distance * Vector3.UnitX;
@@ -124,6 +127,7 @@
                 VerticalAngle -= VerticalRotationSpeed * (float)elapsed.TotalSeconds;
                 VerticalAngle = Math.Max(VerticalAngle, 0);
             }
+
             if (view.KeysDown.Contains('F'))
             {
                 VerticalAngle += VerticalRotationSpeed * (float)elapsed.TotalSeconds;
@@ -135,6 +139,7 @@
                 HorizontalAngle -= HorizontalRotationSpeed * (float)elapsed.TotalSeconds;
                 HorizontalAngle = Math.Max(HorizontalAngle, 0);
             }
+
             if (view.KeysDown.Contains('E'))
             {
                 HorizontalAngle += HorizontalRotationSpeed * (float)elapsed.TotalSeconds;

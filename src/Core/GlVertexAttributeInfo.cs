@@ -20,9 +20,16 @@
             { typeof(Vector3), (VertexAttribType.Float, 3) },
             { typeof(Vector2), (VertexAttribType.Float, 2) },
             { typeof(float), (VertexAttribType.Float, 1) },
-            { typeof(uint), (VertexAttribType.UnsignedInt, 1) }
+            { typeof(uint), (VertexAttribType.UnsignedInt, 1) },
         };
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GlVertexAttributeInfo"/> struct.
+        /// </summary>
+        /// <param name="type">The OpenGL type for the vertex attribute.</param>
+        /// <param name="multiple">The multiple (of the OpenGL type) for the attribute.</param>
+        /// <param name="offset">The offset from the start of the buffer to the attribute for the first vertex in the buffer.</param>
+        /// <param name="stride">The offset from the attribute for one vertex in the buffer to the next.</param>
         internal GlVertexAttributeInfo(VertexAttribType type, int multiple, int offset, int stride)
         {
             this.Type = type;
@@ -37,7 +44,7 @@
         public VertexAttribType Type { get; }
 
         /// <summary>
-        /// Gets the multiple (of the OpenGL type) for the attribute
+        /// Gets the multiple (of the OpenGL type) for the attribute.
         /// </summary>
         public int Multiple { get; }
 

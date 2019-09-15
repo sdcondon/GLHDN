@@ -16,6 +16,11 @@
         private readonly uint id;
         private readonly int[] uniformIds;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GlProgram"/> class.
+        /// </summary>
+        /// <param name="shaderSpecs">Specifications for each of the shaders to be included in the program.</param>
+        /// <param name="uniforms">The names of the unifoms used by the shaders.</param>
         internal GlProgram(IEnumerable<(ShaderType Type, string Source)> shaderSpecs, string[] uniforms)
         {
             GlExt.ThrowIfNoCurrentContext();
@@ -90,16 +95,14 @@
                         // NB: If transpose argument is false, OpenGL expects arrays in column major order.
                         // We set transpose to true for readability (and thus maintainability) - so that
                         // our little matrix array below looks right.
-                        Gl.UniformMatrix4(
-                            uniformIds[i],
-                            true,
-                            new[]
-                            {
-                                m.M11, m.M12, m.M13, m.M14,
-                                m.M21, m.M22, m.M23, m.M24,
-                                m.M31, m.M32, m.M33, m.M34,
-                                m.M41, m.M42, m.M43, m.M44
-                            });
+                        var value = new[]
+                        {
+                            m.M11, m.M12, m.M13, m.M14,
+                            m.M21, m.M22, m.M23, m.M24,
+                            m.M31, m.M32, m.M33, m.M34,
+                            m.M41, m.M42, m.M43, m.M44,
+                        };
+                        Gl.UniformMatrix4(uniformIds[i], true, value);
                         break;
                     case Vector3 v:
                         Gl.Uniform3(uniformIds[i], v.X, v.Y, v.Z);

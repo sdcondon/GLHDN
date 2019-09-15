@@ -15,6 +15,8 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="MemoryVertexBufferObject"/> class.
         /// </summary>
+        /// <param name="capacity">The capacity of the buffer.</param>
+        /// <param name="data">The data to populate the buffer with, or null.</param>
         public MemoryVertexBufferObject(int capacity, Array data)
         {
             Id = (uint)Interlocked.Increment(ref nextId);
@@ -31,6 +33,12 @@
         public uint Id { get; }
 
         /// <inheritdoc />
+        public GlVertexAttributeInfo[] Attributes => throw new NotImplementedException();
+
+        /// <inheritdoc />
+        public int Capacity => Content.Count;
+
+        /// <inheritdoc />
         public object this[int index]
         {
             get => content[index];
@@ -42,11 +50,5 @@
 
         /// <inheritdoc />
         public T Get<T>(int index) => (T)Content[index];
-
-        /// <inheritdoc />
-        public GlVertexAttributeInfo[] Attributes => throw new NotImplementedException();
-
-        /// <inheritdoc />
-        public int Capacity => Content.Count;
     }
 }

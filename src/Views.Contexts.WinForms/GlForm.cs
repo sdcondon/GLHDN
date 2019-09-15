@@ -16,6 +16,7 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="GlForm"/> class.
         /// </summary>
+        /// <param name="name">The name of the form.</param>
         public GlForm(string name)
         {
             this.SuspendLayout();
@@ -38,7 +39,7 @@
                 MultisampleBits = 0u,
                 Name = "RenderControl",
                 StencilBits = 0u,
-                TabIndex = 0
+                TabIndex = 0,
             };
 
             this.Controls.Add(glControl);
@@ -53,7 +54,7 @@
         public GlControlAdapter ViewContext { get; }
 
         /// <summary>
-        /// Gets or sets the flag indicating whether control should update itself continuously.
+        /// Gets or sets a value indicating whether the control should update itself continuously.
         /// </summary>
         public bool Animation
         {

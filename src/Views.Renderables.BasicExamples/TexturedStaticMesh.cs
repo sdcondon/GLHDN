@@ -15,7 +15,7 @@
     {
         private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.BasicExamples";
 
-        private static readonly object programStateLock = new object();
+        private static readonly object ProgramStateLock = new object();
         private static ProgramBuilder programBuilder;
         private static GlProgram program;
 
@@ -31,9 +31,9 @@
         /// Initializes a new instance of the <see cref="TexturedStaticMesh"/> class.
         /// </summary>
         /// <param name="viewProjection">Provider for view and projection matrices.</param>
-        /// <param name="vertices"></param>
-        /// <param name="indices"></param>
-        /// <param name="textureFilePath"></param>
+        /// <param name="vertices">The vertices of the mesh to be rendered.</param>
+        /// <param name="indices">The vertex indices to use when rendering.</param>
+        /// <param name="textureFilePath">The path to the file to use for the mesh's texture.</param>
         public TexturedStaticMesh(
             IViewProjection viewProjection,
             IEnumerable<Vertex> vertices,
@@ -44,7 +44,7 @@
 
             if (program == null && programBuilder == null)
             {
-                lock (programStateLock)
+                lock (ProgramStateLock)
                 {
                     if (program == null && programBuilder == null)
                     {
@@ -83,7 +83,7 @@
 
             if (program == null)
             {
-                lock (programStateLock)
+                lock (ProgramStateLock)
                 {
                     if (program == null)
                     {

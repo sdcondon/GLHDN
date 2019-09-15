@@ -105,9 +105,6 @@
         public event EventHandler<Vector2> Resize;
 
         /// <inheritdoc />
-        public event EventHandler Update;
-
-        /// <inheritdoc />
         public event EventHandler GotFocus;
 
         /// <inheritdoc />
@@ -127,6 +124,7 @@
                 var point = glControl.PointToClient(Cursor.Position);
                 return new Vector2(point.X, point.Y);
             }
+
             set
             {
                 var point = new Point((int)value.X, (int)value.Y);
