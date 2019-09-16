@@ -34,11 +34,16 @@ namespace GLHDN.ReactiveBuffers
                 .TakeUntil(removed));
         }
 
-        internal ObservableComposite(IObservable<T> values, Dictionary<string, object> monitor, ref int id)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ObservableComposite{TData}"/> class for unit tests.
+        /// </summary>
+        /// <param name="values">The observable sequence of leaf data for this composite.</param>
+        /// <param name="registerField">Delegate to register subject-valued field for subscriber monitoring.</param>
+        internal ObservableComposite(IObservable<T> values, Action<string, object> registerField)
             : this(values)
         {
-            monitor?.Add($"item {++id} values", values);
-            monitor?.Add($"item {id} children subject", children);
+            registerField("values", values);
+            registerField("children", children);
         }
 
         /// <summary>
