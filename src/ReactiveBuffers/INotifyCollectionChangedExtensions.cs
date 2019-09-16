@@ -28,8 +28,8 @@
                 for (var i = 0; i < e.NewItems.Count; i++)
                 {
                     var item = (T)e.NewItems[i];
-                    var removal = new Subject<object>(); // TODO: avoid using a Subject. FromAsync/TaskCompletionSource seems like it should work, why doesn't it?
-                    removalCallbacks.Insert(e.NewStartingIndex + i, () => removal.OnNext(null)); // One of several aspects of this method that's not thread (re-entry) safe
+                    var removal = new Subject<object>();
+                    removalCallbacks.Insert(e.NewStartingIndex + i, () => removal.OnNext(default)); // One of several aspects of this method that's not thread (re-entry) safe
                     yield return Observable
                         .FromEventPattern<PropertyChangedEventHandler, PropertyChangedEventArgs>(
                             handler => item.PropertyChanged += handler,

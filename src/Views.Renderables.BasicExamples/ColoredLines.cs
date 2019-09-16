@@ -55,19 +55,21 @@
                 PrimitiveType.Lines,
                 100,
                 new[] { 0, 1 },
-                ((INotifyCollectionChanged)lines).ToObservable<Line>().Select(o => o.Select(i => new[] { new Vertex(i.From, Vector3.One, i.From), new Vertex(i.To, Vector3.One, i.To) })));
+                ((INotifyCollectionChanged)lines)
+                    .ToObservable<Line>()
+                    .Select(o => o.Select(i => new[] { new Vertex(i.From, Color.White(), i.From), new Vertex(i.To, Color.White(), i.To) })));
         }
 
         /// <summary>
         /// Adds a line to be rendered.
         /// </summary>
-        /// <param name="start">The position of the start of the line.</param>
-        /// <param name="end">The position of the end of the line.</param>
-        public void AddLine(Vector3 start, Vector3 end)
+        /// <param name="from">The position of the start of the line.</param>
+        /// <param name="to">The position of the end of the line.</param>
+        public void AddLine(Vector3 from, Vector3 to)
         {
             ThrowIfDisposed();
 
-            this.lines.Add(new Line(start, end));
+            this.lines.Add(new Line(from, to));
         }
 
         /// <summary>
@@ -153,6 +155,9 @@
 
         private class Line : INotifyPropertyChanged
         {
+            private Vector3 from;
+            private Vector3 to;
+
             public Line(Vector3 from, Vector3 to)
             {
                 this.From = from;
@@ -161,9 +166,25 @@
 
             public event PropertyChangedEventHandler PropertyChanged;
 
-            public Vector3 From { get; }
+            public Vector3 From
+            {
+                get => from;
+                set
+                {
+                    this.from = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(From)));
+                }
+            }
 
-            public Vector3 To { get; }
+            public Vector3 To
+            {
+                get => to;
+                set
+                {
+                    this.to = value;
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(To)));
+                }
+            }
         }
     }
 }

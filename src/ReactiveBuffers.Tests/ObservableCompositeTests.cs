@@ -25,23 +25,23 @@ namespace GLHDN.ReactiveBuffers
                 return new List<object[][]>()
                 {
                     MakeTestCases( // addition, update & removal
-                        a => { var (i, iv) = a.Add(1); iv.OnNext(2); i.Remove(); },
+                        a => { var (i, iv) = Add(a, 1); iv.OnNext(2); i.Remove(); },
                         new[] { "0+", "0=0", "1+", "1=1", "1=2", "1-" }),
 
                     MakeTestCases( // nested addition, update and removal
-                        a => { var (i, _) = a.Add(1); var (j, jv) = i.Add(2); jv.OnNext(3); j.Remove(); },
+                        a => { var (i, _) = Add(a, 1); var (j, jv) = Add(i, 2); jv.OnNext(3); j.Remove(); },
                         new[] { "0+", "0=0", "1+", "1=1", "2+", "2=2", "2=3", "2-" }),
 
                     MakeTestCases( // parent removal
-                        a => { var (i, _) = a.Add(1); var j = i.Add(2); i.Remove(); },
+                        a => { var (i, _) = Add(a, 1); var j = Add(i, 2); i.Remove(); },
                         new[] { "0+", "0=0", "1+", "1=1", "2+", "2=2", "1-", "2-" }),
 
                     MakeTestCases( // grandparent removal
-                        a => { var (i, iv) = a.Add(1); var (j, jv) = i.Add(2); var (k, kv) = j.Add(3); iv.OnNext(4); jv.OnNext(5); kv.OnNext(6); i.Remove(); },
+                        a => { var (i, iv) = Add(a, 1); var (j, jv) = Add(i, 2); var (k, kv) = Add(j, 3); iv.OnNext(4); jv.OnNext(5); kv.OnNext(6); i.Remove(); },
                         new[] { "0+", "0=0", "1+", "1=1", "2+", "2=2", "3+", "3=3", "1=4", "2=5", "3=6", "1-", "2-", "3-" }),
 
                     MakeTestCases( // sibling independence
-                        a => { var (s1, _) = a.Add(1); var (s2, _) = a.Add(2); var s11 = s1.Add(11); var (s21, s21v) = s2.Add(21); s1.Remove(); s21v.OnNext(22); },
+                        a => { var (s1, _) = Add(a, 1); var (s2, _) = Add(a, 2); var s11 = Add(s1, 11); var (s21, s21v) = Add(s2, 21); s1.Remove(); s21v.OnNext(22); },
                         new[] { "0+", "0=0", "1+", "1=1", "2+", "2=2", "3+", "3=11", "4+", "4=21", "1-", "3-", "4=22" }),
                 }
                 .SelectMany(a => a);
@@ -100,7 +100,7 @@ namespace GLHDN.ReactiveBuffers
                 "No observers should be left at the end of the test");
         }
 
-        private bool SubjectHasNoObservers(object subject)
+        private static bool SubjectHasNoObservers(object subject)
         {
             switch (subject)
             {
@@ -112,11 +112,8 @@ namespace GLHDN.ReactiveBuffers
                     throw new Exception($"Unexpected type of monitored object");
             }
         }
-    }
 
-    public static class Extensions
-    {
-        public static (ObservableComposite<int>, BehaviorSubject<int>) Add(this ObservableComposite<int> comp, int initialValue)
+        private static (ObservableComposite<int>, BehaviorSubject<int>) Add(ObservableComposite<int> comp, int initialValue)
         {
             var subject = new BehaviorSubject<int>(initialValue);
             var child = new ObservableComposite<int>(subject); // todo: re-add subject monitoring

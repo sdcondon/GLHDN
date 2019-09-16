@@ -106,11 +106,7 @@
         }
 
         /// <inheritdoc />
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+        public void Dispose() => Dispose(true);
 
         /*public void ResizeAttributeBuffer(int bufferIndex, int newSize)
         {
@@ -133,6 +129,8 @@
                 {
                     indexBuffer.Dispose();
                 }
+
+                GC.SuppressFinalize(this);
             }
 
             if (DeviceContext.GetCurrentContext() != IntPtr.Zero)

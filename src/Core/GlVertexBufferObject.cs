@@ -95,14 +95,15 @@
         }
 
         /// <inheritdoc />
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+        public void Dispose() => Dispose(true);
 
-        private void Dispose(bool _)
+        private void Dispose(bool disposing)
         {
+            if (disposing)
+            {
+                GC.SuppressFinalize(this);
+            }
+
             if (DeviceContext.GetCurrentContext() != IntPtr.Zero)
             {
                 Gl.DeleteBuffers(this.Id);
