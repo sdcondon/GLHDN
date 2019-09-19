@@ -11,6 +11,11 @@ namespace GLHDN.ReactiveBuffers
     /// Composite of observable sequences of leaf data that can be flattened to an observable of observables.
     /// </summary>
     /// <typeparam name="T">The leaf data type.</typeparam>
+    /// <remarks>
+    /// Sits somewhat awkwardly between the imperative and reactive worlds, in that it is updated imperatively, but
+    /// exposes a reactive-valued method. Might be slightly cleaner to live entirely in reactive world, especially if
+    /// we change user input to be entirely reactive. Meh. For later consideration.
+    /// </remarks>
     public class ObservableComposite<T>
     {
         private readonly Subject<T> removed;

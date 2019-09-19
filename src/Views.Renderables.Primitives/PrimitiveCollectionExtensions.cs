@@ -6,7 +6,7 @@
     /// <summary>
     /// Extension methods for the <see cref="Primitive"/> class.
     /// </summary>
-    public static class PrimitiveExtensions
+    public static class PrimitiveCollectionExtensions
     {
         /// <summary>
         /// Adds a cuboid to a collection of primitives.

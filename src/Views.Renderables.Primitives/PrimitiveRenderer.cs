@@ -58,21 +58,45 @@
                 }
             }
 
+            // Re-use a single vertex list for every primitive to reduce GC burden - NB not re-entrant
+            var triangleVertexList = new List<PrimitiveVertex>();
             this.coloredTriangleBufferBuilder = new ReactiveBufferBuilder<PrimitiveVertex>(
                 PrimitiveType.Triangles,
                 capacity,
                 new[] { 0, 1, 2 },
-                this.source.Select(pso =>
-                    pso.Select(ps =>
-                        ps.Where(p => p.IsTrianglePrimitive).SelectMany(p => p.Vertices).ToList())));
+                this.source.Select(pso => pso.Select(ps =>
+                {
+                    triangleVertexList.Clear();
+                    for (int i = 0; i < ps.Count; i++)
+                    {
+                        if (ps[i].IsTrianglePrimitive)
+                        {
+                            triangleVertexList.AddRange(ps[i].Vertices);
+                        }
+                    }
 
+                    return triangleVertexList;
+                })));
+
+            // Re-use a single vertex list for every primitive to reduce GC burden - NB not re-entrant
+            var lineVertexList = new List<PrimitiveVertex>();
             this.coloredLineBufferBuilder = new ReactiveBufferBuilder<PrimitiveVertex>(
                 PrimitiveType.Lines,
                 capacity,
                 new[] { 0, 1 },
-                this.source.Select(pso =>
-                    pso.Select(ps =>
-                        ps.Where(p => !p.IsTrianglePrimitive).SelectMany(p => p.Vertices).ToList())));
+                this.source.Select(pso => pso.Select(ps =>
+                {
+                    lineVertexList.Clear();
+                    for (int i = 0; i < ps.Count; i++)
+                    {
+                        if (!ps[i].IsTrianglePrimitive)
+                        {
+                            lineVertexList.AddRange(ps[i].Vertices);
+                        }
+                    }
+
+                    return lineVertexList;
+                })));
         }
 
         /// <summary>

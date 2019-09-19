@@ -40,6 +40,8 @@
         {
             public MenuRenderable(View view)
             {
+                view.LockCursor = false;
+
                 AddRenderable(new Gui(view, 1000)
                 {
                     SubElements =
@@ -162,7 +164,7 @@
 
                 camera.Update(elapsed);
 
-                camTextElement.Content = $"Hello, world!\n\nCam: {camera.Position:F2}\n\nPress SPACE to toggle cam mode\nPress q to quit";
+                camTextElement.Content = $"Cam: {camera.Position:F2}\n\nPress SPACE to toggle cam mode\nPress q to quit";
 
                 cubeWorldMatrix *= Matrix4x4.CreateRotationZ((float)elapsed.TotalSeconds);
                 cubeWorldMatrix *= Matrix4x4.CreateRotationY((float)elapsed.TotalSeconds / 2);
