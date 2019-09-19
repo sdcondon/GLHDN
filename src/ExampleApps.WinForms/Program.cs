@@ -84,7 +84,9 @@
             private readonly TextStreamElement logElement;
 
             private readonly Subject<IList<Primitive>> cubeSubject = new Subject<IList<Primitive>>();
+            private readonly IList<Primitive> cubePrimitives = new Primitive[1] { Primitive.Cuboid(Vector3.Zero, Matrix4x4.Identity, Color.Transparent()) };
             private Matrix4x4 cubeWorldMatrix = Matrix4x4.Identity;
+            private Vector3 lastCamPosition = Vector3.Zero;
 
             public DemoRenderable(View view)
             {
@@ -164,11 +166,18 @@
 
                 camera.Update(elapsed);
 
-                camTextElement.Content = $"Cam: {camera.Position:F2}\n\nPress SPACE to toggle cam mode\nPress q to quit";
+                // Avoid GC pressure - would be better to do this reactively though
+                if (camera.Position != lastCamPosition)
+                {
+                    camTextElement.Content = $"Cam: {camera.Position:F2}\n\nPress SPACE to toggle cam mode\nPress q to quit";
+                    lastCamPosition = camera.Position;
+                }
 
+                // NB: no new allocations each time to avoid GC pressure - same array, same primitive
                 cubeWorldMatrix *= Matrix4x4.CreateRotationZ((float)elapsed.TotalSeconds);
                 cubeWorldMatrix *= Matrix4x4.CreateRotationY((float)elapsed.TotalSeconds / 2);
-                cubeSubject.OnNext(new[] { Primitive.Cuboid(new Vector3(.5f, 1f, 0.75f), cubeWorldMatrix, Color.Red()) }); // TODO: no new array each time
+                cubePrimitives[0].SetCuboid(new Vector3(.5f, 1f, 0.75f), cubeWorldMatrix, Color.Red());
+                cubeSubject.OnNext(cubePrimitives);
 
                 if (view.WasLeftMouseButtonReleased)
                 {
