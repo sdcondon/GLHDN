@@ -337,10 +337,10 @@
         }
 
         private void OnGlDebugMessage(
-            DebugSource source,
-            DebugType type,
+            Gl.DebugSource source,
+            Gl.DebugType type,
             uint id,
-            DebugSeverity severity,
+            Gl.DebugSeverity severity,
             int length,
             IntPtr message,
             IntPtr userParam)

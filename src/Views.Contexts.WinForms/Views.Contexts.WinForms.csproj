@@ -1,7 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
     <AssemblyName>GLHDN.Views.Contexts.WinForms</AssemblyName>
     <RootNamespace>GLHDN.Views.Contexts.WinForms</RootNamespace>
   </PropertyGroup>
@@ -20,17 +21,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="OpenGL.Net" Version="0.8.4" />
-    <PackageReference Include="OpenGL.Net.WinForms" Version="0.8.4" />
+    <PackageReference Include="OpenGL.Net" Version="0.7.1" />
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Views\Views.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="System.Windows.Forms" />
   </ItemGroup>
 
   <ItemGroup>

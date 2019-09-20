@@ -165,8 +165,9 @@
                 PixelType.UnsignedByte,
                 data);
 
-            Gl.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureMagFilter, Gl.NEAREST);
-            Gl.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureMinFilter, Gl.NEAREST);
+            var value = Gl.NEAREST;
+            Gl.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureMagFilter, ref value);
+            Gl.TexParameteri(TextureTarget.Texture2d, TextureParameterName.TextureMinFilter, ref value);
 
             return textureId;
         }
