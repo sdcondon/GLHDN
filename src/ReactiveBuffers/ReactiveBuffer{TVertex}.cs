@@ -11,7 +11,7 @@
     /// </summary>
     /// <typeparam name="TVertex">The vertex data type.</typeparam>
     /// <remarks>
-    /// TODO: probably best to turn this into an IObserver.
+    /// TODO: worth considering turning this into an IObserver.
     /// </remarks>
     public class ReactiveBuffer<TVertex> : IDisposable
     {
@@ -38,22 +38,20 @@
             IList<int> atomIndices)
         {
             this.vertexSource = atomSource;
-            this.verticesPerAtom = atomIndices.Max() + 1; // Perhaps should throw if has unused indices..
-            this.indices = atomIndices;  // TODO: Perhaps change so optional?
+            this.verticesPerAtom = atomIndices.Max() + 1; // Perhaps should throw if has unused indices..?
+            this.indices = atomIndices;
             this.vao = vertexArrayObject;
             this.atomCapacity = vao.AttributeBuffers[0].Capacity / verticesPerAtom;
 
-            // todo: store subscription to unsubscribe on dispose
             this.vertexSource.Subscribe(i => i.Subscribe(new ItemObserver(this)));
         }
 
         /// <inheritdoc />
         public void Dispose()
         {
-            // todo: unsubscribe
+            // TODO: Dispose vertexSource subscription
 
-            // TODO LIFETIME MGMT: aggregated, not component - thus ideally not our responsibility
-            // to Dispose (and thus no need for this class to be IDisposable)
+            // TODO LIFETIME MGMT: aggregated, not component - thus ideally not our responsibility to Dispose
             if (this.vao is IDisposable disposable)
             {
                 disposable.Dispose();
@@ -125,7 +123,7 @@
 
             public void OnCompleted()
             {
-                // TODO (if/when resizing is supported): clear buffer data / shrink buffer?
+                // TODO: (if/when resizing is supported) clear buffer data / shrink buffer?
                 while (bufferIndices.Count > 0)
                 {
                     DeleteAtom(0);

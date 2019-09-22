@@ -7,13 +7,16 @@
     /// <summary>
     /// Container for primitive vertex data.
     /// </summary>
+    /// <remarks>
+    /// TODO: Perhaps should be an immutable struct instead to discourage heap allocations..
+    /// </remarks>
     public sealed class Primitive
     {
         private readonly List<PrimitiveVertex> vertices = new List<PrimitiveVertex>();
 
-        private Primitive(Action<Primitive> init)
+        private Primitive(Action<Primitive> initialize)
         {
-            init(this);
+            initialize?.Invoke(this);
         }
 
         /// <summary>
@@ -25,6 +28,12 @@
         /// Gets a value indicating whether the primitive is comprised of triangles (as opposed to lines).
         /// </summary>
         public bool IsTrianglePrimitive { get; private set; }
+
+        /// <summary>
+        /// Creates an empty primitive.
+        /// </summary>
+        /// <returns>The created primitive.</returns>
+        public static Primitive Empty() => new Primitive(null);
 
         /// <summary>
         /// Creates a cuboid primitive.

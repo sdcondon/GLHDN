@@ -28,16 +28,12 @@
         /// Initializes a new instance of the <see cref="ColoredStaticMesh"/> class.
         /// </summary>
         /// <param name="viewProjection">The provider for the view and projection matrices to use when rendering.</param>
-        /// <param name="vertexPositions">The positions of the vertices of the mesh.</param>
-        /// <param name="vertexNormals">The normals of the vertices of the mesh.</param>
-        /// <param name="vertexColors">The color of the vertices of the mesh.</param>
+        /// <param name="vertices">The vertices of the mesh.</param>
         /// <param name="indices">The indices (into the provided vertices) to use for actually rendering the mesh.</param>
         public ColoredStaticMesh(
             IViewProjection viewProjection,
-            IList<Vector3> vertexPositions,
-            IList<Vector3> vertexNormals,
-            IList<Vector3> vertexColors,
-            IList<uint> indices)
+            IEnumerable<Vertex> vertices,
+            IEnumerable<uint> indices)
         {
             this.viewProjection = viewProjection;
 
@@ -56,9 +52,7 @@
             }
 
             this.vertexArrayObjectBuilder = new VertexArrayObjectBuilder(PrimitiveType.Triangles)
-                .WithAttributeBuffer(BufferUsage.StaticDraw, vertexPositions.ToArray())
-                .WithAttributeBuffer(BufferUsage.StaticDraw, vertexColors.ToArray())
-                .WithAttributeBuffer(BufferUsage.StaticDraw, vertexNormals.ToArray())
+                .WithAttributeBuffer(BufferUsage.StaticDraw, vertices.ToArray())
                 .WithIndex(indices.ToArray());
         }
 
@@ -121,6 +115,40 @@
             if (isDisposed)
             {
                 throw new ObjectDisposedException(GetType().FullName);
+            }
+        }
+
+        /// <summary>
+        /// Container struct for the attributes of a vertex.
+        /// </summary>
+        public struct Vertex
+        {
+            /// <summary>
+            /// Gets the position of the vertex.
+            /// </summary>
+            public readonly Vector3 Position;
+
+            /// <summary>
+            /// Gets the color of the vertex.
+            /// </summary>
+            public readonly Vector3 Color;
+
+            /// <summary>
+            /// Gets the normal vector of the vertex.
+            /// </summary>
+            public readonly Vector3 Normal;
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="Vertex"/> struct.
+            /// </summary>
+            /// <param name="position">The position of the vertex.</param>
+            /// <param name="color">The color of the vertex.</param>
+            /// <param name="normal">The normal vector of the vertex.</param>
+            public Vertex(Vector3 position, Vector3 color, Vector3 normal)
+            {
+                Position = position;
+                Color = color;
+                Normal = normal;
             }
         }
     }

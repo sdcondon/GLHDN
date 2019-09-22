@@ -53,6 +53,6 @@
             new Vertex(PosBR, Color, PosBL, Size, BorderWidth)
         };
 
-        // TODO: handlers? - onclick, onmouseover, onmouseout etc
+        //// TODO: at some point, handlers here: onclick, onmouseover, onmouseout etc
     }
 }

@@ -124,22 +124,18 @@
         }
 
         /// <inheritdoc />
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+        public void Dispose() => Dispose(true);
 
         private void Dispose(bool disposing)
         {
+            Gl.DeleteTextures(textures);
+
             if (disposing)
             {
                 this.vertexArrayObject?.Dispose();
+                this.isDisposed = true;
+                GC.SuppressFinalize(this);
             }
-
-            Gl.DeleteTextures(textures);
-
-            isDisposed = true;
         }
 
         private void ThrowIfDisposed()

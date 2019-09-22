@@ -33,6 +33,9 @@
             Debug.WriteLine("Registering OpenGL debug handler");
             Gl.DebugMessageCallback(OnGlDebugMessage, null);
 
+            KhronosApi.LogEnabled = true;
+            KhronosApi.Log += KhronosApi_Log;
+
             this.context = context;
             context.GlContextCreated += OnGlContextCreated;
             context.GlRender += OnGlRender;
@@ -220,7 +223,7 @@
             Gl.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
             renderable.Load();
-            isContextCreated = true; // todo: re-entry safety
+            isContextCreated = true;
         }
 
         private void OnGlRender(object sender, DeviceContext context)
@@ -284,7 +287,7 @@
             keysDown.Remove(a);
         }
 
-        private void OnMouseWheel(object s, int a) => MouseWheelDelta = a; // SO much is wrong with this approach..;
+        private void OnMouseWheel(object s, int a) => MouseWheelDelta = a; // SO much is wrong with this approach..
 
         private void OnLeftMouseDown(object s, EventArgs a)
         {
@@ -346,6 +349,11 @@
             IntPtr userParam)
         {
             Debug.WriteLine($"{id} {source} {type} {severity}", "OPENGL");
+        }
+
+        private void KhronosApi_Log(object sender, Khronos.KhronosLogEventArgs e)
+        {
+            Debug.WriteLine($"{e.Name}({string.Join(',', e.Args)}) {e.ReturnValue}", "KHRONOS API");
         }
     }
 }

@@ -55,9 +55,13 @@
                 PrimitiveType.Lines,
                 100,
                 new[] { 0, 1 },
-                ((INotifyCollectionChanged)lines)
-                    .ToObservable<Line>()
-                    .Select(o => o.Select(i => new[] { new Vertex(i.From, Color.White(), i.From), new Vertex(i.To, Color.White(), i.To) })));
+                ((INotifyCollectionChanged)lines).ToObservable<Line>()
+                    .Select(o => o
+                        .Select(i => new[]
+                        {
+                            new Vertex(i.From, Color.White(), i.From),
+                            new Vertex(i.To, Color.White(), i.To),
+                        })));
         }
 
         /// <summary>

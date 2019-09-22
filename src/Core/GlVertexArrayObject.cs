@@ -85,7 +85,6 @@
         {
             Gl.BindVertexArray(this.id);
 
-            // TODO: PERFORMANCE (this method will be called ALOT) - delegate instead of 'if' every time? Test me.
             if (indexBuffer != null)
             {
                 // There's an index buffer (which will be bound) - bind it and draw

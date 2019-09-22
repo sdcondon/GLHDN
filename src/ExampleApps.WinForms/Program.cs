@@ -5,11 +5,13 @@
     using GLHDN.Views.Renderables.BasicExamples;
     using GLHDN.Views.Renderables.Gui;
     using GLHDN.Views.Renderables.Primitives;
+    using OpenGL;
     using System;
     using System.Collections.Generic;
     using System.Numerics;
     using System.Reactive.Linq;
     using System.Reactive.Subjects;
+    using System.Text;
 
     /// <summary>
     /// The main entry point for the application.
@@ -42,6 +44,16 @@
             {
                 view.LockCursor = false;
 
+                var systemInfo = new StringBuilder();
+                systemInfo.AppendLine($"OpenGl version: {Gl.CurrentVersion}");
+                systemInfo.AppendLine($"OpenGl Shading Language version: {Gl.CurrentShadingVersion}");
+                systemInfo.AppendLine($"Vendor: {Gl.CurrentVendor}");
+                systemInfo.AppendLine($"Renderer: {Gl.CurrentRenderer}");
+                if (Egl.IsAvailable)
+                {
+                    systemInfo.AppendLine("EGL is available");
+                }
+
                 AddRenderable(new Gui(view, 1000)
                 {
                     SubElements =
@@ -63,9 +75,9 @@
                             text: "QUIT",
                             v => view.Exit()),
                         new TextElement(
-                            layout: new Layout((0f, -1f), (0f, -1f), (1f, 40)),
+                            layout: new Layout((0f, -1f), (0f, -1f), (1f, 100)),
                             color: Color.Grey(0.7f),
-                            content: "Here is a footer. Hello!")
+                            content: systemInfo.ToString())
                         {
                             HorizontalAlignment = 0.5f,
                         },
@@ -84,7 +96,7 @@
             private readonly TextStreamElement logElement;
 
             private readonly Subject<IList<Primitive>> cubeSubject = new Subject<IList<Primitive>>();
-            private readonly IList<Primitive> cubePrimitives = new Primitive[1] { Primitive.Cuboid(Vector3.Zero, Matrix4x4.Identity, Color.Transparent()) };
+            private readonly Primitive[] cubePrimitives = new Primitive[1] { Primitive.Empty() };
             private Matrix4x4 cubeWorldMatrix = Matrix4x4.Identity;
             private Vector3 lastCamPosition = Vector3.Zero;
 
@@ -102,7 +114,7 @@
                     initialHorizontalAngleRadians: (float)Math.PI,
                     initialVerticalAngleRadians: 0f);
 
-                var triangleVertices = new[]
+                var texturedTriangleVertices = new[]
                 {
                     new TexturedStaticMesh.Vertex(
                         new Vector3(-1f, -1f, -2f),
@@ -119,9 +131,29 @@
                 };
                 AddRenderable(new TexturedStaticMesh(
                     camera,
-                    triangleVertices,
+                    texturedTriangleVertices,
                     new uint[] { 0, 1, 2 },
                     @"Assets\Textures\foo.bmp"));
+
+                var coloredTriangleVertices = new[]
+                {
+                    new ColoredStaticMesh.Vertex(
+                        new Vector3(-1f, 1f, -3f),
+                        Color.Orange(),
+                        new Vector3(0f, 0f, 1f)),
+                    new ColoredStaticMesh.Vertex(
+                        new Vector3(1f, 1f, -3f),
+                        Color.Orange(),
+                        new Vector3(0f, 0f, 1f)),
+                    new ColoredStaticMesh.Vertex(
+                        new Vector3(0f, -1f, -3f),
+                        Color.Orange(),
+                        new Vector3(0f, 0f, 1f)),
+                };
+                AddRenderable(new ColoredStaticMesh(
+                    camera,
+                    coloredTriangleVertices,
+                    new uint[] { 0, 1, 2 }));
 
                 AddRenderable(new PrimitiveRenderer(camera, Observable.Return(cubeSubject), 12)
                 {
@@ -166,14 +198,16 @@
 
                 camera.Update(elapsed);
 
-                // Avoid GC pressure - would be better to do this reactively though
+                // Avoid GC pressure for string unless needed - would be better to do this reactively though
+                // (e.g. reactive linq to take at intervals or debounce)
                 if (camera.Position != lastCamPosition)
                 {
                     camTextElement.Content = $"Cam: {camera.Position:F2}\n\nPress SPACE to toggle cam mode\nPress q to quit";
                     lastCamPosition = camera.Position;
                 }
 
-                // NB: no new allocations each time to avoid GC pressure - same array, same primitive
+                // NB: No new allocations each time to avoid GC pressure - same array, same primitive.
+                // Could do with more helpers to make this easier. Perhaps Primitive should be struct after all..
                 cubeWorldMatrix *= Matrix4x4.CreateRotationZ((float)elapsed.TotalSeconds);
                 cubeWorldMatrix *= Matrix4x4.CreateRotationY((float)elapsed.TotalSeconds / 2);
                 cubePrimitives[0].SetCuboid(new Vector3(.5f, 1f, 0.75f), cubeWorldMatrix, Color.Red());
