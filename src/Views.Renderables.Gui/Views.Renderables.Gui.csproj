@@ -15,11 +15,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="_stb\stb_rect_pack.cs" />
-    <Compile Remove="_stb\stb_truetype.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Remove="GLHDN.Views.Renderables.Gui.xml" />
     <None Remove="Gui.Fragment.glsl" />
     <None Remove="Gui.Vertex.glsl" />
@@ -33,11 +28,6 @@
   <ItemGroup>
     <PackageReference Include="SharpFont.Dependencies" Version="2.6.0" />
     <PackageReference Include="SharpFontStandard" Version="4.0.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="_stb\stb_rect_pack.cs" />
-    <None Include="_stb\stb_truetype.cs" />
   </ItemGroup>
 
   <ItemGroup>
