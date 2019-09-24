@@ -13,7 +13,7 @@
         {
             get
             {
-                object[] MakeTestCase(Type type, params GlVertexAttributeInfo[] expectedAttributeInfo)
+                static object[] MakeTestCase(Type type, params GlVertexAttributeInfo[] expectedAttributeInfo)
                     => new object[] { type, expectedAttributeInfo };
 
                 return new[]

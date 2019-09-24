@@ -15,7 +15,7 @@ namespace GLHDN.ReactiveBuffers
         {
             get
             {
-                object[][] MakeTestCases(Action<TestCase> action, ICollection<string> expectedObservations) => new object[][]
+                static object[][] MakeTestCases(Action<TestCase> action, ICollection<string> expectedObservations) => new object[][]
                 {
                     new object[] { action, expectedObservations, false },
                     new object[] { action, expectedObservations, true },
@@ -125,15 +125,12 @@ namespace GLHDN.ReactiveBuffers
 
             private static bool SubjectHasNoObservers(object subject)
             {
-                switch (subject)
+                return subject switch
                 {
-                    case BehaviorSubject<int> bsi:
-                        return !bsi.HasObservers;
-                    case Subject<ObservableComposite<int>> sc:
-                        return !sc.HasObservers;
-                    default:
-                        throw new Exception($"Unexpected type of monitored object");
-                }
+                    BehaviorSubject<int> bsi => !bsi.HasObservers,
+                    Subject<ObservableComposite<int>> sc => !sc.HasObservers,
+                    _ => throw new Exception($"Unexpected type of monitored object"),
+                };
             }
         }
     }

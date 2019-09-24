@@ -16,7 +16,7 @@
         {
             get
             {
-                object[] MakeTestCase(Action<TestSource> action, ICollection<(int, int)> expectedVertices) =>
+                static object[] MakeTestCase(Action<TestSource> action, ICollection<(int, int)> expectedVertices) =>
                     new object[] { action, expectedVertices, Enumerable.Range(0, expectedVertices.Count).ToArray() };
 
 #pragma warning disable SA1107

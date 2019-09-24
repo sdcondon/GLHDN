@@ -21,10 +21,8 @@
         /// <returns>The updated builder.</returns>
         public ProgramBuilder WithShaderFromStream(ShaderType shaderType, Stream sourceStream)
         {
-            using (var reader = new StreamReader(sourceStream))
-            {
-                shaderSpecs.Add((shaderType, reader.ReadToEnd()));
-            }
+            using var reader = new StreamReader(sourceStream);
+            shaderSpecs.Add((shaderType, reader.ReadToEnd()));
 
             return this;
         }
@@ -37,10 +35,8 @@
         /// <returns>The updated builder.</returns>
         public ProgramBuilder WithShaderFromFile(ShaderType shaderType, string filePath)
         {
-            using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
-            {
-                return WithShaderFromStream(shaderType, stream);
-            }
+            using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+            return WithShaderFromStream(shaderType, stream);
         }
 
         /// <summary>
@@ -51,10 +47,8 @@
         /// <returns>The updated builder.</returns>
         public ProgramBuilder WithShaderFromEmbeddedResource(ShaderType shaderType, string resourceName)
         {
-            using (var stream = Assembly.GetCallingAssembly().GetManifestResourceStream(resourceName))
-            {
-                return WithShaderFromStream(shaderType, stream);
-            }
+            using var stream = Assembly.GetCallingAssembly().GetManifestResourceStream(resourceName);
+            return WithShaderFromStream(shaderType, stream);
         }
 
         /// <summary>
