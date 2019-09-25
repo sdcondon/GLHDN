@@ -30,9 +30,17 @@
                 // FormBorderStyle = FormBorderStyle.Sizable
             };
 
+            // Obviously not ideal to have to set font globally - need to sort this out, probably via some nice
+            // texture management stuff in the core lib.
             TextElement.Font = new Font(@"Assets\Fonts\Inconsolata\Inconsolata-Regular.ttf");
 
+            // A View encapsulates an interactive OpenGl rendered viewport
             var view = new View(form.ViewContext, false, Color.Black());
+
+            // Views have a Renderable property. Renderables can be composed of other renderables -
+            // there's a handy CompositeRenderable base class to make this easy - see the two examples
+            // below, and note that MenuRenderable (which consists of a single Gui renderable and has
+            // no overrides) is only a class of its own to make disposal on button press easy.
             view.Renderable = new MenuRenderable(view);
 
             System.Windows.Forms.Application.Run(form);
@@ -138,11 +146,11 @@
                 var coloredTriangleVertices = new[]
                 {
                     new ColoredStaticMesh.Vertex(
-                        new Vector3(-1f, 1f, -3f),
+                        new Vector3(1f, 1f, -3f),
                         Color.Orange(),
                         new Vector3(0f, 0f, 1f)),
                     new ColoredStaticMesh.Vertex(
-                        new Vector3(1f, 1f, -3f),
+                        new Vector3(-1f, 1f, -3f),
                         Color.Orange(),
                         new Vector3(0f, 0f, 1f)),
                     new ColoredStaticMesh.Vertex(
@@ -202,12 +210,12 @@
                 // (e.g. reactive linq to take at intervals or debounce)
                 if (camera.Position != lastCamPosition)
                 {
-                    camTextElement.Content = $"Cam: {camera.Position:F2}\n\nPress SPACE to toggle cam mode\nPress q to quit";
+                    camTextElement.Content = $"Cam@{camera.Position:F2}\n\nPress SPACE to toggle cam mode\nPress q to quit";
                     lastCamPosition = camera.Position;
                 }
 
-                // NB: No new allocations each time to avoid GC pressure - same array, same primitive.
-                // Could do with more helpers to make this easier. Perhaps Primitive should be struct after all..
+                // NB: No new heap allocations each time to avoid GC pressure - same array, same primitive.
+                // Could do with more helpers to make this easier. Perhaps Primitive should be a struct after all..
                 cubeWorldMatrix *= Matrix4x4.CreateRotationZ((float)elapsed.TotalSeconds);
                 cubeWorldMatrix *= Matrix4x4.CreateRotationY((float)elapsed.TotalSeconds / 2);
                 cubePrimitives[0].SetCuboid(new Vector3(.5f, 1f, 0.75f), cubeWorldMatrix, Color.Red());
