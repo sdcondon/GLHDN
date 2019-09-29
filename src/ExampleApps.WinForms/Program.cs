@@ -143,22 +143,22 @@
                     new uint[] { 0, 1, 2 },
                     @"Assets\Textures\foo.bmp")
                 {
-                    AmbientLightColor = Color.Grey(0.3f),
+                    AmbientLightColor = Color.Grey(),
                 });
 
                 var coloredTriangleVertices = new[]
                 {
                     new ColoredStaticMesh.Vertex(
-                        new Vector3(1f, 1f, -3f),
-                        Color.Orange(),
+                        new Vector3(2f, 2f, -3f),
+                        Color.Red(),
                         new Vector3(0f, 0f, 1f)),
                     new ColoredStaticMesh.Vertex(
-                        new Vector3(-1f, 1f, -3f),
-                        Color.Orange(),
+                        new Vector3(-2f, 2f, -3f),
+                        Color.Green(),
                         new Vector3(0f, 0f, 1f)),
                     new ColoredStaticMesh.Vertex(
-                        new Vector3(0f, -1f, -3f),
-                        Color.Orange(),
+                        new Vector3(0f, -2f, -3f),
+                        Color.Blue(),
                         new Vector3(0f, 0f, 1f)),
                 };
                 AddRenderable(new ColoredStaticMesh(
@@ -166,7 +166,7 @@
                     coloredTriangleVertices,
                     new uint[] { 0, 1, 2 })
                 {
-                    AmbientLightColor = Color.Grey(0.3f),
+                    AmbientLightColor = Color.Grey(),
                 });
 
                 AddRenderable(new PrimitiveRenderer(camera, Observable.Return(cubeSubject), 12)
@@ -178,7 +178,7 @@
 
                 AddRenderable(lines = new ColoredLines(camera)
                 {
-                    AmbientLightColor = Color.Grey(0.3f),
+                    AmbientLightColor = Color.Grey(),
                 });
 
                 camTextElement = new TextElement(
@@ -219,7 +219,7 @@
                 // (e.g. reactive linq to take at intervals or debounce)
                 if (camera.Position != lastCamPosition)
                 {
-                    camTextElement.Content = $"Cam@{camera.Position:F2}\n\nPress SPACE to toggle cam mode\nPress q to quit";
+                    camTextElement.Content = $"Cam@{camera.Position:F2}\n\nUse WASD to move the camera\nClick LMB to add a ray\nPress SPACE to toggle cam mode\nPress q to quit";
                     lastCamPosition = camera.Position;
                 }
 

@@ -107,6 +107,30 @@ namespace GLHDN.Views
         public static Color Blue(float brightness = 1, float alpha = 1) => new Color(0, 0, brightness, alpha);
 
         /// <summary>
+        /// Returns yellow.
+        /// </summary>
+        /// <param name="brightness">The brightness of the returned color.</param>
+        /// <param name="alpha">The alpha of the returned color.</param>
+        /// <returns>An appropriate <see cref="Color"/> instance.</returns>
+        public static Color Yellow(float brightness = 1, float alpha = 1) => new Color(brightness, brightness, 0, alpha);
+
+        /// <summary>
+        /// Returns cyan.
+        /// </summary>
+        /// <param name="brightness">The brightness of the returned color.</param>
+        /// <param name="alpha">The alpha of the returned color.</param>
+        /// <returns>An appropriate <see cref="Color"/> instance.</returns>
+        public static Color Cyan(float brightness = 1, float alpha = 1) => new Color(0, brightness, brightness, alpha);
+
+        /// <summary>
+        /// Returns magenta.
+        /// </summary>
+        /// <param name="brightness">The brightness of the returned color.</param>
+        /// <param name="alpha">The alpha of the returned color.</param>
+        /// <returns>An appropriate <see cref="Color"/> instance.</returns>
+        public static Color Magenta(float brightness = 1, float alpha = 1) => new Color(brightness, 0, brightness, alpha);
+
+        /// <summary>
         /// Returns brown.
         /// </summary>
         /// <param name="brightness">The brightness of the returned color.</param>
