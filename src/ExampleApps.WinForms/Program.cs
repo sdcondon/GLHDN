@@ -141,7 +141,10 @@
                     camera,
                     texturedTriangleVertices,
                     new uint[] { 0, 1, 2 },
-                    @"Assets\Textures\foo.bmp"));
+                    @"Assets\Textures\foo.bmp")
+                {
+                    AmbientLightColor = Color.Grey(0.3f),
+                });
 
                 var coloredTriangleVertices = new[]
                 {
@@ -161,7 +164,10 @@
                 AddRenderable(new ColoredStaticMesh(
                     camera,
                     coloredTriangleVertices,
-                    new uint[] { 0, 1, 2 }));
+                    new uint[] { 0, 1, 2 })
+                {
+                    AmbientLightColor = Color.Grey(0.3f),
+                });
 
                 AddRenderable(new PrimitiveRenderer(camera, Observable.Return(cubeSubject), 12)
                 {
@@ -170,7 +176,10 @@
                     DirectedLightColor = Color.Grey(),
                 });
 
-                AddRenderable(lines = new ColoredLines(camera));
+                AddRenderable(lines = new ColoredLines(camera)
+                {
+                    AmbientLightColor = Color.Grey(0.3f),
+                });
 
                 camTextElement = new TextElement(
                     new Layout((-1f, 1f), (-1f, 1f), (1f, 0f)),

@@ -61,6 +61,26 @@
         /// </summary>
         public Matrix4x4 Model { get; set; } = Matrix4x4.Identity;
 
+        /// <summary>
+        /// Gets or sets the lighting applied as a minimum to every fragment.
+        /// </summary>
+        public Color AmbientLightColor { get; set; } = Color.Transparent();
+
+        /// <summary>
+        /// Gets or sets the point light position. Fragments facing this position are lit with the point light color.
+        /// </summary>
+        public Vector3 PointLightPosition { get; set; } = Vector3.Zero;
+
+        /// <summary>
+        /// Gets or sets the point light color, applied to fragments facing the point light position.
+        /// </summary>
+        public Color PointLightColor { get; set; } = Color.Transparent();
+
+        /// <summary>
+        /// Gets or sets the point light power. Affects the intensity with which fragments are lit by the point light.
+        /// </summary>
+        public float PointLightPower { get; set; } = 0f;
+
         /// <inheritdoc />
         public void Load()
         {
@@ -96,10 +116,10 @@
                 Matrix4x4.Transpose(this.Model * this.viewProjection.View * this.viewProjection.Projection),
                 Matrix4x4.Transpose(this.viewProjection.View),
                 Matrix4x4.Transpose(this.Model),
-                new Vector3(4, 4, 4),
-                new Vector3(1, 1, 1),
-                30f,
-                new Vector3(0.3f, 0.3f, 0.3f));
+                PointLightPosition,
+                (Vector3)PointLightColor,
+                PointLightPower,
+                (Vector3)AmbientLightColor);
             this.vertexArrayObject.Draw(-1);
         }
 
