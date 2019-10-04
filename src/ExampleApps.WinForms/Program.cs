@@ -4,7 +4,7 @@
     using GLHDN.Views.Contexts.WinForms;
     using GLHDN.Views.Renderables.BasicExamples;
     using GLHDN.Views.Renderables.Gui;
-    using GLHDN.Views.Renderables.Primitives;
+    using GLHDN.Views.Renderables.ReactivePrimitives;
     using OpenGL;
     using System;
     using System.Collections.Generic;

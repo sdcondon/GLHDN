@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
-    <AssemblyName>GLHDN.Views.Renderables.Primitives</AssemblyName>
-    <RootNamespace>GLHDN.Views.Renderables.Primitives</RootNamespace>
+    <AssemblyName>GLHDN.Views.Renderables.ReactivePrimitives</AssemblyName>
+    <RootNamespace>GLHDN.Views.Renderables.ReactivePrimitives</RootNamespace>
     
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Description>Foo</Description>

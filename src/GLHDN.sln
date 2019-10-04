@@ -23,7 +23,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Views.Renderables.BasicExam
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Views.Renderables.Gui", "Views.Renderables.Gui\Views.Renderables.Gui.csproj", "{A3B6711D-F4E1-4749-B598-E27DE2806D29}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Views.Renderables.Primitives", "Views.Renderables.Primitives\Views.Renderables.Primitives.csproj", "{2AD37B53-0912-4B63-A01E-8E5DFCDA9ADC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Views.Renderables.ReactivePrimitives", "Views.Renderables.ReactivePrimitives\Views.Renderables.ReactivePrimitives.csproj", "{2AD37B53-0912-4B63-A01E-8E5DFCDA9ADC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Solution Items", "_Solution Items", "{5A5CF77A-781B-45E1-BEAA-A30404868698}"
 	ProjectSection(SolutionItems) = preProject

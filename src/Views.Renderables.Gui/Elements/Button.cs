@@ -8,11 +8,12 @@ namespace GLHDN.Views.Renderables.Gui
     public sealed class Button : ContainerElementBase
     {
         private readonly Action<Vector2> clickHandler;
+        private readonly PanelElement panel;
 
         public Button(Layout layout, Color color, Color textColor, string text, Action<Vector2> clickHandler)
             : base(layout)
         {
-            this.SubElements.Add(new PanelElement(Layout.Fill, color, 0)
+            this.SubElements.Add(this.panel = new PanelElement(Layout.Fill, color, 0)
             {
                 SubElements =
                 {
@@ -25,6 +26,12 @@ namespace GLHDN.Views.Renderables.Gui
             });
 
             this.clickHandler = clickHandler;
+        }
+
+        public Vector4 Color
+        {
+            get => this.panel.Color;
+            set => this.panel.Color = value;
         }
 
         protected override void OnClicked(Vector2 position)

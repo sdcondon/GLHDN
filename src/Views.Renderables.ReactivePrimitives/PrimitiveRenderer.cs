@@ -1,4 +1,4 @@
-﻿namespace GLHDN.Views.Renderables.Primitives
+﻿namespace GLHDN.Views.Renderables.ReactivePrimitives
 {
     using GLHDN.Core;
     using GLHDN.ReactiveBuffers;
