@@ -1,6 +1,7 @@
 ﻿namespace GLHDN.Core
 {
     using System;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Interface for types representing an OpenGL vertex buffer object.

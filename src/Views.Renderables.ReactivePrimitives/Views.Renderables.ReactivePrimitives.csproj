@@ -6,7 +6,7 @@
     <RootNamespace>GLHDN.Views.Renderables.ReactivePrimitives</RootNamespace>
     
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Description>Foo</Description>
+    <Description>Open GL Helpers for .NET / view engine: Renderable for ReactiveX-managed primitives</Description>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

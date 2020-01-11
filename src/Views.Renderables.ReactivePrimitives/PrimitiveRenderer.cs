@@ -15,7 +15,7 @@
     /// </summary>
     public class PrimitiveRenderer : IRenderable
     {
-        private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.Primitives";
+        private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.ReactivePrimitives";
 
         private static readonly object ProgramStateLock = new object();
         private static ProgramBuilder programBuilder;
