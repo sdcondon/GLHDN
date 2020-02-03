@@ -99,9 +99,9 @@ namespace GLHDN.Core.VaoDecorators
                 }
             }
 
-            public T Get<T>(int index)
+            public T GetAs<T>(int index)
             {
-                return vertexBufferObject.Get<T>(index);
+                return vertexBufferObject.GetAs<T>(index);
             }
         }
     }

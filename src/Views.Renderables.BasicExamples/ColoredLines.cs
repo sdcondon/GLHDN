@@ -1,15 +1,15 @@
-﻿namespace GLHDN.Views.Renderables.BasicExamples
-{
-    using GLHDN.Core;
-    using GLHDN.ReactiveBuffers;
-    using OpenGL;
-    using System;
-    using System.Collections.ObjectModel;
-    using System.Collections.Specialized;
-    using System.ComponentModel;
-    using System.Numerics;
-    using System.Reactive.Linq;
+﻿using GLHDN.Core;
+using GLHDN.ReactiveBuffers;
+using OpenGL;
+using System;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Numerics;
+using System.Reactive.Linq;
 
+namespace GLHDN.Views.Renderables.BasicExamples
+{
     /// <summary>
     /// Renderable class for 3D lines. For debug utilities.
     /// </summary>
@@ -18,7 +18,7 @@
         private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.BasicExamples";
 
         private static readonly object ProgramStateLock = new object();
-        private static ProgramBuilder programBuilder;
+        private static GlProgramBuilder programBuilder;
         private static GlProgram program;
 
         private readonly IViewProjection viewProjection;
@@ -43,7 +43,7 @@
                 {
                     if (program == null && programBuilder == null)
                     {
-                        programBuilder = new ProgramBuilder()
+                        programBuilder = new GlProgramBuilder()
                             .WithShaderFromEmbeddedResource(ShaderType.VertexShader, $"{ShaderResourceNamePrefix}.Colored.Vertex.glsl")
                             .WithShaderFromEmbeddedResource(ShaderType.FragmentShader, $"{ShaderResourceNamePrefix}.Colored.Fragment.glsl")
                             .WithUniforms("MVP", "V", "M", "LightPosition_worldspace", "LightColor", "LightPower", "AmbientLightColor");
@@ -52,10 +52,10 @@
             }
 
             this.linesBufferBuilder = new ReactiveBufferBuilder<Vertex>(
-                PrimitiveType.Lines,
-                100,
-                new[] { 0, 1 },
-                ((INotifyCollectionChanged)lines).ToObservable<Line>()
+                primitiveType: PrimitiveType.Lines,
+                atomCapacity: 100,
+                atomIndices: new[] { 0, 1 },
+                atomSource: ((INotifyCollectionChanged)lines).ToObservable<Line>()
                     .Select(o => o
                         .Select(i => new[]
                         {

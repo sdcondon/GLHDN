@@ -1,13 +1,13 @@
-﻿namespace GLHDN.ReactiveBuffers
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.ComponentModel;
-    using System.Reactive.Linq;
-    using System.Text;
-    using Xunit;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Reactive.Linq;
+using System.Text;
+using Xunit;
 
+namespace GLHDN.ReactiveBuffers
+{
     public class INotifyCollectionChangedExtensionsTests
     {
         public static IEnumerable<object[]> ObservableCollectionToObservableTestCases

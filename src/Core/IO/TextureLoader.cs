@@ -1,11 +1,11 @@
-﻿namespace GLHDN.Core
-{
-    using OpenGL;
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Text;
+﻿using OpenGL;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
 
+namespace GLHDN.Core
+{
     /// <summary>
     /// Simple texture loader nabbed from an OpenGL tutorial.
     /// </summary>

@@ -1,7 +1,7 @@
-﻿namespace GLHDN.Views
-{
-    using System.Numerics;
+﻿using System.Numerics;
 
+namespace GLHDN.Views
+{
     /// <summary>
     /// Extension methods for <see cref="IViewContext"/> instances.
     /// </summary>

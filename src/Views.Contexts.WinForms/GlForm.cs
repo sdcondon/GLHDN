@@ -1,9 +1,9 @@
-﻿namespace GLHDN.Views.Contexts.WinForms
-{
-    using System.ComponentModel;
-    using System.Drawing;
-    using System.Windows.Forms;
+﻿using System.ComponentModel;
+using System.Drawing;
+using System.Windows.Forms;
 
+namespace GLHDN.Views.Contexts.WinForms
+{
     /// <summary>
     /// Windows form containing only a single OpenGL render control.
     /// </summary>
@@ -29,7 +29,7 @@
             this.glControl = new GlControl()
             {
                 Animation = true,
-                BackColor = Color.DimGray,
+                BackColor = System.Drawing.Color.DimGray,
                 ColorBits = 24u,
                 DepthBits = 8u,
                 Dock = DockStyle.Fill,

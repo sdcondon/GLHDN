@@ -1,8 +1,8 @@
-﻿namespace GLHDN.Views
-{
-    using System;
-    using System.Numerics;
+﻿using System;
+using System.Numerics;
 
+namespace GLHDN.Views
+{
     /// <summary>
     /// Implementation of <see cref="ICamera"/> that rotates around the origin.
     /// </summary>

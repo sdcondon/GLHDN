@@ -1,8 +1,8 @@
-﻿namespace GLHDN.Views
-{
-    using System;
-    using System.Numerics;
+﻿using System;
+using System.Numerics;
 
+namespace GLHDN.Views
+{
     /// <summary>
     /// Interface for types that provide view and projection matrices, and can change over time (e.g. in reponse to user input).
     /// </summary>

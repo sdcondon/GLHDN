@@ -1,8 +1,8 @@
-﻿namespace GLHDN.Views
-{
-    using System;
-    using System.Numerics;
+﻿using System;
+using System.Numerics;
 
+namespace GLHDN.Views
+{
     /// <summary>
     /// Represents a semi-infinite 3D ray, that has a start point and a direction.
     /// </summary>

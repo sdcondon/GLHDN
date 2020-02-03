@@ -1,11 +1,11 @@
-﻿namespace GLHDN.Core
-{
-    using OpenGL;
-    using System;
-    using System.Collections.Generic;
-    using System.Numerics;
-    using System.Runtime.InteropServices;
+﻿using OpenGL;
+using System;
+using System.Collections.Generic;
+using System.Numerics;
+using System.Runtime.InteropServices;
 
+namespace GLHDN.Core
+{
     /// <summary>
     /// Container for information about an OpenGL vertex attribute.
     /// </summary>

@@ -8,7 +8,7 @@ using System.Reactive.Subjects;
 namespace GLHDN.ReactiveBuffers
 {
     /// <summary>
-    /// Composite of observable sequences of leaf data that can be flattened to an observable of observables.
+    /// Imperatively managed composite of observable sequences of leaf data that can be flattened to an observable of observables.
     /// </summary>
     /// <typeparam name="T">The leaf data type.</typeparam>
     /// <remarks>

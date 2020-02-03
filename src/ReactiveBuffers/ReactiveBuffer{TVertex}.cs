@@ -1,10 +1,10 @@
-﻿namespace GLHDN.ReactiveBuffers
-{
-    using GLHDN.Core;
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
+﻿using GLHDN.Core;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
+namespace GLHDN.ReactiveBuffers
+{
     /// <summary>
     /// Logic for creating and managing an Open GL buffer for a (observable) set of (observable) items that change over time,
     /// each of which provide a list of vertices to the buffer.

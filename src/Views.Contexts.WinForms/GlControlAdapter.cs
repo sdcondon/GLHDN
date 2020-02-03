@@ -1,12 +1,11 @@
-﻿namespace GLHDN.Views.Contexts.WinForms
-{
-    using GLHDN.Views;
-    using OpenGL;
-    using System;
-    using System.Drawing;
-    using System.Numerics;
-    using System.Windows.Forms;
+﻿using OpenGL;
+using System;
+using System.Drawing;
+using System.Numerics;
+using System.Windows.Forms;
 
+namespace GLHDN.Views.Contexts.WinForms
+{
     /// <summary>
     /// Wrapper for <see cref="GlControl"/> to the <see cref="IViewContext"/> interface.
     /// </summary>

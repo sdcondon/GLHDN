@@ -1,8 +1,8 @@
-﻿namespace GLHDN.Views.Renderables.ReactivePrimitives
-{
-    using System.Collections.Generic;
-    using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Numerics;
 
+namespace GLHDN.Views.Renderables.ReactivePrimitives
+{
     /// <summary>
     /// Extension methods for the <see cref="Primitive"/> class.
     /// </summary>

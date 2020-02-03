@@ -1,9 +1,9 @@
-﻿namespace GLHDN.Views
-{
-    using OpenGL;
-    using System;
-    using System.Numerics;
+﻿using OpenGL;
+using System;
+using System.Numerics;
 
+namespace GLHDN.Views
+{
     /// <summary>
     /// Interface for types that provide the mechanism for <see cref="View"/> instances to interact with the user and the Open GL device context.
     /// </summary>

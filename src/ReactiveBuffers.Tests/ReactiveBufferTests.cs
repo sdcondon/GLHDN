@@ -1,15 +1,15 @@
-﻿namespace GLHDN.ReactiveBuffers
-{
-    using FluentAssertions;
-    using GLHDN.Core;
-    using OpenGL;
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Reactive.Linq;
-    using System.Reactive.Subjects;
-    using Xunit;
+﻿using FluentAssertions;
+using GLHDN.Core;
+using OpenGL;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
+using Xunit;
 
+namespace GLHDN.ReactiveBuffers
+{
     public class ReactiveBufferTests
     {
         public static IEnumerable<object[]> TestCases

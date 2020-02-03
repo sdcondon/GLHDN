@@ -1,8 +1,5 @@
 ﻿namespace GLHDN.Core
 {
-    using System;
-    using System.Collections.Generic;
-
     /// <summary>
     /// Interface for types representing an OpenGL vertex buffer object.
     /// </summary>
@@ -44,6 +41,6 @@
         /// <typeparam name="T">The type to interpret the data as.</typeparam>
         /// <param name="index">The object index to retrieve.</param>
         /// <returns>The buffer content at the requested index.</returns>
-        T Get<T>(int index);
+        T GetAs<T>(int index);
     }
 }

@@ -27,7 +27,7 @@
 
   <ItemGroup>
     <PackageReference Include="SharpFontStandard" Version="4.0.1" />
-    <PackageReference Include="SharpFontStandard.Dependencies.All" Version="1.0.0" />
+    <PackageReference Include="SharpFontStandard.Runtimes.WindowsOnly" Version="2.6.0" />
   </ItemGroup>
 
   <ItemGroup>

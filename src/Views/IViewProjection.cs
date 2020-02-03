@@ -1,7 +1,7 @@
-﻿namespace GLHDN.Views
-{
-    using System.Numerics;
+﻿using System.Numerics;
 
+namespace GLHDN.Views
+{
     /// <summary>
     /// A source of view and projection matrices. Used by some <see cref="IRenderable"/> implementations.
     /// </summary>

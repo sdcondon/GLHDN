@@ -1,12 +1,12 @@
-﻿namespace GLHDN.ReactiveBuffers
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.Specialized;
-    using System.ComponentModel;
-    using System.Reactive.Linq;
-    using System.Reactive.Subjects;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 
+namespace GLHDN.ReactiveBuffers
+{
     /// <summary>
     /// Extension methods for <see cref="INotifyCollectionChanged"/> instances.
     /// </summary>

@@ -1,8 +1,8 @@
-﻿namespace GLHDN.Views.Renderables.Gui
-{
-    using System.Collections.Generic;
-    using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Numerics;
 
+namespace GLHDN.Views.Renderables.Gui
+{
     /// <summary>
     /// 
     /// </summary>

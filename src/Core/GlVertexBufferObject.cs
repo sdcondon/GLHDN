@@ -1,9 +1,9 @@
-﻿namespace GLHDN.Core
-{
-    using OpenGL;
-    using System;
-    using System.Runtime.InteropServices;
+﻿using OpenGL;
+using System;
+using System.Runtime.InteropServices;
 
+namespace GLHDN.Core
+{
     /// <summary>
     /// A OpenGL vertex buffer object.
     /// </summary>
@@ -54,11 +54,11 @@
             ////}
             set
             {
-                    Gl.NamedBufferSubData(
-                        buffer: Id,
-                        offset: new IntPtr(index * Marshal.SizeOf(value)),
-                        size: (uint)Marshal.SizeOf(value),
-                        data: value);
+                Gl.NamedBufferSubData(
+                    buffer: Id,
+                    offset: new IntPtr(index * Marshal.SizeOf(value)),
+                    size: (uint)Marshal.SizeOf(value),
+                    data: value);
             }
         }
 
@@ -75,7 +75,7 @@
         }
 
         /// <inheritdoc />
-        public T Get<T>(int index)
+        public T GetAs<T>(int index)
         {
             var elementSize = Marshal.SizeOf(typeof(T));
             var ptr = Marshal.AllocHGlobal(elementSize);

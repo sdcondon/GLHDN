@@ -1,11 +1,11 @@
-﻿namespace GLHDN.Views.Renderables.Gui
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Numerics;
-    using System.Text;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
+using System.Text;
 
+namespace GLHDN.Views.Renderables.Gui
+{
     public class TextElement : ElementBase
     {
         private Vector4 color;

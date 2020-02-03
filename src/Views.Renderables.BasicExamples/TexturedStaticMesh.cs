@@ -1,13 +1,13 @@
-﻿namespace GLHDN.Views.Renderables.BasicExamples
-{
-    using GLHDN.Core;
-    using OpenGL;
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Numerics;
+﻿using GLHDN.Core;
+using OpenGL;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Numerics;
 
+namespace GLHDN.Views.Renderables.BasicExamples
+{
     /// <summary>
     /// Renderable class for static 3D geometry.
     /// </summary>
@@ -16,7 +16,7 @@
         private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.BasicExamples";
 
         private static readonly object ProgramStateLock = new object();
-        private static ProgramBuilder programBuilder;
+        private static GlProgramBuilder programBuilder;
         private static GlProgram program;
 
         private readonly IViewProjection viewProjection;
@@ -48,7 +48,7 @@
                 {
                     if (program == null && programBuilder == null)
                     {
-                        programBuilder = new ProgramBuilder()
+                        programBuilder = new GlProgramBuilder()
                             .WithShaderFromEmbeddedResource(ShaderType.VertexShader, $"{ShaderResourceNamePrefix}.Textured.Vertex.glsl")
                             .WithShaderFromEmbeddedResource(ShaderType.FragmentShader, $"{ShaderResourceNamePrefix}.Textured.Fragment.glsl")
                             .WithUniforms("MVP", "V", "M", "myTextureSampler", "LightPosition_worldspace", "LightColor", "LightPower", "AmbientLightColor");

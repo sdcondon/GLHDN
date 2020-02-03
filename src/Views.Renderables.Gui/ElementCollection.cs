@@ -1,14 +1,14 @@
-﻿namespace GLHDN.Views.Renderables.Gui
-{
-    using GLHDN.ReactiveBuffers;
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.ComponentModel;
-    using System.Linq;
-    using System.Reactive.Linq;
-    using System.Reactive.Subjects;
+﻿using GLHDN.ReactiveBuffers;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 
+namespace GLHDN.Views.Renderables.Gui
+{
     public class ElementCollection : ICollection<ElementBase>
     {
         private readonly IElementParent owner;

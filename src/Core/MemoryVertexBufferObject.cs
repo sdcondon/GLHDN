@@ -1,9 +1,9 @@
-﻿namespace GLHDN.Core
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Threading;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
 
+namespace GLHDN.Core
+{
     /// <summary>
     /// Implementation of <see cref="IVertexBufferObject"/> that just stores buffer content in memory, for testing purposes.
     /// </summary>
@@ -49,6 +49,6 @@
         public void Copy<T>(int readIndex, int writeIndex, int count) => Array.Copy(content, readIndex, content, writeIndex, count);
 
         /// <inheritdoc />
-        public T Get<T>(int index) => (T)Content[index];
+        public T GetAs<T>(int index) => (T)Content[index];
     }
 }

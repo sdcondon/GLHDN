@@ -1,10 +1,10 @@
-﻿namespace GLHDN.Core
-{
-    using GLHDN.Core.VaoDecorators;
-    using OpenGL;
-    using System;
-    using System.Collections.Generic;
+﻿using GLHDN.Core.VaoDecorators;
+using OpenGL;
+using System;
+using System.Collections.Generic;
 
+namespace GLHDN.Core
+{
     /// <summary>
     /// Builder class for <see cref="GlVertexArrayObject"/> objects that presents a fluent-ish interface.
     /// </summary>

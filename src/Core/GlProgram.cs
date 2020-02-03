@@ -1,13 +1,13 @@
-﻿namespace GLHDN.Core
-{
-    using OpenGL;
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Linq;
-    using System.Numerics;
-    using System.Text;
+﻿using OpenGL;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Numerics;
+using System.Text;
 
+namespace GLHDN.Core
+{
     /// <summary>
     /// Represents a compiled OpenGL program.
     /// </summary>

@@ -1,12 +1,12 @@
-﻿namespace GLHDN.Views.Renderables.Gui
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Numerics;
-    using OpenGL;
-    using SharpFont;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Numerics;
+using OpenGL;
+using SharpFont;
 
+namespace GLHDN.Views.Renderables.Gui
+{
     /// <summary>
     /// https://www.freetype.org/freetype2/docs/tutorial/step1.html and
     /// https://learnopengl.com/In-Practice/Text-Rendering

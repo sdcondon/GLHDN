@@ -1,7 +1,7 @@
-﻿namespace GLHDN.Views.Renderables.ReactivePrimitives
-{
-    using System.Numerics;
+﻿using System.Numerics;
 
+namespace GLHDN.Views.Renderables.ReactivePrimitives
+{
     /// <summary>
     /// Container struct for the attributes of a vertex of a primitive.
     /// </summary>

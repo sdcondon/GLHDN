@@ -1,9 +1,9 @@
-﻿namespace GLHDN.Views.Renderables.Gui
-{
-    using System;
-    using System.ComponentModel;
-    using System.Numerics;
+﻿using System;
+using System.ComponentModel;
+using System.Numerics;
 
+namespace GLHDN.Views.Renderables.Gui
+{
     /// <summary>
     /// Interface for types that contain GUI elements. This includes parent elements and the root GUI object.
     /// </summary>

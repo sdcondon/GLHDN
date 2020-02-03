@@ -1,15 +1,15 @@
-﻿namespace GLHDN.Views.Renderables.ReactivePrimitives
-{
-    using GLHDN.Core;
-    using GLHDN.ReactiveBuffers;
-    using GLHDN.Views;
-    using OpenGL;
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Numerics;
-    using System.Reactive.Linq;
+﻿using GLHDN.Core;
+using GLHDN.ReactiveBuffers;
+using GLHDN.Views;
+using OpenGL;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
+using System.Reactive.Linq;
 
+namespace GLHDN.Views.Renderables.ReactivePrimitives
+{
     /// <summary>
     /// Implementation of <see cref="IRenderable" /> that renders a set of primitive shapes from an observable sequence of source data.
     /// </summary>
@@ -18,7 +18,7 @@
         private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.ReactivePrimitives";
 
         private static readonly object ProgramStateLock = new object();
-        private static ProgramBuilder programBuilder;
+        private static GlProgramBuilder programBuilder;
         private static GlProgram program;
 
         private readonly IViewProjection camera;
@@ -50,7 +50,7 @@
                 {
                     if (program == null && programBuilder == null)
                     {
-                        programBuilder = new ProgramBuilder()
+                        programBuilder = new GlProgramBuilder()
                             .WithShaderFromEmbeddedResource(ShaderType.VertexShader, $"{ShaderResourceNamePrefix}.Colored.Vertex.glsl")
                             .WithShaderFromEmbeddedResource(ShaderType.FragmentShader, $"{ShaderResourceNamePrefix}.Colored.Fragment.glsl")
                             .WithUniforms("MVP", "V", "M", "AmbientLightColor", "DirectedLightDirection", "DirectedLightColor", "LightPosition_worldspace", "LightColor", "LightPower");

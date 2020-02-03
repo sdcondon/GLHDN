@@ -1,8 +1,8 @@
-﻿namespace GLHDN.Views.Renderables.Gui
-{
-    using System;
-    using System.Text;
+﻿using System;
+using System.Text;
 
+namespace GLHDN.Views.Renderables.Gui
+{
     public sealed class TextStreamElement : ContainerElementBase
     {
         private readonly TextElement textElement;

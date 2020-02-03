@@ -1,18 +1,18 @@
-﻿namespace GLHDN.Examples.WinForms
-{
-    using GLHDN.Views;
-    using GLHDN.Views.Contexts.WinForms;
-    using GLHDN.Views.Renderables.BasicExamples;
-    using GLHDN.Views.Renderables.Gui;
-    using GLHDN.Views.Renderables.ReactivePrimitives;
-    using OpenGL;
-    using System;
-    using System.Collections.Generic;
-    using System.Numerics;
-    using System.Reactive.Linq;
-    using System.Reactive.Subjects;
-    using System.Text;
+﻿using GLHDN.Views;
+using GLHDN.Views.Contexts.WinForms;
+using GLHDN.Views.Renderables.BasicExamples;
+using GLHDN.Views.Renderables.Gui;
+using GLHDN.Views.Renderables.ReactivePrimitives;
+using OpenGL;
+using System;
+using System.Collections.Generic;
+using System.Numerics;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
+using System.Text;
 
+namespace GLHDN.Examples.WinForms
+{
     /// <summary>
     /// The main entry point for the application.
     /// </summary>
@@ -38,7 +38,7 @@
             var view = new View(form.ViewContext, false, Color.Black());
 
             // Views have a Renderable property. Renderables can be composed of other renderables -
-            // there's a handy CompositeRenderable base class to make this easy - see the two examples
+            // there's even a handy CompositeRenderable base class to make this easy - see the two examples
             // below, and note that MenuRenderable (which consists of a single Gui renderable and has
             // no overrides) is only a class of its own to make disposal on button press easy.
             view.Renderable = new MenuRenderable(view);

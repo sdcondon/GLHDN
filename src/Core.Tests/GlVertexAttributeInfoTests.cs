@@ -1,12 +1,12 @@
-﻿namespace GLHDN.Core
-{
-    using FluentAssertions;
-    using OpenGL;
-    using System;
-    using System.Collections.Generic;
-    using System.Numerics;
-    using Xunit;
+﻿using FluentAssertions;
+using OpenGL;
+using System;
+using System.Collections.Generic;
+using System.Numerics;
+using Xunit;
 
+namespace GLHDN.Core
+{
     public class GlVertexAttributeInfoTests
     {
         public static IEnumerable<object[]> ForType_ValidInput_TestCases

@@ -1,8 +1,7 @@
-﻿namespace GLHDN.Core
-{
-    using System;
-    using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
+namespace GLHDN.Core
+{
     /// <summary>
     /// Interface for types representing an OpenGL vertex array object.
     /// </summary>

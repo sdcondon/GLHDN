@@ -1,8 +1,8 @@
-﻿namespace GLHDN.Views
-{
-    using System;
-    using System.Numerics;
+﻿using System;
+using System.Numerics;
 
+namespace GLHDN.Views
+{
     /// <summary>
     /// An <see cref="ICamera"/> implementation that uses an "FPS"-style control scheme.
     /// </summary>

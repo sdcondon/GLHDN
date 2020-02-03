@@ -1,11 +1,11 @@
-﻿namespace GLHDN.Views
-{
-    using OpenGL;
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Numerics;
+﻿using OpenGL;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Numerics;
 
+namespace GLHDN.Views
+{
     /// <summary>
     /// Encapsulates an interactive view rendered with OpenGl.
     /// </summary>

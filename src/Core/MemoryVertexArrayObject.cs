@@ -1,10 +1,10 @@
-﻿namespace GLHDN.Core
-{
-    using OpenGL;
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
+﻿using OpenGL;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
+namespace GLHDN.Core
+{
     /// <summary>
     /// Implementation of <see cref="IVertexArrayObject"/> that just stores buffer content in memory, for testing purposes.
     /// </summary>

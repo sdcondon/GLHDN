@@ -1,11 +1,11 @@
-﻿namespace GLHDN.Core
-{
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.IO;
-    using System.Linq;
-    using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Numerics;
 
+namespace GLHDN.Core
+{
     /// <summary>
     /// Very, VERY simple OBJ loader (nabbed from an OpenGL tutorial)
     /// Here is a short list of features a real function would provide :

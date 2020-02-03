@@ -1,16 +1,16 @@
-﻿namespace GLHDN.Views.Renderables.Gui
-{
-    using GLHDN.Core;
-    using GLHDN.Core.VaoDecorators;
-    using GLHDN.ReactiveBuffers;
-    using OpenGL;
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel;
-    using System.Numerics;
-    using System.Reactive.Linq;
-    using System.Reactive.Subjects;
+﻿using GLHDN.Core;
+using GLHDN.Core.VaoDecorators;
+using GLHDN.ReactiveBuffers;
+using OpenGL;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Numerics;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 
+namespace GLHDN.Views.Renderables.Gui
+{
     /// <summary>
     /// Renderable container for a set of graphical user interface elements.
     /// </summary>
@@ -19,7 +19,7 @@
         private const string ShaderResourceNamePrefix = "GLHDN.Views.Renderables.Gui.Shaders";
 
         private static readonly object programStateLock = new object();
-        private static ProgramBuilder programBuilder;
+        private static GlProgramBuilder programBuilder;
         private static GlProgram program;
 
         private readonly View view;
@@ -45,7 +45,7 @@
                 {
                     if (program == null && programBuilder == null)
                     {
-                        programBuilder = new ProgramBuilder()
+                        programBuilder = new GlProgramBuilder()
                             .WithShaderFromEmbeddedResource(ShaderType.VertexShader, $"{ShaderResourceNamePrefix}.Gui.Vertex.glsl")
                             .WithShaderFromEmbeddedResource(ShaderType.FragmentShader, $"{ShaderResourceNamePrefix}.Gui.Fragment.glsl")
                             .WithUniforms("P", "text");

@@ -1,9 +1,9 @@
-﻿namespace GLHDN.Views.Renderables.ReactivePrimitives
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Numerics;
+﻿using System;
+using System.Collections.Generic;
+using System.Numerics;
 
+namespace GLHDN.Views.Renderables.ReactivePrimitives
+{
     /// <summary>
     /// Container for primitive vertex data.
     /// </summary>

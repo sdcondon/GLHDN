@@ -1,14 +1,14 @@
-﻿namespace GLHDN.Core
-{
-    using OpenGL;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Reflection;
+﻿using OpenGL;
+using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 
+namespace GLHDN.Core
+{
     /// <summary>
     /// Builder class for <see cref="GlProgram"/> objects that presents a fluent-ish interface.
     /// </summary>
-    public sealed class ProgramBuilder
+    public sealed class GlProgramBuilder
     {
         private readonly List<(ShaderType Type, string Source)> shaderSpecs = new List<(ShaderType, string)>();
         private string[] uniformNames;
@@ -19,7 +19,7 @@
         /// <param name="shaderType">The type of shader to be added.</param>
         /// <param name="sourceStream">The stream containing the source of the shader (in UTF-8).</param>
         /// <returns>The updated builder.</returns>
-        public ProgramBuilder WithShaderFromStream(ShaderType shaderType, Stream sourceStream)
+        public GlProgramBuilder WithShaderFromStream(ShaderType shaderType, Stream sourceStream)
         {
             using var reader = new StreamReader(sourceStream);
             shaderSpecs.Add((shaderType, reader.ReadToEnd()));
@@ -33,7 +33,7 @@
         /// <param name="shaderType">The type of shader to be added.</param>
         /// <param name="filePath">The path of the file containing the source of the shader (in UTF-8).</param>
         /// <returns>The updated builder.</returns>
-        public ProgramBuilder WithShaderFromFile(ShaderType shaderType, string filePath)
+        public GlProgramBuilder WithShaderFromFile(ShaderType shaderType, string filePath)
         {
             using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
             return WithShaderFromStream(shaderType, stream);
@@ -45,7 +45,7 @@
         /// <param name="shaderType">The type of shader to be added.</param>
         /// <param name="resourceName">The name of the resource containing the source of the shader (in UTF-8).</param>
         /// <returns>The updated builder.</returns>
-        public ProgramBuilder WithShaderFromEmbeddedResource(ShaderType shaderType, string resourceName)
+        public GlProgramBuilder WithShaderFromEmbeddedResource(ShaderType shaderType, string resourceName)
         {
             using var stream = Assembly.GetCallingAssembly().GetManifestResourceStream(resourceName);
             return WithShaderFromStream(shaderType, stream);
@@ -59,7 +59,7 @@
         /// <remarks>
         /// TODO: Better to use a generic type approach for compile-time safety.
         /// </remarks>
-        public ProgramBuilder WithUniforms(params string[] uniformNames)
+        public GlProgramBuilder WithUniforms(params string[] uniformNames)
         {
             this.uniformNames = uniformNames;
             return this;

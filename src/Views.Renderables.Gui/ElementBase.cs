@@ -1,10 +1,10 @@
-﻿namespace GLHDN.Views.Renderables.Gui
-{
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel;
-    using System.Numerics;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Numerics;
 
+namespace GLHDN.Views.Renderables.Gui
+{
     /// <summary>
     /// Base class for GUI elements. Provides for a nested element hierarchy, with elements being placed relative to their parents.
     /// </summary>
