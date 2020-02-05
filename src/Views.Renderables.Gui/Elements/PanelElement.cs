@@ -52,7 +52,5 @@ namespace GLHDN.Views.Renderables.Gui
             new Vertex(PosBL, Color, PosBL, Size, BorderWidth),
             new Vertex(PosBR, Color, PosBL, Size, BorderWidth)
         };
-
-        //// TODO: at some point, handlers here: onclick, onmouseover, onmouseout etc
     }
 }

@@ -45,7 +45,7 @@ namespace GLHDN.Core
         /// </summary>
         /// <typeparam name="T">The type of data to be stored in the buffer.</typeparam>
         /// <param name="bufferUsage">The usage type for the buffer.</param>
-        /// <param name="size">The size of the buffer, in bytes.</param>
+        /// <param name="size">The size of the buffer, in instances of <see typeparamref="T"/>.</param>
         /// <returns>The updated builder.</returns>
         public VertexArrayObjectBuilder WithAttributeBuffer<T>(BufferUsage bufferUsage, int size)
         {
@@ -76,7 +76,9 @@ namespace GLHDN.Core
         }
 
         /// <summary>
-        /// Specifies that the built VAO should be synchronized, with any pending changes flushed on each draw call. TODO: Hacky and needlessly bad for performance - look into streaming..
+        /// Specifies that the built VAO should be explicitly synchronized, with any pending changes flushed on each draw call.
+        /// <para/>
+        /// Specifically, means that the created VAO will be a <see cref="SynchronizedVao"/> instance.
         /// </summary>
         /// <returns>The updated builder.</returns>
         public VertexArrayObjectBuilder Synchronized()

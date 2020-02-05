@@ -1,14 +1,17 @@
-﻿using System;
+﻿using OpenGL;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace GLHDN.Core.VaoDecorators
 {
     /// <summary>
-    /// Decorator for <see cref="IVertexArrayObject"/> that synchronizes updates - flushing all pending changes when <see cref="Draw"/> is called.
+    /// Decorator for <see cref="IVertexArrayObject"/> that explicitly synchronizes with OpenGL (making it simple but slow..).
+    /// <para/>
+    /// See https://www.khronos.org/opengl/wiki/Synchronization#Implicit_synchronization for some info.
     /// </summary>
     /// <remarks>
-    /// TODO: this is a hacky, slow way to co-ordinate. Look into streaming.
+    /// TODO: Look into some alternative decorators that do e.g. streaming - https://www.khronos.org/opengl/wiki/Buffer_Object_Streaming.
     /// </remarks>
     public sealed class SynchronizedVao : IVertexArrayObject, IDisposable
     {
@@ -19,7 +22,7 @@ namespace GLHDN.Core.VaoDecorators
         /// <summary>
         /// Initializes a new instance of the <see cref="SynchronizedVao"/> class.
         /// </summary>
-        /// <param name="vertexArrayObject">The VAO to apply synchromization to.</param>
+        /// <param name="vertexArrayObject">The VAO to apply synchronization to.</param>
         public SynchronizedVao(IVertexArrayObject vertexArrayObject)
         {
             this.vertexArrayObject = vertexArrayObject;
@@ -51,10 +54,12 @@ namespace GLHDN.Core.VaoDecorators
         /// <inheritdoc />
         public void Draw(int count)
         {
-            indexBuffer.Flush();
+            Gl.Finish();
+
+            indexBuffer.FlushChanges();
             for (int i = 0; i < attributeBuffers.Length; i++)
             {
-                attributeBuffers[i].Flush();
+                attributeBuffers[i].FlushChanges();
             }
 
             vertexArrayObject.Draw(count);
@@ -89,7 +94,7 @@ namespace GLHDN.Core.VaoDecorators
             /// <summary>
             /// Flush any changes to the underlying buffer.
             /// </summary>
-            public void Flush()
+            public void FlushChanges()
             {
                 // Only process the actions in the queue at the outset in case they are being continually added.
                 for (int i = actions.Count; i > 0; i--)
@@ -99,10 +104,7 @@ namespace GLHDN.Core.VaoDecorators
                 }
             }
 
-            public T GetAs<T>(int index)
-            {
-                return vertexBufferObject.GetAs<T>(index);
-            }
+            public T GetAs<T>(int index) => vertexBufferObject.GetAs<T>(index);
         }
     }
 }
