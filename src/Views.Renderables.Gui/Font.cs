@@ -26,7 +26,7 @@ namespace GLHDN.Views.Renderables.Gui
         /// </summary>
         /// <param name="filePath"></param>
         /// <param name="pixelSize"></param>
-        public Font(string filePath, uint pixelSize = 16)
+        public Font(string filePath, uint pixelSize = 32)
         {
             this.face = new Face(sharpFont, filePath);
             this.face.SetPixelSizes(0, pixelSize);
@@ -108,6 +108,10 @@ namespace GLHDN.Views.Renderables.Gui
             Gl.TexParameter(TextureTarget.Texture2dArray, TextureParameterName.TextureWrapT, Gl.CLAMP_TO_EDGE);
             Gl.TexParameter(TextureTarget.Texture2dArray, TextureParameterName.TextureMinFilter, Gl.LINEAR);
             Gl.TexParameter(TextureTarget.Texture2dArray, TextureParameterName.TextureMagFilter, Gl.LINEAR);
+
+            Gl.GenerateMipmap(TextureTarget.Texture2dArray);
+            Gl.TexParameter(TextureTarget.Texture2dArray, TextureParameterName.TextureMinFilter, Gl.LINEAR_MIPMAP_LINEAR);
+            Gl.TexParameter(TextureTarget.Texture2dArray, TextureParameterName.TextureMagFilter, Gl.LINEAR_MIPMAP_LINEAR);
 
             // Eagerly load all glyphs
             for (uint i = 0; i < face.GlyphCount; i++)

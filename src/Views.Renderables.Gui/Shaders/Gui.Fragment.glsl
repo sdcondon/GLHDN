@@ -28,8 +28,13 @@ void main() {
 		}
 	}
 	else {
-		vec4 sampled = vec4(1.0, 1.0, 1.0, texelFetch(text, ivec3(velementPos.x, velementSize.y - velementPos.y, elementLayer), 0).a);
-		//vec4 sampled = vec4(1.0, 1.0, 1.0, texture(text, vec3(velementPos.x, velementSize.y - velementPos.y, elementLayer)).a);
-		color = matColor * sampled;
+		ivec3 texCoord = ivec3(velementPos.x, velementSize.y - velementPos.y, elementLayer);
+		vec4 texel = texelFetch(text, texCoord, 0);
+
+		//vec3 texCoord = vec3(velementPos.x / velementSize.x, (velementSize.y - velementPos.y) / velementSize.y, int(elementLayer));
+		//vec4 texel = texture(text, texCoord);
+
+		color = matColor * vec4(1.0, 1.0, 1.0, texel.a);
+		color.a = max(color.a, 0.3);
 	}
 }
