@@ -8,16 +8,16 @@ namespace GLHDN.Views.Renderables.Gui
     public sealed class Button : ContainerElementBase
     {
         private readonly Action<Vector2> clickHandler;
-        private readonly PanelElement panel;
+        private readonly Panel panel;
 
         public Button(Layout layout, Color color, Color textColor, string text, Action<Vector2> clickHandler)
             : base(layout)
         {
-            this.SubElements.Add(this.panel = new PanelElement(Layout.Fill, color, 0)
+            this.SubElements.Add(this.panel = new Panel(Layout.Fill, color)
             {
                 SubElements =
                 {
-                    new TextElement(Layout.Fill, textColor, text)
+                    new Text(Layout.Fill, textColor, text)
                     {
                         HorizontalAlignment = 0.5f,
                         VerticalAlignment = 0.5f

@@ -6,19 +6,19 @@ using System.Text;
 
 namespace GLHDN.Views.Renderables.Gui
 {
-    public class TextElement : ElementBase
+    public class Text : ElementBase
     {
         private Vector4 color;
         private string content;
         private float horizontalAlignment;
         private float verticalAlignment;
 
-        public TextElement(Layout layout, Vector4 color, string content = "")
+        public Text(Layout layout, Vector4 color, string content = "")
             : base(layout)
         {
             if (Font == null)
             {
-                throw new InvalidOperationException($"{nameof(Font)} property must be set prior to creating any {nameof(TextElement)} instances");
+                throw new InvalidOperationException($"{nameof(Font)} property must be set prior to creating any {nameof(Text)} instances");
             }
 
             this.color = color;
@@ -89,7 +89,7 @@ namespace GLHDN.Views.Renderables.Gui
                 var lineHeight = Font.LineHeight / 64;
                 var lines = GetLines(scale);
                 var lineBottomLeft = this.PosTL - Vector2.UnitY * ((this.Size.Y - (lineHeight * lines.Count())) * verticalAlignment);
-                lineBottomLeft.Y = (float)Math.Round(lineBottomLeft.Y); // bc we use texelfetch - needs to be on pixel boundaries
+                lineBottomLeft.Y = (float)Math.Round(lineBottomLeft.Y); // Align to pixels looks better?
                 foreach (var line in lines)
                 {
                     lineBottomLeft.Y -= lineHeight;
@@ -98,16 +98,15 @@ namespace GLHDN.Views.Renderables.Gui
                     {
                         var lineSize = line[line.Count - 1].position - line[0].position;
                         lineBottomLeft.X = this.PosTL.X + ((this.Size.X - lineSize.X) * horizontalAlignment);
-                        lineBottomLeft.X = (float)Math.Round(lineBottomLeft.X); // bc we use texelfetch - needs to be on pixel boundaries
+                        lineBottomLeft.X = (float)Math.Round(lineBottomLeft.X); // align to pixels looks better?
 
                         foreach (var v in line)
                         {
                             vertices.Add(new Vertex(
-                                v.position + lineBottomLeft,
+                                lineBottomLeft + v.position,
                                 v.color,
-                                v.position + lineBottomLeft - v.elementPosition,
-                                v.elementSize,
-                                v.borderWidth));
+                                (int)v.texZ,
+                                v.texXY));
                         }
                     }
                 }
@@ -154,6 +153,8 @@ namespace GLHDN.Views.Renderables.Gui
             var glyphInfo = Font[c];
 
             var charSize = new Vector2(glyphInfo.Size.X * scale, glyphInfo.Size.Y * scale);
+            var relativeCharSize = new Vector2(charSize.X / Font.Max.Width, charSize.Y / Font.Max.Height);
+
             var charPosBL = new Vector2(position.X + glyphInfo.Bearing.X * scale, position.Y + (glyphInfo.Bearing.Y - glyphInfo.Size.Y) * scale);
             var charPosBR = charPosBL + Vector2.UnitX * charSize.X;
             var charPosTL = charPosBL + Vector2.UnitY * charSize.Y;
@@ -161,10 +162,15 @@ namespace GLHDN.Views.Renderables.Gui
 
             vertices.AddRange(new[]
             {
-                new Vertex(charPosTL, Color, charPosBL, charSize, (int)glyphInfo.ZOffset),
-                new Vertex(charPosTR, Color, charPosBL, charSize, (int)glyphInfo.ZOffset),
-                new Vertex(charPosBL, Color, charPosBL, charSize, (int)glyphInfo.ZOffset),
-                new Vertex(charPosBR, Color, charPosBL, charSize, (int)glyphInfo.ZOffset)
+                new Vertex(charPosTL, Color, (int)glyphInfo.ZOffset, Vector2.Zero),
+                new Vertex(charPosTR, Color, (int)glyphInfo.ZOffset, relativeCharSize.X * Vector2.UnitX),
+                new Vertex(charPosBL, Color, (int)glyphInfo.ZOffset, relativeCharSize.Y * Vector2.UnitY),
+                new Vertex(charPosBR, Color, (int)glyphInfo.ZOffset, relativeCharSize)
+
+                //new Vertex(charPosTL, Color, (int)glyphInfo.ZOffset, relativeCharSize.Y * Vector2.UnitY),
+                //new Vertex(charPosTR, Color, (int)glyphInfo.ZOffset, relativeCharSize),
+                //new Vertex(charPosBL, Color, (int)glyphInfo.ZOffset, Vector2.Zero),
+                //new Vertex(charPosBR, Color, (int)glyphInfo.ZOffset, relativeCharSize.X * Vector2.UnitX)
             });
         }
     }

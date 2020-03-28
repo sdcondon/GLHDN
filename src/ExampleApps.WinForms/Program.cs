@@ -32,7 +32,7 @@ namespace GLHDN.Examples.WinForms
 
             // Obviously not ideal to have to set font globally - need to sort this out, probably via some nice
             // texture management stuff in the core lib.
-            TextElement.Font = new Font(@"Assets\Fonts\Inconsolata\Inconsolata-Regular.ttf");
+            Text.Font = new Font(@"Assets\Fonts\Inconsolata\Inconsolata-Regular.ttf");
 
             // A View encapsulates an interactive OpenGl rendered viewport
             var view = new View(form.ViewContext, false, Color.Black());
@@ -82,7 +82,7 @@ namespace GLHDN.Examples.WinForms
                             textColor: Color.White(),
                             text: "QUIT",
                             v => view.Exit()),
-                        new TextElement(
+                        new Text(
                             layout: new Layout((0f, -1f), (0f, -1f), (1f, 100)),
                             color: Color.Grey(0.7f),
                             content: systemInfo.ToString())
@@ -100,8 +100,8 @@ namespace GLHDN.Examples.WinForms
             private readonly ICamera camera;
 
             private readonly ColoredLines lines;
-            private readonly TextElement camTextElement;
-            private readonly TextStreamElement logElement;
+            private readonly Text camTextElement;
+            private readonly TextStream logElement;
 
             private readonly Subject<IList<Primitive>> cubeSubject = new Subject<IList<Primitive>>();
             private readonly Primitive[] cubePrimitives = new Primitive[1] { Primitive.Empty() };
@@ -181,11 +181,11 @@ namespace GLHDN.Examples.WinForms
                     AmbientLightColor = Color.Grey(),
                 });
 
-                camTextElement = new TextElement(
+                camTextElement = new Text(
                     new Layout((-1f, 1f), (-1f, 1f), (1f, 0f)),
                     color: Color.White());
 
-                logElement = new TextStreamElement(
+                logElement = new TextStream(
                     new Layout((-1f, 1f), (-1f, 1f), (1f, 0f), new Vector2(0, -100)),
                     textColor: Color.White(),
                     10);
@@ -194,10 +194,9 @@ namespace GLHDN.Examples.WinForms
                 {
                     SubElements =
                     {
-                        new PanelElement(
+                        new Panel(
                             layout: new Layout((-1f, 0f), (-1f, 0f), (250, 1f)),
-                            color: Color.White(0.05f),
-                            borderWidth: 0f)
+                            color: Color.White(0.05f))
                         {
                             SubElements =
                             {

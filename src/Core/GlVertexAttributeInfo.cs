@@ -21,6 +21,7 @@ namespace GLHDN.Core
             { typeof(Vector2), (VertexAttribType.Float, 2) },
             { typeof(float), (VertexAttribType.Float, 1) },
             { typeof(uint), (VertexAttribType.UnsignedInt, 1) },
+            { typeof(int), (VertexAttribType.Int, 1) },
         };
 
         /// <summary>

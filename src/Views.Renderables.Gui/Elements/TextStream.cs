@@ -3,17 +3,17 @@ using System.Text;
 
 namespace GLHDN.Views.Renderables.Gui
 {
-    public sealed class TextStreamElement : ContainerElementBase
+    public sealed class TextStream : ContainerElementBase
     {
-        private readonly TextElement textElement;
+        private readonly Text textElement;
         private readonly string[] lines;
 
         private int lastIndex = -1;
 
-        public TextStreamElement(Layout layout, Color textColor, int lineCount)
+        public TextStream(Layout layout, Color textColor, int lineCount)
             : base(layout)
         {
-            this.SubElements.Add(this.textElement = new TextElement(Layout.Fill, textColor));
+            this.SubElements.Add(this.textElement = new Text(Layout.Fill, textColor));
             this.lines = new string[lineCount];
         }
 

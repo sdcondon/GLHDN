@@ -16,7 +16,6 @@ namespace GLHDN.Views.Renderables.Gui
         private static readonly Library sharpFont = new Library();
 
         private readonly Face face;
-        private readonly (int Width, int Height) max;
         private readonly Dictionary<char, uint> glyphIndicesByChar = new Dictionary<char, uint>();
         private readonly object glyphsLock = new object();
         private GlyphInfo[] glyphs;
@@ -26,7 +25,7 @@ namespace GLHDN.Views.Renderables.Gui
         /// </summary>
         /// <param name="filePath"></param>
         /// <param name="pixelSize"></param>
-        public Font(string filePath, uint pixelSize = 32)
+        public Font(string filePath, uint pixelSize = 16)
         {
             this.face = new Face(sharpFont, filePath);
             this.face.SetPixelSizes(0, pixelSize);
@@ -37,8 +36,7 @@ namespace GLHDN.Views.Renderables.Gui
             for (uint i = 0; i < face.GlyphCount; i++)
             {
                 face.LoadGlyph(i, LoadFlags.Default, LoadTarget.Normal);
-                max.Width = Math.Max(max.Width, face.Glyph.Metrics.Width.ToInt32());
-                max.Height = Math.Max(max.Height, face.Glyph.Metrics.Height.ToInt32());
+                Max = (Math.Max(Max.Width, face.Glyph.Metrics.Width.ToInt32()), Math.Max(Max.Height, face.Glyph.Metrics.Height.ToInt32()));
             }
         }
 
@@ -48,6 +46,8 @@ namespace GLHDN.Views.Renderables.Gui
         public uint TextureId { get; private set; }
 
         public short LineHeight => face.Height;
+
+        public (int Width, int Height) Max { get; }
 
         public GlyphInfo this[char c]
         {
@@ -101,17 +101,13 @@ namespace GLHDN.Views.Renderables.Gui
                 target: TextureTarget.Texture2dArray,
                 levels: 1,
                 internalformat: InternalFormat.Alpha8,
-                width: max.Width,
-                height: max.Height,
+                width: Max.Width,
+                height: Max.Height,
                 depth: face.GlyphCount);
             Gl.TexParameter(TextureTarget.Texture2dArray, TextureParameterName.TextureWrapS, Gl.CLAMP_TO_EDGE);
             Gl.TexParameter(TextureTarget.Texture2dArray, TextureParameterName.TextureWrapT, Gl.CLAMP_TO_EDGE);
             Gl.TexParameter(TextureTarget.Texture2dArray, TextureParameterName.TextureMinFilter, Gl.LINEAR);
             Gl.TexParameter(TextureTarget.Texture2dArray, TextureParameterName.TextureMagFilter, Gl.LINEAR);
-
-            Gl.GenerateMipmap(TextureTarget.Texture2dArray);
-            Gl.TexParameter(TextureTarget.Texture2dArray, TextureParameterName.TextureMinFilter, Gl.LINEAR_MIPMAP_LINEAR);
-            Gl.TexParameter(TextureTarget.Texture2dArray, TextureParameterName.TextureMagFilter, Gl.LINEAR_MIPMAP_LINEAR);
 
             // Eagerly load all glyphs
             for (uint i = 0; i < face.GlyphCount; i++)

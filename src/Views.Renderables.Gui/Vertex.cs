@@ -9,26 +9,23 @@ namespace GLHDN.Views.Renderables.Gui
     {
         public readonly Vector2 position;
         public readonly Vector4 color;
-        public readonly Vector2 elementPosition;
-        public readonly Vector2 elementSize;
-        public readonly float borderWidth; // TODO: could be done with two quads instead? different levels of abstraction..
+        public readonly float texZ;
+        public readonly Vector2 texXY;
 
-        public Vertex(Vector2 position, Vector4 color, Vector2 elementOrigin, Vector2 elementSize, float borderWidth)
+        public Vertex(Vector2 position, Vector4 color)
         {
             this.position = position;
             this.color = color;
-            this.elementPosition = position - elementOrigin;
-            this.elementSize = elementSize;
-            this.borderWidth = borderWidth;
+            this.texZ = -1;
+            this.texXY = Vector2.Zero;
         }
 
-        public Vertex(Vector2 position, Vector4 color, Vector2 elementOrigin, Vector2 elementSize, int texZ)
+        public Vertex(Vector2 position, Vector4 color, int texZ, Vector2 texXY)
         {
             this.position = position;
             this.color = color;
-            this.elementPosition = position - elementOrigin;
-            this.elementSize = elementSize;
-            this.borderWidth = -texZ;
+            this.texZ = texZ;
+            this.texXY = texXY;
         }
     }
 }
