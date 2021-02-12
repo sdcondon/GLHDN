@@ -1,5 +1,7 @@
 # Open GL Helpers for .NET
 
+**NB: Archived in favour of [https://github.com/sdcondon/MyOTKE](MyOTKE).**
+
 Hobbyist mucking about with [OpenGL.Net](https://github.com/luca-piccioni/OpenGL.Net).
 
 * **Core:** A few low-level classes that wrap around the static API classes presented by OpenGL.Net (OpenGL.Net - the source at least - does include some higher-level classes, but they aren't really to my taste)
